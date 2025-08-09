@@ -5,9 +5,17 @@
 @source '../../storage/framework/views/*.php';
 
 /* Initialize Flowbite */
-@import "flowbite/src/themes/default";
+@import 'flowbite/src/themes/default';
 @plugin "flowbite/plugin";
 @source "../../node_modules/flowbite";
+
+/* Intialize Swiper */
+@import 'swiper/css/bundle';
+/* Remove Arrow Icon */
+.swiper-button-next::after,
+.swiper-button-prev::after {
+    content: '';
+}
 
 @custom-variant dark (&:is(.dark *));
 
