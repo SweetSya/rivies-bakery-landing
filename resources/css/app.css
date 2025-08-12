@@ -1,6 +1,9 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+/* Animate.css */
+@import 'animate.css';
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
@@ -20,42 +23,41 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    /* Primary color scale (#fe0000) */
-    --color-primary-50: #fff2f2;
-    --color-primary-100: #ffe6e6;
-    --color-primary-200: #ffbfbf;
-    --color-primary-300: #ff9999;
-    --color-primary-400: #fe7373;
-    --color-primary-500: #fe0000; /* base */
-    --color-primary-600: #b20000;
-    --color-primary-700: #8c0000;
-    --color-primary-800: #660000;
-    --color-primary-900: #400000;
+    /* Primary color scale (#ddbb7c) */
+    --color-primary-50: #faf7f1;
+    --color-primary-100: #f5eedf;
+    --color-primary-200: #ebdbb9;
+    --color-primary-300: #e1c993;
+    --color-primary-400: #d7b76d;
+    --color-primary-500: #ddbb7c; /* base */
+    --color-primary-600: #c4a464;
+    --color-primary-700: #9c824e;
+    --color-primary-800: #756038;
+    --color-primary-900: #4d3e22;
 
-    /* Secondary color scale (#fca004) */
-    --color-secondary-50: #fff8f0;
-    --color-secondary-100: #fff0e0;
-    --color-secondary-200: #ffd9b3;
-    --color-secondary-300: #ffc285;
-    --color-secondary-400: #ffab57;
-    --color-secondary-500: #fca004; /* base */
-    --color-secondary-600: #b36f03;
-    --color-secondary-700: #8a5602;
-    --color-secondary-800: #613d02;
-    --color-secondary-900: #392301;
+    /* Secondary color scale (#151517) */
+    --color-secondary-50: #e7e7e8;
+    --color-secondary-100: #c3c3c4;
+    --color-secondary-200: #9f9fa1;
+    --color-secondary-300: #7b7b7d;
+    --color-secondary-400: #575759;
+    --color-secondary-500: #151517; /* base */
+    --color-secondary-600: #111113;
+    --color-secondary-700: #0d0d0f;
+    --color-secondary-800: #09090a;
+    --color-secondary-900: #050505;
 
-    /* Base scale (from Tailwind gray) */
-    --color-base-50: #f9fafb;
-    --color-base-100: #f3f4f6;
-    --color-base-200: #e5e7eb;
-    --color-base-300: #d1d5db;
-    --color-base-400: #9ca3af;
-    --color-base-500: #6b7280;
-    --color-base-600: #4b5563;
-    --color-base-700: #374151;
-    --color-base-800: #1f2937;
-    --color-base-800: #111827;
-    --color-base-950: #030712;
+    /* Base color scale (#000000) */
+    --color-base-50: #ffffff;
+    --color-base-100: #f5f5f5;
+    --color-base-200: #e5e5e5;
+    --color-base-300: #d4d4d4;
+    --color-base-400: #a3a3a3;
+    --color-base-500: #737373;
+    --color-base-600: #525252;
+    --color-base-700: #404040;
+    --color-base-800: #262626;
+    --color-base-900: #000000; /* base */
 
     /* Semantic aliases */
     --color-brand: var(--color-primary-500);
@@ -179,17 +181,17 @@
 }
 
 .dark {
-    --background: var(--color-base-800);
+    --background: var(--color-base-900);
     --foreground: var(--color-base-100);
-    --card: var(--color-base-800);
+    --card: var(--color-base-900);
     --card-foreground: var(--color-base-100);
-    --popover: var(--color-base-800);
+    --popover: var(--color-base-900);
     --popover-foreground: var(--color-base-100);
     --primary: var(--color-primary-500);
     --primary-foreground: var(--color-primary-50);
-    --secondary: var(--color-base-800);
+    --secondary: var(--color-base-900);
     --secondary-foreground: var(--color-base-100);
-    --muted: var(--color-base-800);
+    --muted: var(--color-base-900);
     --muted-foreground: var(--color-base-400);
     --accent: var(--color-secondary-800);
     --accent-foreground: var(--color-secondary-100);
@@ -216,7 +218,7 @@
 
 @layer base {
     * {
-        @apply border-border outline-ring/50 duration-150 font-sans;
+        @apply border-border font-sans outline-ring/50 duration-150;
     }
     body {
         @apply bg-background text-foreground;

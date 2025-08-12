@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { useAppearance } from '@/composables/useAppearance';
 import { Link } from '@inertiajs/vue3';
-import { ChevronDown, DoorOpen, Menu, Moon, Sun, X } from 'lucide-vue-next';
+import { DoorOpen, Menu, Moon, Sun, X } from 'lucide-vue-next';
+import SimpleParallax from 'simple-parallax-js/vanilla';
+import { onMounted, ref } from 'vue';
 
 const { updateAppearance, appearance } = useAppearance();
 
@@ -9,17 +11,26 @@ const toggleAppereance = () => {
     const newAppearance = appearance.value === 'dark' ? 'light' : 'dark';
     updateAppearance(newAppearance);
 };
+const parallaxElement = ref<Element | null>(null);
+onMounted(() => {
+    parallaxElement.value = document.querySelector('.page-background img');
+    if (parallaxElement.value) {
+        new SimpleParallax(parallaxElement.value, {
+            delay: 0.5,
+            transition: 'cubic-bezier(0,0,0,1)',
+            scale: 1.4,
+            overflow: true,
+        });
+    }
+});
 </script>
 
 <template>
-    <nav class="border-gray-200 bg-gradient-to-r from-primary-500 to-secondary-400 dark:border-gray-700 dark:bg-gray-800">
+    <nav class="border-gray-200 bg-gradient-to-r from-primary-400 to-primary-600 dark:border-gray-700 dark:bg-gray-800">
         <div class="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between px-4 py-1">
             <div class="relative -top-8 z-50">
-                <Link
-                    href="https://flowbite.com"
-                    class="absolute top-0 flex h-36 w-36 items-center justify-center rounded-b-2xl bg-background shadow dark:bg-background"
-                >
-                    <img src="/placeholder-assets/logo.png" class="h-24 w-24" alt="Flowbite Logo" />
+                <Link href="/" class="absolute top-0 flex h-36 w-36 items-center justify-center">
+                    <img src="/storage/images/logo.png" class="h-24 w-24 rounded-full border-4 border-primary-500" alt="Logo" />
                 </Link>
             </div>
             <div class="flex items-center gap-3">
@@ -27,7 +38,7 @@ const toggleAppereance = () => {
                     <label class="inline-flex cursor-pointer items-center">
                         <input @change="toggleAppereance" type="checkbox" :checked="appearance === 'light' ? false : true" class="peer sr-only" />
                         <div
-                            class="peer relative h-6 w-11 rounded-full bg-base-50 peer-focus:outline-none after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-secondary-400 after:transition-all after:content-[''] peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full"
+                            class="peer relative h-6 w-11 rounded-full bg-base-50 peer-focus:outline-none after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-base-900 after:transition-all after:content-[''] peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full"
                         >
                             <Moon
                                 fill="currentColor"
@@ -42,7 +53,7 @@ const toggleAppereance = () => {
                     href="#"
                     class="inline-flex items-center rounded-lg border border-border bg-background px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-muted focus:ring-4 focus:ring-ring/20 focus:outline-none"
                 >
-                    Sistem <DoorOpen class="ms-2 h-4 w-4" />
+                    Rivies <DoorOpen class="ms-2 h-4 w-4" />
                 </Link>
             </div>
         </div>
@@ -52,35 +63,13 @@ const toggleAppereance = () => {
             <div class="flex items-center">
                 <ul class="mt-0 flex flex-row text-sm font-medium rtl:space-x-reverse">
                     <li class="group/nav-link cursor-pointer border-b-2 border-transparent px-4 py-4 hover:border-foreground">
-                        <Link href="#" class="text-foreground" aria-current="page">Beranda</Link>
-                    </li>
-
-                    <li class="group/nav-link cursor-pointer border-b-2 border-transparent px-4 py-4 hover:border-foreground">
-                        <Link href="#" class="text-foreground">Profil</Link>
+                        <Link href="#" class="text-foreground">Produk</Link>
                     </li>
                     <li class="group/nav-link cursor-pointer border-b-2 border-transparent px-4 py-4 hover:border-foreground">
-                        <Link href="#" class="text-foreground">Cabor</Link>
+                        <Link href="#" class="text-foreground">Tentang</Link>
                     </li>
                     <li class="group/nav-link cursor-pointer border-b-2 border-transparent px-4 py-4 hover:border-foreground">
-                        <Link href="#" class="text-foreground">Event</Link>
-                    </li>
-                    <li class="group/nav-link relative cursor-pointer border-b-2 border-transparent px-4 py-4 hover:border-foreground">
-                        <Link href="#" class="flex gap-2 text-foreground group-hover/nav-link:opacity-80"
-                            >Publikasi <ChevronDown class="h-5 w-5" />
-                        </Link>
-                        <div
-                            id="dropdownHover"
-                            class="absolute left-1/2 z-10 mt-4.5 w-44 -translate-x-1/2 divide-y divide-border overflow-hidden rounded-b-lg bg-card opacity-0 shadow-sm group-hover/nav-link:opacity-100"
-                        >
-                            <ul class="py-2 text-sm text-card-foreground" aria-labelledby="dropdownHoverButton">
-                                <li>
-                                    <Link href="#" class="block px-4 py-2 hover:bg-foreground/10">Fotografi</Link>
-                                </li>
-                                <li>
-                                    <Link href="#" class="block px-4 py-2 hover:bg-foreground/10">Berita</Link>
-                                </li>
-                            </ul>
-                        </div>
+                        <Link href="#" class="text-foreground">Galeri</Link>
                     </li>
                     <li class="group/nav-link cursor-pointer border-b-2 border-transparent px-4 py-4 hover:border-foreground">
                         <Link href="#" class="text-foreground">Kontak</Link>
@@ -120,50 +109,18 @@ const toggleAppereance = () => {
             <ul class="space-y-2 font-medium">
                 <li>
                     <Link href="#" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-base-100">
-                        <span class="ms-3">Beranda</span>
+                        <span class="ms-3">Produk</span>
                     </Link>
                 </li>
                 <li>
                     <Link href="#" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-base-100">
-                        <span class="ms-3">Profil</span>
+                        <span class="ms-3">Tentang</span>
                     </Link>
                 </li>
                 <li>
                     <Link href="#" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-base-100">
-                        <span class="ms-3">Cabor</span>
+                        <span class="ms-3">Galeri</span>
                     </Link>
-                </li>
-                <li>
-                    <Link href="#" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-base-100">
-                        <span class="ms-3">Event</span>
-                    </Link>
-                </li>
-                <li>
-                    <button
-                        type="button"
-                        class="group flex w-full items-center rounded-lg p-2 text-base text-foreground transition duration-75 hover:bg-base-100"
-                        aria-controls="dropdown-example"
-                        data-collapse-toggle="dropdown-example"
-                    >
-                        <span class="ms-3 flex-1 text-left whitespace-nowrap rtl:text-right">Publikasi</span>
-                        <ChevronDown class="h-5 w-5 flex-shrink-0 text-muted-foreground transition duration-75 group-hover:text-foreground" />
-                    </button>
-                    <ul id="dropdown-example" class="hidden space-y-2 py-2">
-                        <li>
-                            <Link
-                                href="#"
-                                class="group flex w-full items-center rounded-lg p-2 pl-11 text-foreground transition duration-75 hover:bg-base-100"
-                                >Fotografi</Link
-                            >
-                        </li>
-                        <li>
-                            <Link
-                                href="#"
-                                class="group flex w-full items-center rounded-lg p-2 pl-11 text-foreground transition duration-75 hover:bg-base-100"
-                                >Berita</Link
-                            >
-                        </li>
-                    </ul>
                 </li>
                 <li>
                     <Link href="#" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-base-100">
@@ -174,11 +131,13 @@ const toggleAppereance = () => {
         </div>
     </div>
 
-    <main class="app">
+    <main class="app overflow-x-hidden">
         <div class="-mt-3 h-[70vh] max-h-[600px] w-full">
             <div class="h-full w-full">
                 <div class="relative h-full w-full">
-                    <slot name="pageBackground" />
+                    <div class="page-background">
+                        <slot name="pageBackground" />
+                    </div>
                     <div class="relative mx-auto h-full w-full max-w-screen-xl px-4">
                         <div class="absolute top-1/2 left-0 max-w-screen-xl -translate-y-1/2 px-4">
                             <nav class="mb-2 flex" aria-label="Breadcrumb">
@@ -194,7 +153,7 @@ const toggleAppereance = () => {
             </div>
         </div>
         <div class="relative -mt-20 rounded-t-4xl bg-background p-5">
-            <div class="mx-auto max-w-screen-xl min-h-80">
+            <div class="mx-auto min-h-80 max-w-screen-xl">
                 <slot name="content" />
             </div>
         </div>
