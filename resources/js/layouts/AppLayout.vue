@@ -58,7 +58,7 @@ onMounted(() => {
             </div>
         </div>
     </nav>
-    <nav class="sticky top-0 z-20 mx-auto hidden bg-background shadow-md lg:flex">
+    <nav class="sticky top-0 z-20 mx-auto hidden border-b border-foreground/20 bg-background lg:flex">
         <div class="mx-auto px-4">
             <div class="flex items-center">
                 <ul class="mt-0 flex flex-row text-sm font-medium rtl:space-x-reverse">
