@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Instagram, Linkedin } from 'lucide-vue-next';
@@ -40,7 +40,7 @@ onMounted(() => {
             scrub: 1,
             pin: true,
         },
-        xPercent: -55,
+        xPercent: -70,
     });
     // Refresh ScrollTrigger on viewport change
     const refreshScrollTrigger = () => ScrollTrigger.refresh();
@@ -92,7 +92,8 @@ const timelineCompany = [
         year: 2016,
         event: {
             title: 'Awal Memulai',
-            description: 'Berangkat dari dapur rumah, kami mulai membuat roti dan kue untuk keluarga, teman, dan tetangga.',
+            description:
+                'Berawal dari dapur rumah sederhana, kami membuat roti dan kue untuk keluarga dan teman. Setiap adonan diuleni dengan cinta, menghadirkan aroma hangat yang membawa senyum di setiap gigitan.',
         },
         background: '/storage/images/jumbotron/1.jpg',
     },
@@ -101,7 +102,8 @@ const timelineCompany = [
         year: 2020,
         event: {
             title: 'Hadir Online',
-            description: 'Mulai menjangkau lebih banyak pelanggan melalui media sosial dan layanan pesan antar.',
+            description:
+                'Kami mulai merangkul dunia digital, menjangkau lebih banyak pelanggan lewat media sosial dan layanan pesan antar, membawa cita rasa buatan rumah hingga ke pintu mereka.',
         },
         background: '/storage/images/jumbotron/2.jpg',
     },
@@ -110,7 +112,8 @@ const timelineCompany = [
         year: 2022,
         event: {
             title: 'Toko Offline Pertama',
-            description: 'Membuka toko pertama yang menjadi rumah bagi aroma roti hangat dan kue segar setiap hari.',
+            description:
+                'Toko pertama kami lahir, menjadi rumah bagi aroma roti hangat dan etalase kue segar. Tempat ini menjadi bagian dari cerita dan momen manis para pelanggan.',
         },
         background: '/storage/images/jumbotron/3.jpg',
     },
@@ -119,7 +122,8 @@ const timelineCompany = [
         year: 2025,
         event: {
             title: 'Hingga Sekarang',
-            description: 'Terus berkembang, berinovasi, dan menghadirkan rasa yang membawa kebahagiaan di setiap gigitan.',
+            description:
+                'Kami terus berinovasi, menghadirkan rasa yang selalu mengingatkan pada kehangatan awal perjalanan kami, dan membagikannya ke lebih banyak hati.',
         },
         background: '/storage/images/jumbotron/1.jpg',
     },
@@ -129,8 +133,8 @@ const timelineCompany = [
 <template>
     <AppLayout>
         <Head>
-            <title>Home</title>
-            <meta name="description" content="Home page description" />
+            <title>About</title>
+            <meta name="description" content="About page description" />
         </Head>
 
         <!-- Top Background -->
@@ -141,14 +145,14 @@ const timelineCompany = [
         <template #pageBreadcrumb>
             <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
                 <li class="inline-flex items-center">
-                    <a href="#" class="inline-flex items-center text-sm font-medium text-base-100 hover:text-primary">
+                    <Link href="/" class="inline-flex items-center text-sm font-medium text-base-100 hover:text-primary">
                         <svg class="me-2.5 h-3 w-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                             <path
                                 d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"
                             />
                         </svg>
                         Home
-                    </a>
+                    </Link>
                 </li>
                 <li aria-current="page">
                     <div class="flex items-center">
@@ -176,7 +180,7 @@ const timelineCompany = [
                 <div class="mx-auto max-w-screen-xl px-4 py-8 lg:py-16">
                     <div class="w-full text-center">
                         <h1 class="mb-4 text-2xl leading-none font-extrabold tracking-tight md:text-5xl xl:text-6xl dark:text-white">
-                            Made with love and high quality ingredients
+                            "Made with love and high quality ingredients"
                         </h1>
                         <p class="mb-6 font-light text-gray-500 md:text-lg lg:mb-8 lg:text-xl dark:text-gray-400">
                             Di dapur kami, setiap adonan dimulai dengan bahan-bahan segar dan berkualitas tinggi. Tepung terbaik, mentega harum, gula
@@ -190,14 +194,14 @@ const timelineCompany = [
                         src="/storage/images/logo.png"
                         alt="dashboard image"
                     />
-                    <ol class="horizontal-scroll relative z-0 flex w-[180vw] items-center transition-none">
+                    <ol class="horizontal-scroll relative z-0 flex min-h-[500px] w-[180vw] items-center transition-none">
                         <li
                             v-for="item in timelineCompany"
                             :key="item.id"
                             class="relative mb-6 h-full sm:mb-0"
                             :class="'w-[' + 180 / timelineCompany.length + 'vw]'"
                         >
-                            <img :src="item.background" class="absolute -z-10 mt-8 h-[50vh] w-full object-cover brightness-50" alt="" />
+                            <img :src="item.background" class="absolute -z-10 mt-8 h-full w-full object-cover brightness-50" alt="" />
                             <div class="flex items-center">
                                 <div
                                     class="z-10 flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary-600 font-bold text-base-50 ring-0 ring-background sm:ring-8"
@@ -217,8 +221,8 @@ const timelineCompany = [
                 </div>
             </section>
             <section class="teams relative z-10 bg-transparent">
-                <div class="bg mx-auto max-w-screen-xl rounded border-s-[16px] border-primary-600 bg-background px-4 py-8 lg:px-6 lg:py-16">
-                    <div class="w-full text-start">
+                <div class="bg mx-auto max-w-screen-xl rounded bg-background px-4 py-8 lg:px-6 lg:py-16">
+                    <div class="w-full text-center">
                         <h1 class="mb-4 text-2xl leading-none font-extrabold tracking-tight md:text-5xl xl:text-6xl dark:text-white">Tim Rivies</h1>
                         <p class="mb-6 font-light text-gray-500 md:text-lg lg:mb-8 lg:text-xl dark:text-gray-400">
                             Kami adalah tim profesional pecinta roti, yang setiap harinya memanggang dengan hati dan menyajikan kebahagiaan di setiap
@@ -229,18 +233,18 @@ const timelineCompany = [
                         <div
                             v-for="item in teamMembers"
                             :key="item.id"
-                            class="items-center rounded-lg bg-background shadow shadow-foreground sm:flex"
+                            class="items-center rounded-lg bg-background border-b sm:flex"
                         >
-                            <a href="#">
+                            <div>
                                 <img
                                     class="w-full max-w-[206px] rounded-lg sm:rounded-none sm:rounded-l-lg"
                                     :src="item.image"
                                     :alt="`${item.name} Avatar`"
                                 />
-                            </a>
+                            </div>
                             <div class="grow p-5">
                                 <h3 class="font 4xl trackibold mb-2 text-2xl text-primary-700 md:font-bold dark:text-primary-500">
-                                    <a href="#">{{ item.name }}</a>
+                                    <span>{{ item.name }}</span>
                                 </h3>
                                 <span class="text-gray-500 dark:text-gray-400">{{ item.position }}</span>
                                 <ul class="mt-3 flex space-x-4">

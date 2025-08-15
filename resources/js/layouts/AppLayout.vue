@@ -23,7 +23,6 @@ onMounted(() => {
             overflow: true,
         });
     }
-    initFlowbite(); // Initialize Flowbite
 });
 </script>
 
