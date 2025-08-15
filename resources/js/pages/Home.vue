@@ -5,9 +5,12 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowDown, ArrowLeft, ArrowRight } from 'lucide-vue-next';
 import { Swiper } from 'swiper';
-import { onMounted } from 'vue';
+import { Navigation, Pagination } from 'swiper/modules';
 
-// Register GSAP
+import { nextTick, onMounted } from 'vue';
+
+// Register Library
+Swiper.use([Navigation, Pagination]);
 gsap.registerPlugin(ScrollTrigger);
 
 defineOptions({
@@ -17,16 +20,17 @@ defineOptions({
 });
 
 onMounted(() => {
-    new Swiper('.swiper-banner', {
-        loop: true,
-        scrollbar: {
-            el: '.swiper-scrollbar',
-            hide: true,
-        },
-        navigation: {
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev',
-        },
+    nextTick(() => {
+        new Swiper('.swiper-banner', {
+            pagination: {
+                el: '.swiper-pagination',
+                type: 'fraction',
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+        });
     });
 });
 </script>
@@ -40,11 +44,11 @@ onMounted(() => {
 
         <!-- Top Background -->
         <template #pageBackground>
-            <img src="/storage/images/jumbotron/jumbotron1.jpg" class="absolute h-full w-full object-cover brightness-50" />
+            <img src="/storage/images/jumbotron/1.jpg" class="absolute h-full w-full object-cover brightness-50" />
         </template>
         <!-- Breadcrumb -->
         <template #pageBreadcrumb>
-            <!-- <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+            <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
                 <li class="inline-flex items-center">
                     <a href="#" class="inline-flex items-center text-sm font-medium text-base-100 hover:text-primary">
                         <svg class="me-2.5 h-3 w-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
@@ -55,7 +59,7 @@ onMounted(() => {
                         Home
                     </a>
                 </li>
-                <li aria-current="page">
+                <!-- <li aria-current="page">
                     <div class="flex items-center">
                         <svg
                             class="mx-1 h-3 w-3 text-base-100/50 rtl:rotate-180"
@@ -68,8 +72,8 @@ onMounted(() => {
                         </svg>
                         <span class="ms-1 text-sm font-medium text-base-100/70 md:ms-2">Current</span>
                     </div>
-                </li>
-            </ol> -->
+                </li> -->
+            </ol>
         </template>
         <!-- Title -->
         <template #pageTitle>Selamat Datang di <span class="rounded bg-primary-600 px-3 py-1 font-semibold">Rivies Bakery</span></template>
@@ -81,6 +85,87 @@ onMounted(() => {
                 <!-- <div class="mb-6 text-center">Geser untuk Menampilkan</div> -->
                 <ArrowDown class="animate__animated animate__fadeInDown animate__infinite animate__slow mx-auto h-10 w-10" />
             </div>
+            <section class="mx-auto max-w-screen-xl px-4 py-8 sm:py-16 lg:px-6">
+                <div class="grid grid-cols-2 gap-4 pb-8 sm:pb-16 md:grid-cols-3 lg:grid-cols-6">
+                    <Link
+                        href="#"
+                        class="relative flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded border border-primary-600 bg-primary-500/40 p-4 hover:bg-transparent"
+                    >
+                        <img src="/assets/svg/bread.svg" class="aspect-square h-1/2" alt="" />
+                        <h3 class="mb-2 text-xl font-bold text-primary-600 dark:text-primary-500">Bread</h3>
+                    </Link>
+                    <Link
+                        href="#"
+                        class="relative flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded border border-primary-600 bg-primary-500/40 p-4 hover:bg-transparent"
+                    >
+                        <img src="/assets/svg/bread.svg" class="aspect-square h-1/2" alt="" />
+                        <h3 class="mb-2 text-xl font-bold text-primary-600 dark:text-primary-500">Bread</h3>
+                    </Link>
+                    <Link
+                        href="#"
+                        class="relative flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded border border-primary-600 bg-primary-500/40 p-4 hover:bg-transparent"
+                    >
+                        <img src="/assets/svg/bread.svg" class="aspect-square h-1/2" alt="" />
+                        <h3 class="mb-2 text-xl font-bold text-primary-600 dark:text-primary-500">Bread</h3>
+                    </Link>
+                    <Link
+                        href="#"
+                        class="relative flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded border border-primary-600 bg-primary-500/40 p-4 hover:bg-transparent"
+                    >
+                        <img src="/assets/svg/bread.svg" class="aspect-square h-1/2" alt="" />
+                        <h3 class="mb-2 text-xl font-bold text-primary-600 dark:text-primary-500">Bread</h3>
+                    </Link>
+                    <Link
+                        href="#"
+                        class="relative flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded border border-primary-600 bg-primary-500/40 p-4 hover:bg-transparent"
+                    >
+                        <img src="/assets/svg/bread.svg" class="aspect-square h-1/2" alt="" />
+                        <h3 class="mb-2 text-xl font-bold text-primary-600 dark:text-primary-500">Bread</h3>
+                    </Link>
+                    <Link
+                        href="#"
+                        class="relative flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded border border-primary-600 bg-primary-500/40 p-4 hover:bg-transparent"
+                    >
+                        <img src="/assets/svg/bread.svg" class="aspect-square h-1/2" alt="" />
+                        <h3 class="mb-2 text-xl font-bold text-primary-600 dark:text-primary-500">Bread</h3>
+                    </Link>
+                </div>
+                <section class="mx-auto mb-8 flex max-w-screen-md flex-wrap items-center justify-center gap-3 text-center lg:mb-16">
+                    <p class="text-gray-500 sm:text-xl dark:text-gray-400">Penasaran dengan produk kami ?</p>
+                    <Link
+                        href="/products"
+                        class="inline-flex items-center rounded-lg bg-primary-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900"
+                    >
+                        Telusuri Produk
+                        <ArrowRight class="ms-2 h-4 w-4" />
+                    </Link>
+                </section>
+                <div class="swiper swiper-banner h-80 w-full rounded-lg shadow-xl shadow-foreground/10">
+                    <!-- Carousel wrapper -->
+                    <div class="swiper-wrapper">
+                        <!-- Item 1 -->
+                        <div class="swiper-slide h-full">
+                            <img src="/storage/images/jumbotron/1.jpg" class="h-full w-full object-cover" alt="..." />
+                        </div>
+                        <!-- Item 2 -->
+                        <div class="swiper-slide h-full">
+                            <img src="/storage/images/jumbotron/2.jpg" class="h-full w-full object-cover" alt="..." />
+                        </div>
+                        <!-- Item 3 -->
+                        <div class="swiper-slide h-full">
+                            <img src="/storage/images/jumbotron/3.jpg" class="h-full w-full object-cover" alt="..." />
+                        </div>
+                    </div>
+                    <span class="swiper-button-next">
+                        <ArrowRight class="h-6 w-6 text-white" />
+                    </span>
+                    <span class="swiper-button-prev">
+                        <ArrowLeft class="h-6 w-6 text-white" />
+                    </span>
+                    <div class="swiper-pagination !text-base-50"></div>
+                </div>
+            </section>
+
             <section class="home-section-one mx-auto max-w-screen-xl items-center gap-8 px-4 py-8 sm:py-16 md:grid md:grid-cols-2 lg:px-6 xl:gap-16">
                 <img class="logo mx-auto h-full rounded-full" src="/storage/images/logo.png" alt="dashboard image" />
                 <div class="text mt-4 md:mt-0">
@@ -90,82 +175,14 @@ onMounted(() => {
                         menggoda dan rasa yang memanjakan lidah. Saatnya bawa pulang kebahagiaan, satu gigitan demi satu
                     </p>
                     <Link
-                        href="#"
+                        href="/about"
                         class="inline-flex items-center rounded-lg bg-primary-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900"
                     >
-                        Lebih Lanjut
+                        Mengenai
                         <ArrowRight class="ms-2 h-4 w-4" />
                     </Link>
                 </div>
             </section>
-            <div class="mx-auto max-w-screen-xl px-4 py-8 sm:py-16 lg:px-6">
-                <div class="space-y-8 pb-8 sm:pb-16 md:grid md:grid-cols-2 md:gap-12 md:space-y-0 lg:grid-cols-3">
-                    <Link href="#">
-                        <div
-                            class="hover:bg-base-900/50 cursor-pointer rounded bg-base-900/70 bg-[url('/storage/images/jumbotron/jumbotron1.jpg')] bg-cover bg-center bg-no-repeat p-4 bg-blend-darken shadow-xs shadow-primary hover:shadow-md"
-                        >
-                            <h3 class="mb-2 text-xl font-bold text-primary-600 dark:text-primary-500">Pastry</h3>
-                            <p class="text-foreground">
-                                Plan it, create it, launch it. Collaborate seamlessly with all the organization and hit your marketing goals every
-                                month with our marketing plan.
-                            </p>
-                        </div>
-                    </Link>
-                    <Link href="#">
-                        <div
-                            class="hover:bg-base-900/50 cursor-pointer rounded bg-base-900/70 bg-[url('/storage/images/jumbotron/jumbotron1.jpg')] bg-cover bg-center bg-no-repeat p-4 bg-blend-darken shadow-xs shadow-primary hover:shadow-md"
-                        >
-                            <h3 class="mb-2 text-xl font-bold text-primary-600 dark:text-primary-500">Pastry</h3>
-                            <p class="text-foreground">
-                                Plan it, create it, launch it. Collaborate seamlessly with all the organization and hit your marketing goals every
-                                month with our marketing plan.
-                            </p>
-                        </div>
-                    </Link>
-                    <Link href="#">
-                        <div
-                            class="hover:bg-base-900/50 cursor-pointer rounded bg-base-900/70 bg-[url('/storage/images/jumbotron/jumbotron1.jpg')] bg-cover bg-center bg-no-repeat p-4 bg-blend-darken shadow-xs shadow-primary hover:shadow-md"
-                        >
-                            <h3 class="mb-2 text-xl font-bold text-primary-600 dark:text-primary-500">Pastry</h3>
-                            <p class="text-foreground">
-                                Plan it, create it, launch it. Collaborate seamlessly with all the organization and hit your marketing goals every
-                                month with our marketing plan.
-                            </p>
-                        </div>
-                    </Link>
-                </div>
-
-                <div class="swiper swiper-banner h-80 w-full rounded-lg">
-                    <!-- Carousel wrapper -->
-                    <div class="swiper-wrapper">
-                        <!-- Item 1 -->
-                        <div class="swiper-slide h-full">
-                            <img src="/storage/images/jumbotron/jumbotron1.jpg" class="h-full w-full object-cover" alt="..." />
-                        </div>
-                        <!-- Item 2 -->
-                        <div class="swiper-slide h-full">
-                            <img src="/storage/images/jumbotron/jumbotron2.jpg" class="h-full w-full object-cover" alt="..." />
-                        </div>
-                        <!-- Item 3 -->
-                        <div class="swiper-slide h-full">
-                            <img src="/storage/images/jumbotron/jumbotron3.jpg" class="h-full w-full object-cover" alt="..." />
-                        </div>
-                    </div>
-                    <div class="swiper-button-next">
-                        <ArrowRight class="h-6 w-6 text-white" />
-                    </div>
-                    <div class="swiper-button-prev">
-                        <ArrowLeft class="h-6 w-6 text-white" />
-                    </div>
-                    <div class="swiper-scrollbar"></div>
-                </div>
-            </div>
-            <div class="mx-auto mb-8 max-w-screen-md text-center lg:mb-16">
-                <p class="text-gray-500 sm:text-xl dark:text-gray-400">
-                    Kategorinya belum sesuai keinginanmu ?
-                    <Link href="/product" class="rounded bg-primary-700 p-2 text-foreground underline">Kunjungi halaman produk </Link>
-                </p>
-            </div>
         </template>
     </AppLayout>
 </template>

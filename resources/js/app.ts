@@ -1,7 +1,6 @@
 import '../css/app.css';
 
 import { createInertiaApp } from '@inertiajs/vue3';
-import { initFlowbite } from 'flowbite';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
@@ -18,9 +17,6 @@ createInertiaApp({
             .use(plugin)
             .use(ZiggyVue)
             .mount(el);
-
-        // Initialize Flowbite
-        initFlowbite();
         
     },
     progress: {

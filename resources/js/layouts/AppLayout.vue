@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useAppearance } from '@/composables/useAppearance';
 import { Link } from '@inertiajs/vue3';
+import { initFlowbite } from 'flowbite';
 import { DoorOpen, Menu, Moon, Sun, X } from 'lucide-vue-next';
 import SimpleParallax from 'simple-parallax-js/vanilla';
 import { onMounted, ref } from 'vue';
@@ -22,6 +23,7 @@ onMounted(() => {
             overflow: true,
         });
     }
+    initFlowbite(); // Initialize Flowbite
 });
 </script>
 
@@ -29,7 +31,7 @@ onMounted(() => {
     <nav class="border-gray-200 bg-gradient-to-r from-primary-400 to-primary-600 dark:border-gray-700 dark:bg-gray-800">
         <div class="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between px-4 py-1">
             <div class="relative -top-8 z-50">
-                <Link href="/" class="absolute top-0 flex h-36 w-36 items-center justify-center">
+                <Link href="/" class="fixed -top-3 flex h-36 w-36 items-center justify-center">
                     <img src="/storage/images/logo.png" class="h-24 w-24 rounded-full border-4 border-primary-500" alt="Logo" />
                 </Link>
             </div>
@@ -38,15 +40,18 @@ onMounted(() => {
                     <label class="inline-flex cursor-pointer items-center">
                         <input @change="toggleAppereance" type="checkbox" :checked="appearance === 'light' ? false : true" class="peer sr-only" />
                         <div
-                            class="peer relative h-6 w-11 rounded-full bg-base-50 peer-focus:outline-none after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-base-900 after:transition-all after:content-[''] peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full"
+                            class="peer relative h-6 w-11 rounded-full bg-background peer-focus:outline-none after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-base-900 after:transition-all after:content-[''] peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full"
                         >
                             <Moon
                                 fill="currentColor"
-                                class="absolute right-[3px] bottom-[4px] z-10 h-4 w-4 text-base-50 opacity-0 dark:opacity-100"
+                                class="absolute right-[3px] bottom-[4px] z-10 h-4 w-4 text-foreground opacity-0 dark:opacity-100"
                             />
-                            <Sun fill="currentColor" class="absolute bottom-[4px] left-[4px] z-10 h-4 w-4 text-base-50 opacity-100 dark:opacity-0" />
+                            <Sun
+                                fill="currentColor"
+                                class="absolute bottom-[4px] left-[4px] z-10 h-4 w-4 text-background opacity-100 dark:opacity-0"
+                            />
                         </div>
-                        <span class="ms-3 text-sm font-medium text-foreground"></span>
+                        <span class="ms-3 text-sm font-medium text-background"></span>
                     </label>
                 </div>
                 <Link
@@ -63,16 +68,41 @@ onMounted(() => {
             <div class="flex items-center">
                 <ul class="mt-0 flex flex-row text-sm font-medium rtl:space-x-reverse">
                     <li class="group/nav-link cursor-pointer border-b-2 border-transparent px-4 py-4 hover:border-foreground">
-                        <Link href="#" class="text-foreground">Produk</Link>
+                        <Link href="products" class="text-foreground">Produk</Link>
                     </li>
                     <li class="group/nav-link cursor-pointer border-b-2 border-transparent px-4 py-4 hover:border-foreground">
-                        <Link href="#" class="text-foreground">Tentang</Link>
+                        <Link href="/about" class="text-foreground">Tentang</Link>
                     </li>
                     <li class="group/nav-link cursor-pointer border-b-2 border-transparent px-4 py-4 hover:border-foreground">
-                        <Link href="#" class="text-foreground">Galeri</Link>
+                        <Link href="/gallery" class="text-foreground">Galeri</Link>
                     </li>
                     <li class="group/nav-link cursor-pointer border-b-2 border-transparent px-4 py-4 hover:border-foreground">
-                        <Link href="#" class="text-foreground">Kontak</Link>
+                        <Link href="/contact" class="text-foreground">Kontak</Link>
+                    </li>
+                    <li>
+                        <div class="relative flex items-center justify-center">
+                            <label class="inline-flex cursor-pointer items-center">
+                                <input
+                                    @change="toggleAppereance"
+                                    type="checkbox"
+                                    :checked="appearance === 'light' ? false : true"
+                                    class="peer sr-only"
+                                />
+                                <div
+                                    class="peer relative h-6 w-11 rounded-full bg-background peer-focus:outline-none after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-base-900 after:transition-all after:content-[''] peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full"
+                                >
+                                    <Moon
+                                        fill="currentColor"
+                                        class="absolute right-[3px] bottom-[4px] z-10 h-4 w-4 text-foreground opacity-0 dark:opacity-100"
+                                    />
+                                    <Sun
+                                        fill="currentColor"
+                                        class="absolute bottom-[4px] left-[4px] z-10 h-4 w-4 text-background opacity-100 dark:opacity-0"
+                                    />
+                                </div>
+                                <span class="ms-3 text-sm font-medium text-background"></span>
+                            </label>
+                        </div>
                     </li>
                 </ul>
             </div>
@@ -108,22 +138,22 @@ onMounted(() => {
         <div class="mt-4 overflow-y-auto py-4">
             <ul class="space-y-2 font-medium">
                 <li>
-                    <Link href="#" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-base-100">
+                    <Link href="/products" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-base-100">
                         <span class="ms-3">Produk</span>
                     </Link>
                 </li>
                 <li>
-                    <Link href="#" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-base-100">
+                    <Link href="/about" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-base-100">
                         <span class="ms-3">Tentang</span>
                     </Link>
                 </li>
                 <li>
-                    <Link href="#" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-base-100">
+                    <Link href="/gallery" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-base-100">
                         <span class="ms-3">Galeri</span>
                     </Link>
                 </li>
                 <li>
-                    <Link href="#" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-base-100">
+                    <Link href="/contact" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-base-100">
                         <span class="ms-3">Kontak</span>
                     </Link>
                 </li>
@@ -158,4 +188,11 @@ onMounted(() => {
             </div>
         </div>
     </main>
+    <footer class="border-t border-base-500/50 p-4 md:p-8 lg:p-10">
+        <div class="mx-auto max-w-screen-xl text-center">
+            <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400"
+                >© 2025 <a href="#" class="hover:underline">Rivies Bakery</a>. All Rights Reserved.</span
+            >
+        </div>
+    </footer>
 </template>
