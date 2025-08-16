@@ -19,10 +19,12 @@ defineOptions({
 
 <template>
     <AppLayout>
-        <Head>
-            <title>Contact</title>
-            <meta name="description" content="Contact page description" />
-        </Head>
+        <template #pageHead>
+            <Head>
+                <title>Kontak</title>
+                <meta name="description" content="Halaman kontak Rivies Bakery" />
+            </Head>
+        </template>
 
         <!-- Top Background -->
         <template #pageBackground>

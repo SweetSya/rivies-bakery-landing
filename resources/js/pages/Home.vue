@@ -37,11 +37,12 @@ onMounted(() => {
 
 <template>
     <AppLayout>
-        <Head>
-            <title>Home</title>
-            <meta name="description" content="Home page description" />
-        </Head>
-
+        <template #pageHead>
+            <Head>
+                <title></title>
+                <meta name="description" content="Home page description" />
+            </Head>
+        </template>
         <!-- Top Background -->
         <template #pageBackground>
             <img src="/storage/images/jumbotron/1.jpg" class="absolute h-full w-full object-cover brightness-50" />
@@ -76,7 +77,7 @@ onMounted(() => {
             </ol>
         </template>
         <!-- Title -->
-        <template #pageTitle>Selamat Datang di <span class="rounded bg-primary-600 px-3 py-1 font-semibold">Rivies Bakery</span></template>
+        <template #pageTitle> Selamat Datang di <span class="rounded bg-primary-600 px-3 py-1 font-semibold">Rivies Bakery</span></template>
         <!-- Description -->
         <template #pageDescription>Made with love and high quality ingredients</template>
         <!-- Content -->

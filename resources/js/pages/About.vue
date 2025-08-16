@@ -132,10 +132,12 @@ const timelineCompany = [
 
 <template>
     <AppLayout>
-        <Head>
-            <title>About</title>
-            <meta name="description" content="About page description" />
-        </Head>
+        <template #pageHead>
+            <Head>
+                <title>Tentang</title>
+                <meta name="description" content="About page description" />
+            </Head>
+        </template>
 
         <!-- Top Background -->
         <template #pageBackground>
@@ -201,7 +203,7 @@ const timelineCompany = [
                             class="relative mb-6 h-full sm:mb-0"
                             :class="'w-[' + 180 / timelineCompany.length + 'vw]'"
                         >
-                            <img :src="item.background" class="absolute -z-10 mt-8 h-full w-full object-cover brightness-50" alt="" />
+                        <img :src="item.background" class="absolute -z-10 mt-8 h-full w-full object-cover brightness-50" alt="" />
                             <div class="flex items-center">
                                 <div
                                     class="z-10 flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary-600 font-bold text-base-50 ring-0 ring-background sm:ring-8"
@@ -230,11 +232,7 @@ const timelineCompany = [
                         </p>
                     </div>
                     <div class="mb-6 grid gap-8 md:grid-cols-2 lg:mb-16">
-                        <div
-                            v-for="item in teamMembers"
-                            :key="item.id"
-                            class="items-center rounded-lg bg-background border-b sm:flex"
-                        >
+                        <div v-for="item in teamMembers" :key="item.id" class="items-center rounded-lg border-b bg-background sm:flex">
                             <div>
                                 <img
                                     class="w-full max-w-[206px] rounded-lg sm:rounded-none sm:rounded-l-lg"

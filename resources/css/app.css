@@ -12,10 +12,11 @@
 @plugin "flowbite/plugin";
 @source "../../node_modules/flowbite";
 
+/* Initialize Tomselect */
+@import 'tom-select/dist/css/tom-select.css';
+
 /* Intialize Swiper */
 @import 'swiper/css/bundle';
-@import 'swiper/css';
-@import 'swiper/css/navigation';
 /* Remove Arrow Icon */
 .swiper-button-next::after,
 .swiper-button-prev::after {
@@ -135,6 +136,35 @@
     ::file-selector-button {
         border-color: var(--color-gray-200, currentColor);
     }
+
+    [type='text'],
+    [type='email'],
+    [type='url'],
+    [type='password'],
+    [type='number'],
+    [type='date'],
+    [type='datetime-local'],
+    [type='month'],
+    [type='search'],
+    [type='tel'],
+    [type='time'],
+    [type='week'],
+    [multiple],
+    textarea,
+    select {
+        &:focus {
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+            --tw-ring-inset: var(--tw-empty, /*!*/ /*!*/);
+            --tw-ring-offset-width: 0px;
+            --tw-ring-offset-color: #fff;
+            --tw-ring-color: var(--color-primary-600) !important;
+            --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+            --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+            box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+            border-color: var(--color-primary-600) !important;
+        }
+    }
 }
 
 @layer utilities {
@@ -224,5 +254,44 @@
     }
     body {
         @apply bg-background text-foreground;
+    }
+    /* Tom Select */
+    .ts-control,
+    .ts-wrapper.single.input-active .ts-control {
+        @apply !h-[42px] !rounded-lg !border-foreground/10 !bg-foreground/10 !p-2.5 !text-sm !text-foreground;
+    }
+    .dark .ts-control,
+    .dark .ts-wrapper.single.input-active .ts-control {
+        @apply !border-foreground/20 !text-foreground;
+    }
+    .ts-wrapper.multi .ts-control > div {
+        @apply !rounded-lg !border-1 !border-border/10 !bg-foreground/10 !text-foreground;
+    }
+    .ts-wrapper {
+        @apply !bg-transparent;
+    }
+    .ts-dropdown-content {
+        @apply !text-[16px];
+    }
+    .ts-dropdown,
+    .ts-control,
+    .ts-control input {
+        @apply !rounded-b !bg-background/80 !text-foreground !backdrop-blur-sm;
+    }
+    .ts-dropdown .active {
+        @apply !bg-primary-600/50 !text-foreground;
+    }
+    .base-input {
+        @apply !border !border-base-500/40 !bg-foreground/5 !p-2.5 !text-sm !text-foreground/80;
+    }
+    /* Remove number input spinners/arrows */
+    input[type='number']::-webkit-outer-spin-button,
+    input[type='number']::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type='number'] {
+        -moz-appearance: textfield;
     }
 }

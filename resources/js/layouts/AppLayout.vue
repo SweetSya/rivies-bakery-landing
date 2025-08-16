@@ -1,17 +1,30 @@
 <script setup lang="ts">
 import { useAppearance } from '@/composables/useAppearance';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { initFlowbite } from 'flowbite';
 import { DoorOpen, Menu, Moon, Sun, X } from 'lucide-vue-next';
 import SimpleParallax from 'simple-parallax-js/vanilla';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 const { updateAppearance, appearance } = useAppearance();
+const page = usePage();
 
 const toggleAppereance = () => {
     const newAppearance = appearance.value === 'dark' ? 'light' : 'dark';
     updateAppearance(newAppearance);
 };
+
+// Reset body overflow when page changes (after drawer navigation)
+watch(
+    () => page.url,
+    () => {
+        if (document.body.classList.contains('overflow-hidden')) {
+            document.body.classList.remove('overflow-hidden');
+        }
+    },
+    { immediate: true },
+);
+
 const parallaxElement = ref<Element | null>(null);
 onMounted(() => {
     parallaxElement.value = document.querySelector('.page-background img');
@@ -23,10 +36,12 @@ onMounted(() => {
             overflow: true,
         });
     }
+    initFlowbite();
 });
 </script>
 
 <template>
+    <slot name="pageHead" />
     <nav class="border-gray-200 bg-gradient-to-r from-primary-400 to-primary-600 dark:border-gray-700 dark:bg-gray-800">
         <div class="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between px-4 py-1">
             <div class="relative -top-8 z-50">
@@ -66,42 +81,17 @@ onMounted(() => {
         <div class="mx-auto px-4">
             <div class="flex items-center">
                 <ul class="mt-0 flex flex-row text-sm font-medium rtl:space-x-reverse">
-                    <li class="group/nav-link cursor-pointer border-b-2 border-transparent px-4 py-4 hover:border-foreground">
-                        <Link href="products" class="text-foreground">Produk</Link>
+                    <li class="group/nav-link cursor-pointer border-b-2 border-transparent px-2 py-3 hover:border-foreground">
+                        <Link href="/products" class="px-4 py-4 text-foreground">Produk</Link>
                     </li>
-                    <li class="group/nav-link cursor-pointer border-b-2 border-transparent px-4 py-4 hover:border-foreground">
-                        <Link href="/about" class="text-foreground">Tentang</Link>
+                    <li class="group/nav-link cursor-pointer border-b-2 border-transparent px-2 py-3 hover:border-foreground">
+                        <Link href="/about" class="px-4 py-4 text-foreground">Tentang</Link>
                     </li>
-                    <li class="group/nav-link cursor-pointer border-b-2 border-transparent px-4 py-4 hover:border-foreground">
-                        <Link href="/gallery" class="text-foreground">Galeri</Link>
+                    <li class="group/nav-link cursor-pointer border-b-2 border-transparent px-2 py-3 hover:border-foreground">
+                        <Link href="/gallery" class="px-4 py-4 text-foreground">Galeri</Link>
                     </li>
-                    <li class="group/nav-link cursor-pointer border-b-2 border-transparent px-4 py-4 hover:border-foreground">
-                        <Link href="/contact" class="text-foreground">Kontak</Link>
-                    </li>
-                    <li>
-                        <div class="relative flex items-center justify-center">
-                            <label class="inline-flex cursor-pointer items-center">
-                                <input
-                                    @change="toggleAppereance"
-                                    type="checkbox"
-                                    :checked="appearance === 'light' ? false : true"
-                                    class="peer sr-only"
-                                />
-                                <div
-                                    class="peer relative h-6 w-11 rounded-full bg-background peer-focus:outline-none after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-base-900 after:transition-all after:content-[''] peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full"
-                                >
-                                    <Moon
-                                        fill="currentColor"
-                                        class="absolute right-[3px] bottom-[4px] z-10 h-4 w-4 text-foreground opacity-0 dark:opacity-100"
-                                    />
-                                    <Sun
-                                        fill="currentColor"
-                                        class="absolute bottom-[4px] left-[4px] z-10 h-4 w-4 text-background opacity-100 dark:opacity-0"
-                                    />
-                                </div>
-                                <span class="ms-3 text-sm font-medium text-background"></span>
-                            </label>
-                        </div>
+                    <li class="group/nav-link cursor-pointer border-b-2 border-transparent px-2 py-3 hover:border-foreground">
+                        <Link href="/contact" class="px-4 py-4 text-foreground">Kontak</Link>
                     </li>
                 </ul>
             </div>
@@ -137,22 +127,22 @@ onMounted(() => {
         <div class="mt-4 overflow-y-auto py-4">
             <ul class="space-y-2 font-medium">
                 <li>
-                    <Link href="/products" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-base-100">
+                    <Link href="/products" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-foreground/10">
                         <span class="ms-3">Produk</span>
                     </Link>
                 </li>
                 <li>
-                    <Link href="/about" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-base-100">
+                    <Link href="/about" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-foreground/10">
                         <span class="ms-3">Tentang</span>
                     </Link>
                 </li>
                 <li>
-                    <Link href="/gallery" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-base-100">
+                    <Link href="/gallery" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-foreground/10">
                         <span class="ms-3">Galeri</span>
                     </Link>
                 </li>
                 <li>
-                    <Link href="/contact" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-base-100">
+                    <Link href="/contact" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-foreground/10">
                         <span class="ms-3">Kontak</span>
                     </Link>
                 </li>

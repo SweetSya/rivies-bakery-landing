@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowLeft, ArrowRight, Bookmark } from 'lucide-vue-next';
@@ -37,10 +37,12 @@ onMounted(() => {
 
 <template>
     <AppLayout>
-        <Head>
-            <title>Home</title>
-            <meta name="description" content="Home page description" />
-        </Head>
+        <template #pageHead>
+            <Head>
+                <title>Nama Produk</title>
+                <meta name="description" content="Halaman detail produk Rivies Bakery" />
+            </Head>
+        </template>
 
         <!-- Top Background -->
         <template #pageBackground>
@@ -51,22 +53,19 @@ onMounted(() => {
             <nav class="flex" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
                     <li class="inline-flex items-center">
-                        <a
-                            href="#"
-                            class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
-                        >
+                        <Link href="/" class="inline-flex items-center text-sm font-medium text-base-100 hover:text-primary">
                             <svg class="me-2.5 h-3 w-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                                 <path
                                     d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"
                                 />
                             </svg>
                             Home
-                        </a>
+                        </Link>
                     </li>
-                    <li>
-                        <div class="flex items-center">
+                    <li class="inline-flex items-center">
+                        <Link href="/products" class="inline-flex items-center text-sm font-medium text-base-100 hover:text-primary">
                             <svg
-                                class="mx-1 h-3 w-3 text-gray-400 rtl:rotate-180"
+                                class="mx-1 h-3 w-3 text-base-100/50 rtl:rotate-180"
                                 aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
@@ -74,17 +73,13 @@ onMounted(() => {
                             >
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4" />
                             </svg>
-                            <a
-                                href="#"
-                                class="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white"
-                                >Produk Rivies</a
-                            >
-                        </div>
+                            <span class="ms-1 text-sm font-medium md:ms-2">Produk</span>
+                        </Link>
                     </li>
                     <li aria-current="page">
                         <div class="flex items-center">
                             <svg
-                                class="mx-1 h-3 w-3 text-gray-400 rtl:rotate-180"
+                                class="mx-1 h-3 w-3 text-base-100/50 rtl:rotate-180"
                                 aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
@@ -92,7 +87,7 @@ onMounted(() => {
                             >
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4" />
                             </svg>
-                            <span class="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400">Produk 1</span>
+                            <span class="ms-1 text-sm font-medium text-base-100/70 md:ms-2">Detail Produk</span>
                         </div>
                     </li>
                 </ol>
@@ -130,9 +125,7 @@ onMounted(() => {
                     <div class="swiper-pagination !text-base-50"></div>
                 </div>
                 <div class="text mt-4 md:mt-0">
-                    <div class="mb-3 w-fit rounded bg-primary-700 px-2.5 py-0.5 text-lg font-medium text-background dark:bg-primary-300">
-                        Kategori Produk
-                    </div>
+                    <div class="mb-3 w-fit rounded bg-primary-600 px-2.5 py-0.5 text-lg font-medium text-background">Kategori Produk</div>
                     <h2 class="mb-4 text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">Nama Produk 1</h2>
 
                     <p class="mb-6 font-light text-gray-500 md:text-lg dark:text-gray-400">
@@ -141,12 +134,12 @@ onMounted(() => {
                     </p>
                     <div class="flex w-full gap-2">
                         <button
-                            class="cursor-pointer inline-block grow-1 rounded-l-lg border-2 border-primary-600 bg-transparent px-3 py-1 text-center text-base font-semibold text-primary hover:bg-primary-600 hover:text-background md:text-lg"
+                            class="inline-block grow-1 cursor-pointer rounded-l-lg border-2 border-primary-600 bg-transparent px-3 py-1 text-center text-base font-semibold text-primary hover:bg-primary-600 hover:text-background md:text-lg"
                         >
                             Cek
                         </button>
                         <button
-                            class="cursor-pointer inline-block w-fit rounded-r-lg border-2 border-primary-600 bg-transparent px-3 py-1 text-center text-base font-semibold text-primary hover:bg-primary-600 hover:text-background md:text-lg"
+                            class="inline-block w-fit cursor-pointer rounded-r-lg border-2 border-primary-600 bg-transparent px-3 py-1 text-center text-base font-semibold text-primary hover:bg-primary-600 hover:text-background md:text-lg"
                         >
                             <Bookmark class="h-5 w-5" />
                         </button>

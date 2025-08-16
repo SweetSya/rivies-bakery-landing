@@ -12,10 +12,12 @@ defineOptions({
 
 <template>
     <AppLayout>
-        <Head>
-            <title>Gallery</title>
-            <meta name="description" content="Gallery page description" />
-        </Head>
+        <template #pageHead>
+            <Head>
+                <title>Galeri</title>
+                <meta name="description" content="Gallery page description" />
+            </Head>
+        </template>
 
         <!-- Top Background -->
         <template #pageBackground>
