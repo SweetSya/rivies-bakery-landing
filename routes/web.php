@@ -14,9 +14,15 @@ Route::get('/products/{slug}', function ($id) {
         'id' => $id,
 ]);
 })->name('product.detail');
+Route::get('/cart', function () {
+    return Inertia::render('Cart');
+})->name('cart');
 Route::get('/about', function () {
     return Inertia::render('About');
 })->name('about');
+Route::get('/contact', function () {
+    return Inertia::render('Contact');
+})->name('contact');
 Route::get('/gallery', function () {
     return Inertia::render('Gallery');
 })->name('gallery');

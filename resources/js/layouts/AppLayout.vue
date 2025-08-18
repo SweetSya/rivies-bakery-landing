@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { useAppearance } from '@/composables/useAppearance';
+import { useCart } from '@/composables/useCart';
 import { Link, usePage } from '@inertiajs/vue3';
 import { initFlowbite } from 'flowbite';
-import { DoorOpen, Menu, Moon, Sun, X } from 'lucide-vue-next';
+import { DoorOpen, Menu, Moon, ShoppingBag, Sun, X } from 'lucide-vue-next';
+import { darkTheme, lightTheme, Notification, Notivue } from 'notivue';
 import SimpleParallax from 'simple-parallax-js/vanilla';
 import { onMounted, ref, watch } from 'vue';
 
 const { updateAppearance, appearance } = useAppearance();
 const page = usePage();
+const { getCartTotalItem } = useCart();
 
 const toggleAppereance = () => {
     const newAppearance = appearance.value === 'dark' ? 'light' : 'dark';
@@ -42,13 +45,9 @@ onMounted(() => {
 
 <template>
     <slot name="pageHead" />
-    <nav class="border-gray-200 bg-gradient-to-r from-primary-400 to-primary-600 dark:border-gray-700 dark:bg-gray-800">
+    <nav class="border-gray-200 bg-gradient-to-r from-primary-600 to-primary-400 dark:border-gray-700 dark:bg-gray-800">
         <div class="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between px-4 py-1">
-            <div class="relative -top-8 z-50">
-                <Link href="/" class="fixed -top-3 flex h-36 w-36 items-center justify-center">
-                    <img src="/storage/images/logo.png" class="h-24 w-24 rounded-full border-4 border-primary-500" alt="Logo" />
-                </Link>
-            </div>
+            <div class="relative mx-5.5 font-bold text-background">Rivies Bakery</div>
             <div class="flex items-center gap-3">
                 <div class="relative flex items-center justify-center">
                     <label class="inline-flex cursor-pointer items-center">
@@ -68,19 +67,16 @@ onMounted(() => {
                         <span class="ms-3 text-sm font-medium text-background"></span>
                     </label>
                 </div>
-                <Link
-                    href="#"
-                    class="inline-flex items-center rounded-lg border border-border bg-background px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-muted focus:ring-4 focus:ring-ring/20 focus:outline-none"
-                >
-                    Rivies <DoorOpen class="ms-2 h-4 w-4" />
-                </Link>
             </div>
         </div>
     </nav>
     <nav class="sticky top-0 z-20 mx-auto hidden border-b border-foreground/20 bg-background lg:flex">
-        <div class="mx-auto px-4">
-            <div class="flex items-center">
+        <div class="mx-auto w-full max-w-screen-xl px-4">
+            <div class="flex items-center justify-between">
                 <ul class="mt-0 flex flex-row text-sm font-medium rtl:space-x-reverse">
+                    <li class="group/nav-link cursor-pointer border-b-2 border-transparent px-2 py-3 hover:border-foreground">
+                        <Link href="/" class="px-4 py-4 text-foreground">Beranda</Link>
+                    </li>
                     <li class="group/nav-link cursor-pointer border-b-2 border-transparent px-2 py-3 hover:border-foreground">
                         <Link href="/products" class="px-4 py-4 text-foreground">Produk</Link>
                     </li>
@@ -94,6 +90,21 @@ onMounted(() => {
                         <Link href="/contact" class="px-4 py-4 text-foreground">Kontak</Link>
                     </li>
                 </ul>
+                <div class="flex gap-2">
+                    <Link
+                        href="/cart"
+                        type="button"
+                        class="relative inline-flex cursor-pointer items-center rounded-lg border border-border bg-background p-2 text-center text-xs font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
+                    >
+                        <ShoppingBag class="me-2 h-4 w-4" /><span class="font-bold">{{ getCartTotalItem() }}</span>
+                    </Link>
+                    <Link
+                        href="/login"
+                        class="inline-flex items-center rounded-lg border border-border bg-background px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
+                    >
+                        Login <DoorOpen class="ms-2 h-4 w-4" />
+                    </Link>
+                </div>
             </div>
         </div>
     </nav>
@@ -184,4 +195,7 @@ onMounted(() => {
             >
         </div>
     </footer>
+    <Notivue v-slot="item">
+        <Notification :item="item" :theme="appearance === 'dark' ? darkTheme : lightTheme"> </Notification>
+    </Notivue>
 </template>

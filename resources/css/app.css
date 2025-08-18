@@ -22,6 +22,10 @@
 .swiper-button-prev::after {
     content: '';
 }
+/* Notivue */
+@import 'notivue/notification.css';
+@import 'notivue/animations.css';
+@import 'notivue/notification-progress.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -254,6 +258,10 @@
     }
     body {
         @apply bg-background text-foreground;
+    }
+    /* Notivue */
+    .Notivue__notification {
+        @apply !shadow-lg shadow-foreground/10 !border !border-foreground/10;
     }
     /* Tom Select */
     .ts-control,

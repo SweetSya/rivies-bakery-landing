@@ -3,15 +3,37 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowLeft, ArrowRight, Bookmark } from 'lucide-vue-next';
+import { ArrowLeft, ArrowRight, Bookmark, ShoppingBag } from 'lucide-vue-next';
 import { Swiper } from 'swiper';
 import { Navigation, Pagination } from 'swiper/modules';
 
-import { nextTick, onMounted } from 'vue';
+import { nextTick, onMounted, ref } from 'vue';
+
+import { useCart, type CartItem } from '@/composables/useCart';
+import { formatRupiah } from '@/composables/useHelperFunctions';
 
 // Register Library
 Swiper.use([Navigation, Pagination]);
 gsap.registerPlugin(ScrollTrigger);
+
+const { addToCart } = useCart();
+
+const product = ref<CartItem>({
+    id: Date.now().toString(),
+    name: `-`,
+    price: 0,
+    image: '/storage/images/logo.png',
+    slug: '-',
+    discount: 0,
+    status: {
+        label: '-',
+        isReady: true,
+    },
+    category: {
+        name: '-',
+    },
+    quantity: 1,
+});
 
 defineOptions({
     components: {
@@ -32,6 +54,22 @@ onMounted(() => {
             },
         });
     });
+    product.value = {
+        id: Date.now().toString(),
+        name: `Nama Produk (${Date.now().toString()})`,
+        price: 100000,
+        image: '/storage/images/logo.png',
+        slug: 'nama-produk-1',
+        discount: 10,
+        status: {
+            label: 'Tersedia',
+            isReady: true,
+        },
+        category: {
+            name: 'Kategori Produk',
+        },
+        quantity: 1,
+    };
 });
 </script>
 
@@ -39,7 +77,7 @@ onMounted(() => {
     <AppLayout>
         <template #pageHead>
             <Head>
-                <title>Nama Produk</title>
+                <title>{{ product.name }}</title>
                 <meta name="description" content="Halaman detail produk Rivies Bakery" />
             </Head>
         </template>
@@ -94,9 +132,9 @@ onMounted(() => {
             </nav>
         </template>
         <!-- Title -->
-        <template #pageTitle>Nama Produk 1</template>
+        <template #pageTitle>Detail produk</template>
         <!-- Description -->
-        <template #pageDescription>Ketegori Produk</template>
+        <template #pageDescription>{{ product.category.name }}</template>
         <!-- Content -->
         <template #content>
             <section class="home-section-one mx-auto max-w-screen-xl items-center gap-8 px-4 py-8 sm:py-16 md:grid md:grid-cols-2 lg:px-6 xl:gap-16">
@@ -126,17 +164,23 @@ onMounted(() => {
                 </div>
                 <div class="text mt-4 md:mt-0">
                     <div class="mb-3 w-fit rounded bg-primary-600 px-2.5 py-0.5 text-lg font-medium text-background">Kategori Produk</div>
-                    <h2 class="mb-4 text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">Nama Produk 1</h2>
 
+                    <h2 class="mb-1 text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">Nama Produk 1</h2>
+                    <p class="mb-4 text-xl font-light text-foreground">
+                        {{ formatRupiah(product.price - (product.price * (product.discount ?? 0)) / 100) }}
+                        <sup class="text-xs line-through"> {{ formatRupiah(product.price) }}</sup>
+                    </p>
                     <p class="mb-6 font-light text-gray-500 md:text-lg dark:text-gray-400">
                         Di Rivies Bakery, setiap roti, kue, dan pastry dibuat sepenuh hati dengan bahan pilihan terbaik. Nikmati aroma segar yang
                         menggoda dan rasa yang memanjakan lidah. Saatnya bawa pulang kebahagiaan, satu gigitan demi satu
                     </p>
                     <div class="flex w-full gap-2">
                         <button
-                            class="inline-block grow-1 cursor-pointer rounded-l-lg border-2 border-primary-600 bg-transparent px-3 py-1 text-center text-base font-semibold text-primary hover:bg-primary-600 hover:text-background md:text-lg"
+                            @click="product && addToCart(product)"
+                            class="inline-flex grow-1 cursor-pointer items-center justify-center gap-3 rounded-l-lg border-2 border-primary-600 bg-transparent px-3 py-1 text-center text-base font-semibold text-primary hover:bg-primary-600 hover:text-background md:text-lg"
                         >
-                            Cek
+                            Tambahkan
+                            <ShoppingBag class="h-5 w-5" />
                         </button>
                         <button
                             class="inline-block w-fit cursor-pointer rounded-r-lg border-2 border-primary-600 bg-transparent px-3 py-1 text-center text-base font-semibold text-primary hover:bg-primary-600 hover:text-background md:text-lg"

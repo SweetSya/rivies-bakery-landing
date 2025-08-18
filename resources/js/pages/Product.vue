@@ -430,6 +430,7 @@ onMounted(() => {
                     <ProductCard
                         v-for="product in products"
                         :key="product.id"
+                        :id="product.id"
                         :name="product.name"
                         :price="product.price"
                         :image="product.image"
@@ -501,7 +502,7 @@ onMounted(() => {
                                         <div class="flex flex-wrap gap-5 md:flex-nowrap">
                                             <div class="flex grow">
                                                 <span
-                                                    class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/20 bg-primary-600 px-3 text-sm text-foreground/80 md:text-lg"
+                                                    class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/20 bg-primary-600 px-3 text-sm text-background/80 md:text-lg"
                                                 >
                                                     Rp
                                                 </span>
@@ -514,7 +515,7 @@ onMounted(() => {
                                             </div>
                                             <div class="flex grow">
                                                 <span
-                                                    class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/20 bg-primary-600 px-3 text-sm text-foreground/80 md:text-lg"
+                                                    class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/20 bg-primary-600 px-3 text-sm text-background/80 md:text-lg"
                                                 >
                                                     Rp
                                                 </span>
@@ -538,7 +539,7 @@ onMounted(() => {
                                 data-modal-hide="filter-modal"
                                 aria-hidden="true"
                                 type="submit"
-                                class="cursor-pointer rounded-lg border border-primary-600 bg-primary-600 px-5 py-2 text-center text-xs font-light text-white hover:bg-primary-700 hover:text-white focus:z-10 focus:ring-4 focus:ring-primary-200 focus:outline-none dark:border-primary-600 dark:bg-primary-600 dark:text-white dark:hover:bg-primary-700 dark:hover:text-white dark:focus:ring-primary-900"
+                                class="cursor-pointer rounded-lg border border-primary-600 bg-primary-600 px-5 py-2 text-center text-xs font-light text-background hover:bg-primary-700 focus:z-10 focus:ring-4 focus:ring-primary-200 focus:outline-none dark:border-primary-600 dark:bg-primary-600"
                             >
                                 Terapkan
                             </button>
