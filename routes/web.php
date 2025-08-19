@@ -3,9 +3,12 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+// Home
 Route::get('/', function () {
     return Inertia::render('Home');
 })->name('home');
+
+// Products
 Route::get('/products', function () {
     return Inertia::render('Product');
 })->name('product');
@@ -16,7 +19,14 @@ Route::get('/products/{slug}', function ($id) {
 })->name('product.detail');
 Route::get('/cart', function () {
     return Inertia::render('Cart');
+
+// Cart and Checkout
 })->name('cart');
+Route::get('/checkout', function () {
+    return Inertia::render('Checkout');
+})->name('checkout');
+
+// Other
 Route::get('/about', function () {
     return Inertia::render('About');
 })->name('about');

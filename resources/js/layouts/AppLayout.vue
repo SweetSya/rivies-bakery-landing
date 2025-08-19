@@ -3,7 +3,7 @@ import { useAppearance } from '@/composables/useAppearance';
 import { useCart } from '@/composables/useCart';
 import { Link, usePage } from '@inertiajs/vue3';
 import { initFlowbite } from 'flowbite';
-import { DoorOpen, Menu, Moon, ShoppingBag, Sun, X } from 'lucide-vue-next';
+import { DoorOpen, Menu, Moon, ShoppingBag, ShoppingCart, Sun, UserCircle, X } from 'lucide-vue-next';
 import { darkTheme, lightTheme, Notification, Notivue } from 'notivue';
 import SimpleParallax from 'simple-parallax-js/vanilla';
 import { onMounted, ref, watch } from 'vue';
@@ -70,7 +70,7 @@ onMounted(() => {
             </div>
         </div>
     </nav>
-    <nav class="sticky top-0 z-20 mx-auto hidden border-b border-foreground/20 bg-background lg:flex">
+    <nav class="sticky top-0 z-20 mx-auto hidden border-b border-foreground/20 bg-background md:flex">
         <div class="mx-auto w-full max-w-screen-xl px-4">
             <div class="flex items-center justify-between">
                 <ul class="mt-0 flex flex-row text-sm font-medium rtl:space-x-reverse">
@@ -108,7 +108,7 @@ onMounted(() => {
             </div>
         </div>
     </nav>
-    <nav class="sticky top-0 z-20 mx-auto flex justify-end bg-background shadow-md lg:hidden">
+    <nav class="sticky top-0 z-10 mx-auto flex justify-end bg-background shadow-md md:hidden">
         <div class="me-8 rounded-lg py-4 text-center">
             <Menu
                 data-drawer-target="drawer-navigation"
@@ -119,10 +119,44 @@ onMounted(() => {
             />
         </div>
     </nav>
+    <!-- Bottom Navigation for Phone -->
+
+    <div class="fixed bottom-0 left-0 z-20 block h-16 w-full rounded-t-xl border-t border-foreground/20 bg-background/80 backdrop-blur-lg md:hidden">
+        <div class="mx-auto grid h-full max-w-lg grid-cols-3 font-medium">
+            <Link
+                href="/cart"
+                type="button"
+                class="group inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800"
+            >
+                <div class="relative">
+                    <ShoppingBag class="mb-2 h-5 w-5 text-base-500 group-hover:text-primary-600" />
+                    <div class="absolute -top-1 -right-2 text-xs font-light text-primary-700">{{ getCartTotalItem() }}</div>
+                </div>
+                <span class="text-sm text-base-500 group-hover:text-primary-600 dark:text-gray-400 dark:group-hover:text-primary-500">Keranjang</span>
+            </Link>
+            <Link
+                href="/products"
+                type="button"
+                class="group inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800"
+            >
+                <ShoppingCart class="mb-2 h-5 w-5 text-base-500 group-hover:text-primary-600" />
+                <span class="text-sm text-base-500 group-hover:text-primary-600 dark:text-gray-400 dark:group-hover:text-primary-500">Produk</span>
+            </Link>
+            <Link
+                href="account"
+                type="button"
+                class="group inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800"
+            >
+                <UserCircle class="mb-2 h-5 w-5 text-base-500 group-hover:text-primary-600" />
+                <span class="text-sm text-base-500 group-hover:text-primary-600 dark:text-gray-400 dark:group-hover:text-primary-500">Akun</span>
+            </Link>
+        </div>
+    </div>
+
     <!-- Navigation drawer components -->
     <div
         id="drawer-navigation"
-        class="fixed top-0 right-0 z-[60] h-screen w-80 translate-x-full overflow-y-auto bg-background p-4 transition-transform duration-500"
+        class="fixed top-0 right-0 z-[60] h-screen w-80 translate-x-full overflow-y-auto border-l border-foreground/20 bg-background/50 p-4 backdrop-blur-lg transition-transform duration-500"
         tabindex="-1"
         aria-labelledby="drawer-navigation-label"
     >
@@ -161,33 +195,33 @@ onMounted(() => {
         </div>
     </div>
 
-    <main class="app overflow-x-hidden">
-        <div class="-mt-3 h-[70vh] max-h-[600px] w-full">
-            <div class="h-full w-full">
-                <div class="relative h-full w-full">
-                    <div class="page-background">
-                        <slot name="pageBackground" />
-                    </div>
-                    <div class="relative mx-auto h-full w-full max-w-screen-xl px-4">
-                        <div class="absolute top-1/2 left-0 max-w-screen-xl -translate-y-1/2 px-4">
-                            <nav class="mb-2 flex" aria-label="Breadcrumb">
-                                <slot name="pageBreadcrumb" />
-                            </nav>
-                            <h1 class="mb-2 text-3xl font-extrabold text-base-50 md:text-5xl"><slot name="pageTitle" /></h1>
-                            <p class="mb-6 text-lg font-normal text-base-50">
-                                <slot name="pageDescription" />
-                            </p>
+        <main class="app overflow-x-hidden">
+            <div class="-mt-3 h-[70vh] max-h-[600px] w-full">
+                <div class="h-full w-full">
+                    <div class="relative h-full w-full">
+                        <div class="page-background">
+                            <slot name="pageBackground" />
+                        </div>
+                        <div class="relative mx-auto h-full w-full max-w-screen-xl px-4">
+                            <div class="absolute top-1/2 left-0 max-w-screen-xl -translate-y-1/2 px-4">
+                                <nav class="mb-2 flex" aria-label="Breadcrumb">
+                                    <slot name="pageBreadcrumb" />
+                                </nav>
+                                <h1 class="mb-2 text-3xl font-extrabold text-base-50 md:text-5xl"><slot name="pageTitle" /></h1>
+                                <p class="mb-6 text-lg font-normal text-base-50">
+                                    <slot name="pageDescription" />
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="relative -mt-20 rounded-t-4xl bg-background p-5">
-            <div class="mx-auto min-h-80 max-w-screen-xl">
-                <slot name="content" />
+            <div class="relative -mt-20 rounded-t-4xl bg-background p-5">
+                <div class="mx-auto min-h-80 max-w-screen-xl">
+                    <slot name="content" />
+                </div>
             </div>
-        </div>
-    </main>
+        </main>
     <footer class="border-t border-base-500/50 p-4 md:p-8 lg:p-10">
         <div class="mx-auto max-w-screen-xl text-center">
             <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400"

@@ -426,7 +426,7 @@ onMounted(() => {
                         </button>
                     </div>
                 </div>
-                <div class="mb-4 grid gap-4 sm:grid-cols-2 md:mb-8 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                <div class="mb-4 grid gap-4 xs:grid-cols-2 md:mb-8 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                     <ProductCard
                         v-for="product in products"
                         :key="product.id"

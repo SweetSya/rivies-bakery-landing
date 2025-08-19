@@ -209,11 +209,11 @@ const cart = computed(() => getCart());
                                     </dl>
                                 </div>
 
-                                <a
-                                    href="#"
+                                <Link
+                                    href="/checkout"
                                     :class="isEmpty() ? 'pointer-events-none opacity-50' : ''"
                                     class="flex w-full items-center justify-center rounded-lg bg-primary-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 focus:outline-none dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-                                    >Proses Checkout</a
+                                    >Proses Checkout</Link
                                 >
 
                                 <div class="flex items-center justify-center gap-2">
