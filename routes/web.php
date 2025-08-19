@@ -25,7 +25,6 @@ Route::get('/cart', function () {
 Route::get('/checkout', function () {
     return Inertia::render('Checkout');
 })->name('checkout');
-
 // Other
 Route::get('/about', function () {
     return Inertia::render('About');

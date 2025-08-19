@@ -3,7 +3,7 @@ import { useAppearance } from '@/composables/useAppearance';
 import { useCart } from '@/composables/useCart';
 import { Link, usePage } from '@inertiajs/vue3';
 import { initFlowbite } from 'flowbite';
-import { DoorOpen, Menu, Moon, ShoppingBag, ShoppingCart, Sun, UserCircle, X } from 'lucide-vue-next';
+import { DoorOpen, Menu, Moon, ShoppingBag, ShoppingCart, Sun, X } from 'lucide-vue-next';
 import { darkTheme, lightTheme, Notification, Notivue } from 'notivue';
 import SimpleParallax from 'simple-parallax-js/vanilla';
 import { onMounted, ref, watch } from 'vue';
@@ -147,9 +147,20 @@ onMounted(() => {
                 type="button"
                 class="group inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800"
             >
-                <UserCircle class="mb-2 h-5 w-5 text-base-500 group-hover:text-primary-600" />
-                <span class="text-sm text-base-500 group-hover:text-primary-600 dark:text-gray-400 dark:group-hover:text-primary-500">Akun</span>
+                <img class="mb-2 h-5 w-5 rounded-full border border-foreground/20" src="/storage/images/logo.png" alt="" />
+                <span
+                    class="w-16 overflow-hidden text-sm text-nowrap text-ellipsis whitespace-nowrap text-base-500 group-hover:text-primary-600 xs:w-24 dark:text-gray-400 dark:group-hover:text-primary-500"
+                    >Sultan Hakim Herrysan</span
+                >
             </Link>
+            <!-- <Link
+                href="login"
+                type="button"
+                class="group inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800"
+            >
+                <UserCircle class="mb-2 h-5 w-5 text-base-500 group-hover:text-primary-600" />
+                <span class="text-sm text-base-500 group-hover:text-primary-600 dark:text-gray-400 dark:group-hover:text-primary-500">Login</span>
+            </Link> -->
         </div>
     </div>
 
@@ -195,33 +206,33 @@ onMounted(() => {
         </div>
     </div>
 
-        <main class="app overflow-x-hidden">
-            <div class="-mt-3 h-[70vh] max-h-[600px] w-full">
-                <div class="h-full w-full">
-                    <div class="relative h-full w-full">
-                        <div class="page-background">
-                            <slot name="pageBackground" />
-                        </div>
-                        <div class="relative mx-auto h-full w-full max-w-screen-xl px-4">
-                            <div class="absolute top-1/2 left-0 max-w-screen-xl -translate-y-1/2 px-4">
-                                <nav class="mb-2 flex" aria-label="Breadcrumb">
-                                    <slot name="pageBreadcrumb" />
-                                </nav>
-                                <h1 class="mb-2 text-3xl font-extrabold text-base-50 md:text-5xl"><slot name="pageTitle" /></h1>
-                                <p class="mb-6 text-lg font-normal text-base-50">
-                                    <slot name="pageDescription" />
-                                </p>
-                            </div>
+    <main class="app overflow-x-hidden">
+        <div class="-mt-3 h-[70vh] max-h-[600px] w-full">
+            <div class="h-full w-full">
+                <div class="relative h-full w-full">
+                    <div class="page-background">
+                        <slot name="pageBackground" />
+                    </div>
+                    <div class="relative mx-auto h-full w-full max-w-screen-xl px-4">
+                        <div class="absolute top-1/2 left-0 max-w-screen-xl -translate-y-1/2 px-4">
+                            <nav class="mb-2 flex" aria-label="Breadcrumb">
+                                <slot name="pageBreadcrumb" />
+                            </nav>
+                            <h1 class="mb-2 text-3xl font-extrabold text-base-50 md:text-5xl"><slot name="pageTitle" /></h1>
+                            <p class="mb-6 text-lg font-normal text-base-50">
+                                <slot name="pageDescription" />
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="relative -mt-20 rounded-t-4xl bg-background p-5">
-                <div class="mx-auto min-h-80 max-w-screen-xl">
-                    <slot name="content" />
-                </div>
+        </div>
+        <div class="relative -mt-20 rounded-t-4xl bg-background p-5">
+            <div class="mx-auto min-h-80 max-w-screen-xl">
+                <slot name="content" />
             </div>
-        </main>
+        </div>
+    </main>
     <footer class="border-t border-base-500/50 p-4 md:p-8 lg:p-10">
         <div class="mx-auto max-w-screen-xl text-center">
             <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400"
