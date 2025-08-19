@@ -162,14 +162,14 @@ export function useCart() {
     const getCartTotalItem = () => {
         return cart.value.items.length;
     };
-    const isEmpty = () => {
+    const isCartEmpty = () => {
         return cart.value.items.length === 0;
     };
     const isProductInCart = (id: string) => {
         return cart.value.items.some((item) => item.id === id);
     };
     return {
-        isEmpty,
+        isCartEmpty,
         isProductInCart,
         getCart,
         addToCart,

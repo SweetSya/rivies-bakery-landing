@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import { useCart } from '@/composables/useCart';
+import { useCheckout } from '@/composables/useCheckout';
 import { formatRupiah } from '@/composables/useHelperFunctions';
 import { useNotifications } from '@/composables/useNotifications';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowRight, Plus } from 'lucide-vue-next';
-import { computed } from 'vue';
+import { ArrowRight, CreditCard } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 
 const { notivueSuccess, notivueError } = useNotifications();
 
-const { getCart, isEmpty, applyCupon } = useCart();
+const { getCart } = useCart();
+const { getCheckout, isCheckoutEmpty } = useCheckout();
+
+const selectAddress = ref(<string>'');
 
 defineOptions({
     components: {
@@ -18,6 +22,7 @@ defineOptions({
 });
 
 // Use computed to make it reactive
+const checkout = computed(() => getCheckout());
 const cart = computed(() => getCart());
 </script>
 
@@ -70,15 +75,37 @@ const cart = computed(() => getCart());
         <!-- Content -->
         <template #content>
             <section class="py-8 antialiased md:py-16">
-                <form action="#" class="mx-auto max-w-screen-xl px-4 2xl:px-0">
+                <div class="mx-auto max-w-screen-xl px-4 2xl:px-0">
                     <div class="mt-6 sm:mt-8 lg:flex lg:items-start lg:gap-12 xl:gap-16">
                         <div class="min-w-0 flex-1 space-y-8">
                             <div class="space-y-4">
                                 <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Detail Pengiriman</h2>
-                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+                                <select
+                                    id="countries"
+                                    v-model="selectAddress"
+                                    class="block w-full rounded-lg border border-gray-300 bg-background p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+                                >
+                                    <option value="" selected>Pilih alamat..</option>
+                                    <option value="address1">Alamat 1</option>
+                                    <option value="address2">Alamat 2</option>
+                                    <option value="new-address">(+) Tambah alamat baru</option>
+                                </select>
+                                <p
+                                    v-show="!['new-address', ''].includes(selectAddress)"
+                                    class="mt-1 text-xs font-normal text-gray-500 md:text-base dark:text-gray-400"
+                                >
+                                    Ditambahkan secara otomatis berdasarkan data yang ada, untuk mengubah alamat harap
+                                    <Link href="/account" class="text-primary-600 underline">klik disini</Link>
+                                </p>
+                                <div
+                                    class="grid grid-cols-1 gap-4 sm:grid-cols-2"
+                                    :class="selectAddress === 'new-address' ? '' : 'pointer-events-none opacity-80'"
+                                >
                                     <div>
                                         <label for="name" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Nama Lengkap </label>
                                         <input
+                                            v-model="checkout.fullName"
                                             type="text"
                                             id="name"
                                             class="block w-full rounded-lg border border-gray-300 bg-transparent p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
@@ -90,6 +117,7 @@ const cart = computed(() => getCart());
                                     <div>
                                         <label for="name" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Email </label>
                                         <input
+                                            v-model="checkout.email"
                                             type="email"
                                             id="email"
                                             class="block w-full rounded-lg border border-gray-300 bg-transparent p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
@@ -103,21 +131,12 @@ const cart = computed(() => getCart());
                                             Alamat Lengkap
                                         </label>
                                         <textarea
+                                            v-model="checkout.address"
                                             name="address"
                                             id="address"
                                             rows="4"
                                             class="block w-full rounded-lg border border-gray-300 bg-transparent p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
                                         ></textarea>
-                                    </div>
-
-                                    <div class="sm:col-span-2">
-                                        <button
-                                            type="submit"
-                                            class="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-primary-600 bg-primary-500/80 px-5 py-2.5 text-sm font-medium hover:opacity-80"
-                                        >
-                                            <Plus class="h-5 w-5" />
-                                            Add new address
-                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -190,9 +209,7 @@ const cart = computed(() => getCart());
                                             </div>
 
                                             <div class="ms-4 text-sm">
-                                                <div class="leading-none font-medium text-gray-900 dark:text-white">
-                                                    Di Toko
-                                                </div>
+                                                <div class="leading-none font-medium text-gray-900 dark:text-white">Di Toko</div>
                                                 <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-gray-500 dark:text-gray-400">
                                                     Mojokerto, Wates
                                                 </p>
@@ -214,9 +231,7 @@ const cart = computed(() => getCart());
                                             </div>
 
                                             <div class="ms-4 text-sm">
-                                                <div class="leading-none font-medium text-gray-900 dark:text-white">
-                                                    GoSend
-                                                </div>
+                                                <div class="leading-none font-medium text-gray-900 dark:text-white">GoSend</div>
                                                 <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-gray-500 dark:text-gray-400">
                                                     Biaya menyesuaikan jarak
                                                 </p>
@@ -238,9 +253,7 @@ const cart = computed(() => getCart());
                                             </div>
 
                                             <div class="ms-4 text-sm">
-                                                <div class="leading-none font-medium text-gray-900 dark:text-white">
-                                                    Lainnya (JNE,JNT,dll)
-                                                </div>
+                                                <div class="leading-none font-medium text-gray-900 dark:text-white">Lainnya (JNE,JNT,dll)</div>
                                                 <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-gray-500 dark:text-gray-400">
                                                     Biaya menyesuaikan jarak
                                                 </p>
@@ -294,12 +307,15 @@ const cart = computed(() => getCart());
                                 </dl>
                             </div>
 
-                            <Link
-                                href="/checkout"
-                                :class="isEmpty() ? 'pointer-events-none opacity-50' : ''"
-                                class="flex w-full items-center justify-center rounded-lg bg-primary-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 focus:outline-none dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-                                >Proses Pembayaran</Link
+                            <button
+                                data-modal-target="payment-modal"
+                                data-modal-toggle="payment-modal"
+                                type="button"
+                                :class="isCheckoutEmpty() ? 'pointer-events-none opacity-50' : ''"
+                                class="flex w-full cursor-pointer items-center justify-center rounded-lg bg-primary-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 focus:outline-none dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                             >
+                                Proses Pembayaran
+                            </button>
 
                             <div class="flex items-center justify-center gap-2">
                                 <span class="text-sm font-normal text-gray-500 dark:text-gray-400"> atau </span>
@@ -314,8 +330,45 @@ const cart = computed(() => getCart());
                             </div>
                         </div>
                     </div>
-                </form>
+                </div>
             </section>
+            <div
+                id="payment-modal"
+                data-modal-backdrop="static"
+                tabindex="-1"
+                class="fixed top-0 right-0 left-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full overflow-x-hidden overflow-y-auto p-4 md:inset-0"
+            >
+                <div class="relative max-h-full w-full max-w-xl">
+                    <!-- Modal content -->
+                    <div class="relative rounded-lg bg-background shadow-md shadow-foreground/10">
+                        <!-- Modal header -->
+                        <div class="flex items-center justify-between rounded-t border-b border-gray-200 p-4 md:p-5 dark:border-gray-600">
+                            <h3 class="flex items-center gap-4 text-xl font-medium text-foreground">
+                                <CreditCard class="h-5 w-5 text-primary-600" /> Proses Pembayaran
+                            </h3>
+
+                            <img src="" alt="" />
+                        </div>
+                        <!-- Modal body -->
+                        <div class="space-y-4 p-4 md:p-5">
+                            <div>Test</div>
+                        </div>
+                        <!-- Modal footer -->
+                        <div
+                            class="flex items-center space-x-2 rounded-b border-t border-gray-200 p-4 md:p-5 rtl:space-x-reverse dark:border-gray-600"
+                        >
+                            <button
+                                data-modal-hide="payment-modal"
+                                aria-hidden="true"
+                                type="button"
+                                class="cursor-pointer rounded-lg border border-primary-600 bg-primary-600 px-5 py-2 text-center text-xs font-light text-background hover:bg-primary-700 focus:z-10 focus:ring-4 focus:ring-primary-200 focus:outline-none dark:border-primary-600 dark:bg-primary-600"
+                            >
+                                Batalkan Pembayaran
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </template>
     </AppLayout>
 </template>

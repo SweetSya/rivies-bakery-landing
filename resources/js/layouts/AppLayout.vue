@@ -10,7 +10,7 @@ import { onMounted, ref, watch } from 'vue';
 
 const { updateAppearance, appearance } = useAppearance();
 const page = usePage();
-const { getCartTotalItem } = useCart();
+const { getCartTotalItem, initializeCart } = useCart();
 
 const toggleAppereance = () => {
     const newAppearance = appearance.value === 'dark' ? 'light' : 'dark';
@@ -39,6 +39,7 @@ onMounted(() => {
             overflow: true,
         });
     }
+    initializeCart();
     initFlowbite();
 });
 </script>

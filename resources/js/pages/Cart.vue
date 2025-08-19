@@ -10,7 +10,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 const { notivueSuccess, notivueError } = useNotifications();
 
-const { getCart, isEmpty, applyCupon } = useCart();
+const { getCart, isCartEmpty, applyCupon } = useCart();
 
 defineOptions({
     components: {
@@ -107,7 +107,7 @@ const cart = computed(() => getCart());
                 <div class="mx-auto max-w-screen-xl px-4 2xl:px-0">
                     <div class="mt-6 sm:mt-8 md:gap-6 lg:flex lg:items-start xl:gap-8">
                         <div class="mx-auto w-full flex-none lg:max-w-2xl xl:max-w-4xl">
-                            <div v-show="!isEmpty()" class="space-y-6">
+                            <div v-show="!isCartEmpty()" class="space-y-6">
                                 <ProductCart
                                     v-for="item in cart.items"
                                     :key="item.id"
@@ -123,7 +123,7 @@ const cart = computed(() => getCart());
                                 />
                             </div>
                             <div>
-                                <div v-show="isEmpty()" class="text-center text-gray-500">
+                                <div v-show="isCartEmpty()" class="text-center text-gray-500">
                                     <p class="text-lg font-semibold">Keranjang Anda kosong</p>
                                     <p class="mt-2">Tambahkan produk ke keranjang untuk memulai belanja.</p>
                                 </div>
@@ -211,7 +211,7 @@ const cart = computed(() => getCart());
 
                                 <Link
                                     href="/checkout"
-                                    :class="isEmpty() ? 'pointer-events-none opacity-50' : ''"
+                                    :class="isCartEmpty() ? 'pointer-events-none opacity-50' : ''"
                                     class="flex w-full items-center justify-center rounded-lg bg-primary-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 focus:outline-none dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                                     >Proses Checkout</Link
                                 >
