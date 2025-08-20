@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
+import { useAppearance } from '@/composables/useAppearance';
 import { useCart } from '@/composables/useCart';
 import { useCheckout } from '@/composables/useCheckout';
 import { formatRupiah } from '@/composables/useHelperFunctions';
@@ -8,9 +9,10 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { Modal, ModalInterface, ModalOptions } from 'flowbite';
 import { ArrowRight, CreditCard } from 'lucide-vue-next';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
-const { notivueSuccess, notivueError } = useNotifications();
+const { appearance } = useAppearance();
+const { notivueSuccess } = useNotifications();
 
 const { getCart, resetCart, isCartEmpty } = useCart();
 const { getCheckout, isCheckoutEmpty, resetCheckout } = useCheckout();
@@ -82,6 +84,10 @@ onMounted(() => {
 
         paymentModal.value = new Modal(modalElement, modalOptions);
     }
+});
+
+onUnmounted(() => {
+    resetCheckout();
 });
 </script>
 
@@ -164,19 +170,15 @@ onMounted(() => {
                                     <option value="" selected>Pilih alamat..</option>
                                     <option value="address1">Alamat 1</option>
                                     <option value="address2">Alamat 2</option>
-                                    <option value="new-address">(+) Tambah alamat baru</option>
                                 </select>
                                 <p
-                                    v-show="!['new-address', ''].includes(selectAddress)"
+                                    v-show="![''].includes(selectAddress)"
                                     class="mt-1 text-xs font-normal text-gray-500 md:text-base dark:text-gray-400"
                                 >
                                     Ditambahkan secara otomatis berdasarkan data yang ada, untuk mengubah alamat harap
                                     <Link href="/account" class="text-primary-600 underline">klik disini</Link>
                                 </p>
-                                <div
-                                    class="grid grid-cols-1 gap-4 sm:grid-cols-2"
-                                    :class="selectAddress === 'new-address' ? '' : 'pointer-events-none opacity-80'"
-                                >
+                                <div class="grid grid-cols-1 gap-4 overflow-hidden sm:grid-cols-2" v-show="selectAddress !== ''">
                                     <div>
                                         <label for="name" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Nama Lengkap </label>
                                         <input
@@ -348,7 +350,7 @@ onMounted(() => {
                                     telepon yang terdaftar.
                                 </p>
                                 <div class="grid grid-cols-2 gap-3">
-                                    <div class="relative w-full col-span-2 md:col-span-1">
+                                    <div class="relative col-span-2 w-full md:col-span-1">
                                         <input
                                             id="default-datepicker"
                                             type="datetime-local"
@@ -436,31 +438,42 @@ onMounted(() => {
                     <!-- Modal content -->
                     <div class="relative rounded-lg bg-background shadow-md shadow-foreground/10">
                         <!-- Modal header -->
-                        <div class="flex items-center justify-between rounded-t border-b border-gray-200 p-4 md:p-5 dark:border-gray-600">
-                            <h3 class="flex items-center gap-4 text-xl font-medium text-foreground">
-                                <CreditCard class="h-5 w-5 text-primary-600" /> Proses Pembayaran
-                            </h3>
 
-                            <img src="" alt="" />
+                        <div
+                            class="flex items-center justify-between rounded-t border-b border-gray-200 bg-primary-600 p-4 md:p-5 dark:border-gray-600"
+                        >
+                            <h3 class="flex items-center gap-4 text-xl font-medium text-foreground">
+                                <CreditCard class="h-5 w-5" /> Proses Pembayaran
+                            </h3>
                         </div>
                         <!-- Modal body -->
                         <LoadingSpinner :extendClass="'h-40'" :message="'Sedang membuat pembayaran...'" v-show="loadingPayment" />
                         <div v-show="!loadingPayment" class="flex flex-col items-center justify-center space-y-1 p-4 md:p-5">
-                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Metode Pembayaran</h2>
-                            <p class="text-xl font-bold">QRIS</p>
-                            <div class="flex flex-col items-center justify-center space-y-2 rounded p-3">
-                                <div class="rounded-lg border-4 border-primary-600 shadow-lg shadow-foreground/10">
-                                    <img src="/storage/images/qris.png" class="rounded" alt="QRIS" />
-                                </div>
-
-                                <p class="text-xl font-bold">{{ formatRupiah(350000) }}</p>
-                                <p class="text-xl font-bold">Rivies Bakery</p>
-                            </div>
+                            <!-- <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Metode Pembayaran</h2> -->
+                            <img :src="`/assets/images/qris-logo-${appearance}.png`" class="h-16 rounded object-contain md:h-24" alt="QRIS" />
                             <p class="mt-1 text-center text-xs font-normal text-gray-500 md:text-base dark:text-gray-400">
                                 Harap lakukan pembayaran sebelum
                                 <span class="text-primary-600 dark:text-primary-500">{{ new Date().toLocaleString() }}</span> untuk menghindari
                                 pembatalan
                             </p>
+                            <div class="flex flex-col items-center justify-center space-y-2 rounded p-3">
+                                <p class="text-xl font-bold">Rivies Bakery</p>
+                                <div class="rounded-lg border-4 border-primary-500 shadow-lg shadow-foreground/10">
+                                    <img src="/storage/images/qris.png" class="rounded" alt="QRIS" />
+                                </div>
+
+                                <p class="text-xl font-bold">{{ formatRupiah(350000) }}</p>
+                                <p
+                                    class="text-xl font-bold underline"
+                                    :class="{
+                                        'text-primary-500': ['', 'pending', 'unpaid'].includes(checkout.payment.status ?? 'unpaid'),
+                                        'text-green-500': checkout.payment.status === 'paid',
+                                    }"
+                                >
+                                    Menunggu pembayaran
+                                </p>
+                                <p class="text-sm font-normal text-gray-500 dark:text-gray-400">Pengecekan dalam 5 detik..</p>
+                            </div>
                             <p class="mt-1 text-center text-xs font-normal text-gray-500 md:text-base dark:text-gray-400">
                                 Untuk melihat seluruh riwayat pembayaran, silahkan kunjungi
                                 <Link href="/payment-history" class="text-primary-600 underline hover:opacity-80 dark:text-primary-500"
@@ -469,13 +482,11 @@ onMounted(() => {
                             </p>
                         </div>
                         <!-- Modal footer -->
-                        <div
-                            class="flex items-center justify-between space-x-2 rounded-b border-t border-gray-200 p-4 md:p-5 rtl:space-x-reverse dark:border-gray-600"
-                        >
+                        <div v-show="!loadingPayment" class="flex items-center justify-between space-x-2 rounded-b px-4 pb-4 md:px-5 md:pb-5">
                             <button
                                 type="button"
                                 @click="paymentModal?.hide()"
-                                class="relative cursor-pointer overflow-hidden rounded-lg border-2 border-primary-500 bg-primary-600 px-5 py-2 text-center text-base text-base-50 hover:opacity-80 focus:z-10 focus:ring-1 focus:ring-primary-300 focus:outline-none"
+                                class="relative cursor-pointer overflow-hidden rounded-lg border-2 border-primary-500 bg-primary-600 px-5 py-2 text-center text-base text-foreground hover:opacity-80 focus:z-10 focus:ring-1 focus:ring-primary-300 focus:outline-none"
                             >
                                 <div class="relative z-10">Tutup</div>
                             </button>
@@ -487,9 +498,9 @@ onMounted(() => {
                                 @touchstart="handleHoldToCancel(true)"
                                 @touchend="holdToCancel = false"
                                 :class="holdToCancel ? 'bg-transparent' : ''"
-                                class="relative cursor-pointer overflow-hidden rounded-lg border-2 border-red-500 bg-red-500 px-5 py-2 text-center text-base text-base-50 hover:opacity-80 focus:z-10 focus:ring-1 focus:ring-red-300 focus:outline-none"
+                                class="relative cursor-pointer overflow-hidden rounded-lg border-2 border-red-500 bg-red-500 px-5 py-2 text-center text-base text-foreground hover:opacity-80 focus:z-10 focus:ring-1 focus:ring-red-300 focus:outline-none"
                             >
-                                <div class="relative z-10">Tahan untuk Membatalkan</div>
+                                <div class="relative z-10">Batalkan pesanan (Tahan)</div>
                                 <div
                                     :style="{ width: `${(holdToCancelProgress / 2000) * 100}%` }"
                                     class="absolute top-0 left-0 -z-0 h-full bg-red-500"

@@ -3,7 +3,7 @@ import { useAppearance } from '@/composables/useAppearance';
 import { useCart } from '@/composables/useCart';
 import { Link, usePage } from '@inertiajs/vue3';
 import { initFlowbite } from 'flowbite';
-import { DoorOpen, Menu, Moon, ShoppingBag, ShoppingCart, Sun, X } from 'lucide-vue-next';
+import { DoorOpen, Menu, Moon, ShoppingBag, ShoppingCart, Sun, User, X } from 'lucide-vue-next';
 import { darkTheme, lightTheme, Notification, Notivue } from 'notivue';
 import SimpleParallax from 'simple-parallax-js/vanilla';
 import { onMounted, ref, watch } from 'vue';
@@ -16,7 +16,6 @@ const toggleAppereance = () => {
     const newAppearance = appearance.value === 'dark' ? 'light' : 'dark';
     updateAppearance(newAppearance);
 };
-
 // Reset body overflow when page changes (after drawer navigation)
 watch(
     () => page.url,
@@ -104,6 +103,13 @@ onMounted(() => {
                         class="inline-flex items-center rounded-lg border border-border bg-background px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
                     >
                         Login <DoorOpen class="ms-2 h-4 w-4" />
+                    </Link>
+                    <Link
+                        href="/account"
+                        class="inline-flex items-center rounded-lg border border-border bg-background px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
+                    >
+                        <p class="overflow-hidden text-nowrap text-ellipsis max-w-24 whitespace-nowrap">Sultan Hakim Herrysan</p>
+                        <User class="ms-2 h-4 w-4" />
                     </Link>
                 </div>
             </div>

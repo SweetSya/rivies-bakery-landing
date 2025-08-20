@@ -5,7 +5,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowLeft, ArrowRight, Filter, Search, X } from 'lucide-vue-next';
+import { ArrowLeft, ArrowRight, Filter, FilterIcon, Search, X } from 'lucide-vue-next';
 import { Swiper } from 'swiper';
 import { Navigation, Pagination } from 'swiper/modules';
 import TomSelect from 'tom-select';
@@ -399,12 +399,12 @@ onMounted(() => {
 
                 <div class="sticky top-32 mb-4 items-end justify-between space-y-4 sm:flex sm:space-y-0 md:mb-8">
                     <div>
-                        <h2 class="mt-3 text-xl font-semibold text-foreground sm:text-2xl dark:text-white">Kategori :</h2>
+                        <h2 class="mt-3 text-xl font-semibold text-foreground sm:text-2xl dark:text-white">Produk Rivies</h2>
                         <div class="mt-2 flex flex-wrap justify-start gap-2">
                             <span
                                 v-for="category of appliedFilter.categories"
                                 :key="category"
-                                class="rounded bg-primary-600 p-1 text-xs font-light text-base-50"
+                                class="rounded bg-primary-600 px-3 py-2 text-xs md:text-base font-light text-foreground"
                                 >{{ category }}</span
                             >
                         </div>
@@ -456,22 +456,23 @@ onMounted(() => {
             <!-- Main modal -->
             <div
                 id="filter-modal"
-                data-modal-backdrop="static"
                 tabindex="-1"
                 class="fixed top-0 right-0 left-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full overflow-x-hidden overflow-y-auto p-4 md:inset-0"
             >
                 <div class="relative max-h-full w-full max-w-4xl">
                     <!-- Modal content -->
-                    <form @submit.prevent="setFilters()" class="relative rounded-lg bg-background shadow-md shadow-foreground/10">
+                    <form @submit.prevent="setFilters()" class="relative rounded-lg bg-background">
                         <!-- Modal header -->
-                        <div class="flex items-center justify-between rounded-t border-b border-gray-200 p-4 md:p-5 dark:border-gray-600">
-                            <h3 class="text-xl font-medium text-foreground">Filter Produk</h3>
+                        <div
+                            class="flex items-center justify-between rounded-t border-b border-gray-200 bg-primary-600 p-4 md:p-5 dark:border-gray-600"
+                        >
+                            <h3 class="flex items-center gap-4 text-xl font-medium text-foreground"><FilterIcon class="h-5 w-5" /> Filter Produk</h3>
                             <button
                                 type="button"
                                 class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-foreground md:text-lg dark:hover:bg-gray-600 dark:hover:text-white"
                                 data-modal-hide="filter-modal"
                             >
-                                <X class="h-5 w-5" aria-hidden="true" />
+                                <X class="h-5 w-5 text-foreground" aria-hidden="true" />
                                 <span class="sr-only">Close modal</span>
                             </button>
                         </div>
@@ -502,7 +503,7 @@ onMounted(() => {
                                         <div class="flex flex-wrap gap-5 md:flex-nowrap">
                                             <div class="flex grow">
                                                 <span
-                                                    class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/20 bg-primary-600 px-3 text-sm text-background/80 md:text-lg"
+                                                    class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/20 bg-primary-500 px-3 text-sm text-foreground md:text-lg"
                                                 >
                                                     Rp
                                                 </span>
@@ -515,7 +516,7 @@ onMounted(() => {
                                             </div>
                                             <div class="flex grow">
                                                 <span
-                                                    class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/20 bg-primary-600 px-3 text-sm text-background/80 md:text-lg"
+                                                    class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/20 bg-primary-500 px-3 text-sm text-foreground md:text-lg"
                                                 >
                                                     Rp
                                                 </span>
@@ -532,14 +533,12 @@ onMounted(() => {
                             </div>
                         </div>
                         <!-- Modal footer -->
-                        <div
-                            class="flex items-center space-x-2 rounded-b border-t border-gray-200 p-4 md:p-5 rtl:space-x-reverse dark:border-gray-600"
-                        >
+                        <div class="flex items-center justify-end space-x-2 rounded-b px-4 pb-4 md:px-5 md:pb-5">
                             <button
                                 data-modal-hide="filter-modal"
                                 aria-hidden="true"
                                 type="submit"
-                                class="cursor-pointer rounded-lg border border-primary-600 bg-primary-600 px-5 py-2 text-center text-xs font-light text-background hover:bg-primary-700 focus:z-10 focus:ring-4 focus:ring-primary-200 focus:outline-none dark:border-primary-600 dark:bg-primary-600"
+                                class="w-full cursor-pointer rounded-lg border border-primary-500 bg-primary-500 px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-primary-700 focus:z-10 focus:ring-4 focus:ring-primary-200 focus:outline-none md:text-base dark:border-primary-600 dark:bg-primary-600"
                             >
                                 Terapkan
                             </button>

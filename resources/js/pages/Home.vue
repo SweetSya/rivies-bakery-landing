@@ -135,7 +135,7 @@ onMounted(() => {
                     <p class="text-gray-500 sm:text-xl dark:text-gray-400">Penasaran dengan produk kami ?</p>
                     <Link
                         href="/products"
-                        class="inline-flex items-center rounded-lg bg-primary-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900"
+                        class="inline-flex items-center rounded-lg bg-primary-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:opacity-80 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900"
                     >
                         Telusuri Produk
                         <ArrowRight class="ms-2 h-4 w-4" />
@@ -177,7 +177,7 @@ onMounted(() => {
                     </p>
                     <Link
                         href="/about"
-                        class="inline-flex items-center rounded-lg bg-primary-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900"
+                        class="inline-flex items-center rounded-lg bg-primary-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:opacity-80 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900"
                     >
                         Mengenai
                         <ArrowRight class="ms-2 h-4 w-4" />
