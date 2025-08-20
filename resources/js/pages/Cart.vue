@@ -59,8 +59,8 @@ const cart = computed(() => getCart());
     <AppLayout>
         <template #pageHead>
             <Head>
-                <title>Kontak</title>
-                <meta name="description" content="Halaman kontak Rivies Bakery" />
+                <title>Keranjang</title>
+                <meta name="description" content="Halaman keranjang Rivies Bakery" />
             </Head>
         </template>
 
@@ -125,7 +125,17 @@ const cart = computed(() => getCart());
                             <div>
                                 <div v-show="isCartEmpty()" class="text-center text-gray-500">
                                     <p class="text-lg font-semibold">Keranjang Anda kosong</p>
-                                    <p class="mt-2">Tambahkan produk ke keranjang untuk memulai belanja.</p>
+                                    <p class="my-2">Tambahkan produk ke keranjang untuk memulai belanja.</p>
+                                    <div class="flex items-center justify-center gap-2">
+                                        <Link
+                                            href="/products"
+                                            title=""
+                                            class="inline-flex items-center gap-2 text-base font-medium text-primary-700 underline hover:no-underline dark:text-primary-500"
+                                        >
+                                            Kunjungi halaman produk
+                                            <ArrowRight class="h-4 w-4" />
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
                         </div>

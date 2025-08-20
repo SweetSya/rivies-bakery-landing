@@ -1,17 +1,19 @@
 <script setup lang="ts">
+import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import { useCart } from '@/composables/useCart';
 import { useCheckout } from '@/composables/useCheckout';
 import { formatRupiah } from '@/composables/useHelperFunctions';
 import { useNotifications } from '@/composables/useNotifications';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
+import { Modal, ModalInterface, ModalOptions } from 'flowbite';
 import { ArrowRight, CreditCard } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 const { notivueSuccess, notivueError } = useNotifications();
 
-const { getCart } = useCart();
-const { getCheckout, isCheckoutEmpty } = useCheckout();
+const { getCart, resetCart, isCartEmpty } = useCart();
+const { getCheckout, isCheckoutEmpty, resetCheckout } = useCheckout();
 
 const selectAddress = ref(<string>'');
 
@@ -24,6 +26,63 @@ defineOptions({
 // Use computed to make it reactive
 const checkout = computed(() => getCheckout());
 const cart = computed(() => getCart());
+const loadingPayment = ref(false);
+
+// Hold to cancel
+const holdToCancel = ref(false);
+const holdToCancelProgress = ref(0);
+const handleHoldToCancel = (initiate: boolean) => {
+    if (initiate) {
+        holdToCancel.value = true;
+        holdToCancelProgress.value = 0;
+    }
+    setTimeout(() => {
+        if (!holdToCancel.value) {
+            holdToCancelProgress.value = 0;
+            return null;
+        }
+        holdToCancelProgress.value += 100;
+        if (holdToCancelProgress.value >= 2200) {
+            holdToCancel.value = false;
+            // Reset progress
+            holdToCancelProgress.value = 0;
+            notivueSuccess('Pembayaran dibatalkan');
+            paymentModal.value?.hide();
+            return;
+        }
+        handleHoldToCancel(false);
+    }, 100);
+};
+
+// Create payment
+const createPayment = () => {
+    // Show payment modal
+    paymentModal.value?.show();
+    loadingPayment.value = true;
+
+    holdToCancel.value = false;
+    holdToCancelProgress.value = 0;
+
+    // Payment api request here
+    setTimeout(() => {
+        loadingPayment.value = false;
+        // Reset checkout
+        resetCheckout();
+        resetCart();
+    }, 2000);
+};
+const paymentModal = ref<ModalInterface | null>(null);
+onMounted(() => {
+    const modalElement = document.getElementById('payment-modal');
+
+    if (modalElement) {
+        const modalOptions: ModalOptions = {
+            backdrop: 'static',
+        };
+
+        paymentModal.value = new Modal(modalElement, modalOptions);
+    }
+});
 </script>
 
 <template>
@@ -75,7 +134,23 @@ const cart = computed(() => getCart());
         <!-- Content -->
         <template #content>
             <section class="py-8 antialiased md:py-16">
-                <div class="mx-auto max-w-screen-xl px-4 2xl:px-0">
+                <div v-show="isCartEmpty()">
+                    <div class="text-center text-gray-500">
+                        <p class="text-lg font-semibold">Keranjang Anda kosong</p>
+                        <p class="my-2">Tambahkan produk ke keranjang untuk memulai belanja disini.</p>
+                        <div class="flex items-center justify-center gap-2">
+                            <Link
+                                href="/products"
+                                title=""
+                                class="inline-flex items-center gap-2 text-base font-medium text-primary-700 underline hover:no-underline dark:text-primary-500"
+                            >
+                                Kunjungi halaman produk
+                                <ArrowRight class="h-4 w-4" />
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+                <div v-show="!isCartEmpty() || !isCheckoutEmpty()" class="mx-auto max-w-screen-xl px-4 2xl:px-0">
                     <div class="mt-6 sm:mt-8 lg:flex lg:items-start lg:gap-12 xl:gap-16">
                         <div class="min-w-0 flex-1 space-y-8">
                             <div class="space-y-4">
@@ -153,7 +228,8 @@ const cart = computed(() => getCart());
                                                     aria-describedby="pay-on-delivery-text"
                                                     type="radio"
                                                     name="payment-method"
-                                                    value=""
+                                                    v-model="checkout.payment.method"
+                                                    value="QRIS"
                                                     class="h-4 w-4 bg-background text-primary-600 focus:ring-2 focus:ring-primary-600"
                                                 />
                                             </div>
@@ -161,7 +237,7 @@ const cart = computed(() => getCart());
                                             <div class="ms-4 text-sm">
                                                 <div class="leading-none font-medium text-gray-900 dark:text-white">QRIS</div>
                                                 <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-gray-500 dark:text-gray-400">
-                                                    +0.7% dari total belanja
+                                                    Tidak ada biaya tambahan
                                                 </p>
                                             </div>
                                         </div>
@@ -202,8 +278,9 @@ const cart = computed(() => getCart());
                                                     id="delivery-with-pickup"
                                                     aria-describedby="pay-on-delivery-text"
                                                     type="radio"
-                                                    name="payment-method"
-                                                    value=""
+                                                    name="delivery-method"
+                                                    v-model="checkout.delivery.method"
+                                                    value="PICKUP"
                                                     class="h-4 w-4 bg-background text-primary-600 focus:ring-2 focus:ring-primary-600"
                                                 />
                                             </div>
@@ -211,7 +288,7 @@ const cart = computed(() => getCart());
                                             <div class="ms-4 text-sm">
                                                 <div class="leading-none font-medium text-gray-900 dark:text-white">Di Toko</div>
                                                 <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-gray-500 dark:text-gray-400">
-                                                    Mojokerto, Wates
+                                                    Tidak ada tambahan
                                                 </p>
                                             </div>
                                         </div>
@@ -224,8 +301,9 @@ const cart = computed(() => getCart());
                                                     id="delivery-with-gosend"
                                                     aria-describedby="pay-on-delivery-text"
                                                     type="radio"
-                                                    name="payment-method"
-                                                    value=""
+                                                    name="delivery-method"
+                                                    v-model="checkout.delivery.method"
+                                                    value="GOSEND"
                                                     class="h-4 w-4 bg-background text-primary-600 focus:ring-2 focus:ring-primary-600"
                                                 />
                                             </div>
@@ -246,8 +324,9 @@ const cart = computed(() => getCart());
                                                     id="delivery-with-other"
                                                     aria-describedby="pay-on-delivery-text"
                                                     type="radio"
-                                                    name="payment-method"
-                                                    value=""
+                                                    name="delivery-method"
+                                                    v-model="checkout.delivery.method"
+                                                    value="OTHER"
                                                     class="h-4 w-4 bg-background text-primary-600 focus:ring-2 focus:ring-primary-600"
                                                 />
                                             </div>
@@ -260,6 +339,23 @@ const cart = computed(() => getCart());
                                             </div>
                                         </div>
                                     </label>
+                                </div>
+                            </div>
+                            <div v-show="checkout.delivery.method === 'PICKUP'" class="space-y-3">
+                                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Estimasi Pengambilan</h2>
+                                <p class="mt-1 text-xs font-normal text-gray-500 md:text-base dark:text-gray-400">
+                                    Jika tidak terisi, estimasi akan diatur secara otomatis berdasarkan jam buka toko dan dikonfirmasi melalui nomor
+                                    telepon yang terdaftar.
+                                </p>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div class="relative w-full col-span-2 md:col-span-1">
+                                        <input
+                                            id="default-datepicker"
+                                            type="datetime-local"
+                                            class="block w-full rounded-lg border border-gray-300 bg-transparent p-2.5 text-sm text-gray-900 scheme-light focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:text-white dark:scheme-dark dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+                                            placeholder="Select date"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -308,10 +404,8 @@ const cart = computed(() => getCart());
                             </div>
 
                             <button
-                                data-modal-target="payment-modal"
-                                data-modal-toggle="payment-modal"
-                                type="button"
-                                :class="isCheckoutEmpty() ? 'pointer-events-none opacity-50' : ''"
+                                @click="createPayment"
+                                :class="isCheckoutEmpty() || isCartEmpty() ? 'pointer-events-none opacity-50' : ''"
                                 class="flex w-full cursor-pointer items-center justify-center rounded-lg bg-primary-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 focus:outline-none dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                             >
                                 Proses Pembayaran
@@ -350,20 +444,56 @@ const cart = computed(() => getCart());
                             <img src="" alt="" />
                         </div>
                         <!-- Modal body -->
-                        <div class="space-y-4 p-4 md:p-5">
-                            <div>Test</div>
+                        <LoadingSpinner :extendClass="'h-40'" :message="'Sedang membuat pembayaran...'" v-show="loadingPayment" />
+                        <div v-show="!loadingPayment" class="flex flex-col items-center justify-center space-y-1 p-4 md:p-5">
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Metode Pembayaran</h2>
+                            <p class="text-xl font-bold">QRIS</p>
+                            <div class="flex flex-col items-center justify-center space-y-2 rounded p-3">
+                                <div class="rounded-lg border-4 border-primary-600 shadow-lg shadow-foreground/10">
+                                    <img src="/storage/images/qris.png" class="rounded" alt="QRIS" />
+                                </div>
+
+                                <p class="text-xl font-bold">{{ formatRupiah(350000) }}</p>
+                                <p class="text-xl font-bold">Rivies Bakery</p>
+                            </div>
+                            <p class="mt-1 text-center text-xs font-normal text-gray-500 md:text-base dark:text-gray-400">
+                                Harap lakukan pembayaran sebelum
+                                <span class="text-primary-600 dark:text-primary-500">{{ new Date().toLocaleString() }}</span> untuk menghindari
+                                pembatalan
+                            </p>
+                            <p class="mt-1 text-center text-xs font-normal text-gray-500 md:text-base dark:text-gray-400">
+                                Untuk melihat seluruh riwayat pembayaran, silahkan kunjungi
+                                <Link href="/payment-history" class="text-primary-600 underline hover:opacity-80 dark:text-primary-500"
+                                    >halaman ini</Link
+                                >
+                            </p>
                         </div>
                         <!-- Modal footer -->
                         <div
-                            class="flex items-center space-x-2 rounded-b border-t border-gray-200 p-4 md:p-5 rtl:space-x-reverse dark:border-gray-600"
+                            class="flex items-center justify-between space-x-2 rounded-b border-t border-gray-200 p-4 md:p-5 rtl:space-x-reverse dark:border-gray-600"
                         >
                             <button
-                                data-modal-hide="payment-modal"
-                                aria-hidden="true"
                                 type="button"
-                                class="cursor-pointer rounded-lg border border-primary-600 bg-primary-600 px-5 py-2 text-center text-xs font-light text-background hover:bg-primary-700 focus:z-10 focus:ring-4 focus:ring-primary-200 focus:outline-none dark:border-primary-600 dark:bg-primary-600"
+                                @click="paymentModal?.hide()"
+                                class="relative cursor-pointer overflow-hidden rounded-lg border-2 border-primary-500 bg-primary-600 px-5 py-2 text-center text-base text-base-50 hover:opacity-80 focus:z-10 focus:ring-1 focus:ring-primary-300 focus:outline-none"
                             >
-                                Batalkan Pembayaran
+                                <div class="relative z-10">Tutup</div>
+                            </button>
+                            <button
+                                type="button"
+                                @mousedown="handleHoldToCancel(true)"
+                                @mouseleave="holdToCancel = false"
+                                @mouseup="holdToCancel = false"
+                                @touchstart="handleHoldToCancel(true)"
+                                @touchend="holdToCancel = false"
+                                :class="holdToCancel ? 'bg-transparent' : ''"
+                                class="relative cursor-pointer overflow-hidden rounded-lg border-2 border-red-500 bg-red-500 px-5 py-2 text-center text-base text-base-50 hover:opacity-80 focus:z-10 focus:ring-1 focus:ring-red-300 focus:outline-none"
+                            >
+                                <div class="relative z-10">Tahan untuk Membatalkan</div>
+                                <div
+                                    :style="{ width: `${(holdToCancelProgress / 2000) * 100}%` }"
+                                    class="absolute top-0 left-0 -z-0 h-full bg-red-500"
+                                ></div>
                             </button>
                         </div>
                     </div>

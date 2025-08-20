@@ -14,9 +14,9 @@ const skeletons = computed(() => Array.from({ length: props.total }));
 
 <template>
     <div v-for="(_, id) in skeletons" :key="id" class="mx-auto w-full max-w-[220px] overflow-hidden">
-        <div class="mb-4 flex h-56 items-center justify-center rounded-sm bg-gray-300 dark:bg-gray-700">
+        <div class="mb-4 flex h-56 items-center justify-center rounded-sm bg-base-300/50 dark:bg-base-700/50">
             <svg
-                class="h-10 w-10 text-gray-200 dark:text-gray-600"
+                class="h-10 w-10 text-base-200/50 dark:text-base-600/50"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="currentColor"
@@ -29,11 +29,11 @@ const skeletons = computed(() => Array.from({ length: props.total }));
             </svg>
         </div>
         <div class="space-y-2 py-3">
-            <div class="mb-4 h-2.5 w-48 rounded-full bg-gray-200 dark:bg-gray-700"></div>
-            <div class="mb-2.5 h-2 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+            <div class="mb-4 h-2.5 w-48 rounded-full bg-base-200/50 dark:bg-base-700/50"></div>
+            <div class="mb-2.5 h-2 rounded-full bg-base-200/50 dark:bg-base-700/50"></div>
         </div>
         <div class="flex w-full gap-2">
-            <div class="mb-4 h-2.5 w-48 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+            <div class="mb-4 h-2.5 w-48 rounded-full bg-base-200/50 dark:bg-base-700/50"></div>
         </div>
     </div>
 </template>

@@ -131,7 +131,7 @@ export function useCart() {
         }
         saveCartToStorage();
     };
-    const clearCart = () => {
+    const resetCart = () => {
         cart.value = {
             items: [],
             tax: 0,
@@ -174,7 +174,7 @@ export function useCart() {
         getCart,
         addToCart,
         removeFromCart,
-        clearCart,
+        resetCart,
         setCartQuantity,
         initializeCart,
         applyCupon,

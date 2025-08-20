@@ -1,22 +1,20 @@
 import { ref } from 'vue';
-import { type Cart } from './useCart';
 import { useNotifications } from './useNotifications';
 
 const { notivueSuccess, notivueError, notivueInfo } = useNotifications();
 
 export type CheckoutData = {
-    fullName: String;
-    email: String;
+    fullName: string;
+    email: string;
     address: string | null;
-    cart?: Cart;
     payment: {
-        method: String;
+        method: string;
         status?: 'pending' | 'paid' | 'unpaid';
-        details?: String;
+        details?: string;
     };
     delivery: {
-        method: String;
-        details?: String;
+        method: string;
+        details?: string;
     };
 };
 const checkout = ref<CheckoutData>({
@@ -56,7 +54,7 @@ export function useCheckout() {
         return 'unpaid';
     };
     const isCheckoutEmpty = () => {
-        return !checkout.value.fullName || !checkout.value.email || !checkout.value.address;
+        return !checkout.value.fullName || !checkout.value.email || !checkout.value.address || !checkout.value.payment.method || !checkout.value.delivery.method;
     };
     return {
         getCheckout,

@@ -1,2 +1,2 @@
-# koni-landing
-Landing page for KONI Ketapang Page
+# Rivie's Bakery
+Landing and Store for Rivie's Bakery

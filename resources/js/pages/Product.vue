@@ -385,7 +385,7 @@ onMounted(() => {
                             type="search"
                             id="search"
                             v-model="appliedFilter.searchTerm"
-                            class="block w-full rounded-lg border bg-foreground/5 px-4 py-3 ps-10"
+                            class="block w-full rounded-lg border bg-base-300/5 px-4 py-3 ps-10"
                             placeholder="Cari sesuatu.."
                             required
                         />

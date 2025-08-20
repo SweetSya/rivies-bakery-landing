@@ -15,12 +15,12 @@ Route::get('/products', function () {
 Route::get('/products/{slug}', function ($id) {
     return Inertia::render('ProductDetail', [
         'id' => $id,
-]);
+    ]);
 })->name('product.detail');
 Route::get('/cart', function () {
     return Inertia::render('Cart');
 
-// Cart and Checkout
+    // Cart and Checkout
 })->name('cart');
 Route::get('/checkout', function () {
     return Inertia::render('Checkout');
@@ -38,3 +38,8 @@ Route::get('/gallery', function () {
 Route::get('/contact', function () {
     return Inertia::render('Contact');
 })->name('contact');
+
+// Login
+Route::get('/login', function () {
+    return Inertia::render('Login');
+})->name('login');
