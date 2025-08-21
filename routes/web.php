@@ -42,4 +42,20 @@ Route::get('/contact', function () {
 // Login
 Route::get('/login', function () {
     return Inertia::render('Login');
-})->name('login');
+})->name('Login');
+// Register
+Route::get('/register', function () {
+    return Inertia::render('Register');
+})->name('register');
+// Account Settings
+Route::get('/account-settings', function () {
+    return Inertia::render('AccountSettings/AccountSettingsInformation');
+})->name('account-settings.information');
+// Account Settings - Address
+Route::get('/account-settings/address', function () {
+    return Inertia::render('AccountSettings/AccountSettingsAddress');
+})->name('account-settings.address');
+// Account Settings - Transaction
+Route::get('/account-settings/transactions', function () {
+    return Inertia::render('AccountSettings/AccountSettingsTransaction');
+})->name('account-settings.transaction');

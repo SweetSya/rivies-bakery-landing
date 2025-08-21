@@ -21,8 +21,8 @@ defineOptions({
     <AppLayout>
         <template #pageHead>
             <Head>
-                <title>Login</title>
-                <meta name="description" content="Halaman login Rivies Bakery" />
+                <title>Daftar</title>
+                <meta name="description" content="Halaman daftar Rivies Bakery" />
             </Head>
         </template>
 
@@ -33,19 +33,44 @@ defineOptions({
         <!-- Breadcrumb -->
         <template #pageBreadcrumb> </template>
         <!-- Title -->
-        <template #pageTitle>Masuk sebagai <span class="rounded bg-primary-600 px-3 py-1 font-semibold">Pelanggan</span></template>
+        <template #pageTitle>Daftar sebagai <span class="rounded bg-primary-600 px-3 py-1 font-semibold">Pelanggan</span></template>
         <!-- Description -->
-        <template #pageDescription>Gunakan kredensial yang sudah terdaftar dalam sistem untuk melanjutkan</template>
+        <template #pageDescription>Gunakan kredensial yang dapat kamu ingat dengan baik</template>
         <!-- Content -->
         <template #content>
             <form class="mx-auto max-w-sm py-5">
                 <div class="mb-5">
-                    <label for="phone" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> No. Telepon / Email </label>
+                    <label for="name" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Nama Lengkap *</label>
                     <div>
                         <input
                             type="text"
-                            id="phone"
+                            id="name"
                             class="block w-full rounded-lg border border-gray-300 bg-transparent p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+                            placeholder=""
+                            required
+                        />
+                    </div>
+                </div>
+                <div class="mb-5">
+                    <label for="email" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Email *</label>
+                    <div>
+                        <input
+                            type="email"
+                            id="email"
+                            class="block w-full rounded-lg border border-gray-300 bg-transparent p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+                            placeholder=""
+                            required
+                        />
+                    </div>
+                </div>
+                <div class="mb-5">
+                    <label for="phone" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">No Telepon *</label>
+                    <div class="relative">
+                        <span class="absolute rounded-s-lg bg-primary-600 p-2.5 text-[14px] font-bold text-foreground">+62</span>
+                        <input
+                            type="text"
+                            id="phone"
+                            class="block w-full rounded-lg border border-gray-300 bg-transparent p-2.5 ps-14 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
                             placeholder=""
                             required
                         />
@@ -55,6 +80,15 @@ defineOptions({
                     <label for="password" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Password</label>
                     <input
                         type="password"
+                        class="block w-full rounded-lg border border-gray-300 bg-transparent p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+                        placeholder=""
+                        required
+                    />
+                </div>
+                <div class="mb-5">
+                    <label for="confirm_password" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Konfirmasi Password</label>
+                    <input
+                        type="confirm_password"
                         class="block w-full rounded-lg border border-gray-300 bg-transparent p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
                         placeholder=""
                         required
@@ -80,8 +114,8 @@ defineOptions({
                     Masuk
                 </button>
                 <p class="mt-6 text-center text-xs font-normal text-gray-500 md:text-base dark:text-gray-400">
-                    Belum memiliki akun pelanggan di Rivie's Bakery?
-                    <Link href="/register" class="text-primary-600 underline hover:opacity-80 dark:text-primary-500">Daftar disini</Link>
+                    Sudah memiliki akun pelanggan Rivie's Bakery?
+                    <Link href="/login" class="text-primary-600 underline hover:opacity-80 dark:text-primary-500">Masuk disini</Link>
                 </p>
             </form>
         </template>

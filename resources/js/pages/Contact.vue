@@ -72,22 +72,22 @@ defineOptions({
                 </p>
                 <form action="#" class="space-y-8">
                     <div>
-                        <label for="email" class="mb-2 block text-sm font-medium text-gray-900 dark:text-gray-300">Email</label>
+                        <label for="email" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Email </label>
                         <input
-                            type="email"
+                            type="text"
                             id="email"
-                            class="dark:shadow-sm-light block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
-                            placeholder="name@riviesbakery.com"
+                            class="block w-full rounded-lg border border-gray-300 bg-transparent p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+                            placeholder="example@gmail.com"
                             required
                         />
                     </div>
                     <div>
-                        <label for="subject" class="mb-2 block text-sm font-medium text-gray-900 dark:text-gray-300">Telepon</label>
+                        <label for="subject" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Subyek</label>
                         <input
                             type="text"
                             id="subject"
-                            class="dark:shadow-sm-light block w-full rounded-lg border border-gray-300 bg-gray-50 p-3 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
-                            placeholder="62875..."
+                            class="block w-full rounded-lg border border-gray-300 bg-transparent p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+                            placeholder="Ingin bertanya.."
                             required
                         />
                     </div>
@@ -96,15 +96,15 @@ defineOptions({
                         <textarea
                             id="message"
                             rows="6"
-                            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+                            class="block w-full rounded-lg border border-gray-300 bg-transparent p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
                             placeholder="Tinggalkan pesan..."
                         ></textarea>
                     </div>
                     <button
                         type="submit"
-                        class="rounded-lg bg-primary-700 px-5 py-3 text-center text-sm font-medium text-white hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 focus:outline-none sm:w-fit dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                        class="w-full rounded-lg bg-primary-700 px-5 py-3 text-center text-sm font-medium text-white hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 focus:outline-none dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                     >
-                        Send message
+                        Kirim
                     </button>
                 </form>
             </section>

@@ -105,7 +105,7 @@ onMounted(() => {
                         Login <DoorOpen class="ms-2 h-4 w-4" />
                     </Link>
                     <Link
-                        href="/account"
+                        href="/account-settings"
                         class="inline-flex items-center rounded-lg border border-border bg-background px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
                     >
                         <p class="overflow-hidden text-nowrap text-ellipsis max-w-24 whitespace-nowrap">Sultan Hakim Herrysan</p>
@@ -150,7 +150,7 @@ onMounted(() => {
                 <span class="text-sm text-base-500 group-hover:text-primary-600 dark:text-gray-400 dark:group-hover:text-primary-500">Produk</span>
             </Link>
             <Link
-                href="account"
+                href="/account-settings"
                 type="button"
                 class="group inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800"
             >

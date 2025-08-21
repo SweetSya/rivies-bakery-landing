@@ -459,7 +459,7 @@ onUnmounted(() => {
                             <div class="flex flex-col items-center justify-center space-y-2 rounded p-3">
                                 <p class="text-xl font-bold">Rivies Bakery</p>
                                 <div class="rounded-lg border-4 border-primary-500 shadow-lg shadow-foreground/10">
-                                    <img src="/storage/images/qris.png" class="rounded" alt="QRIS" />
+                                    <img src="/assets/images/qris.png" class="rounded max-h-40  md:max-h-52" alt="QRIS" />
                                 </div>
 
                                 <p class="text-xl font-bold">{{ formatRupiah(350000) }}</p>
