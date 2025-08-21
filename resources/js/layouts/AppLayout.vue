@@ -108,7 +108,7 @@ onMounted(() => {
                         href="/account-settings"
                         class="inline-flex items-center rounded-lg border border-border bg-background px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
                     >
-                        <p class="overflow-hidden text-nowrap text-ellipsis max-w-24 whitespace-nowrap">Sultan Hakim Herrysan</p>
+                        <p class="max-w-24 overflow-hidden text-nowrap text-ellipsis whitespace-nowrap">Sultan Hakim Herrysan</p>
                         <User class="ms-2 h-4 w-4" />
                     </Link>
                 </div>
@@ -214,7 +214,7 @@ onMounted(() => {
     </div>
 
     <main class="app overflow-x-hidden">
-        <div class="-mt-3 h-[70vh] max-h-[600px] w-full">
+        <div class="-mt-3 h-[70vh] max-h-[400px] w-full md:max-h-[600px]">
             <div class="h-full w-full">
                 <div class="relative h-full w-full">
                     <div class="page-background">
@@ -225,8 +225,8 @@ onMounted(() => {
                             <nav class="mb-2 flex" aria-label="Breadcrumb">
                                 <slot name="pageBreadcrumb" />
                             </nav>
-                            <h1 class="mb-2 text-3xl font-extrabold text-base-50 md:text-5xl"><slot name="pageTitle" /></h1>
-                            <p class="mb-6 text-lg font-normal text-base-50">
+                            <h1 class="mb-2 text-xl font-extrabold text-nowrap text-base-50 xs:text-3xl md:text-5xl"><slot name="pageTitle" /></h1>
+                            <p class="mb-6 text-base font-normal text-base-50 md:text-lg">
                                 <slot name="pageDescription" />
                             </p>
                         </div>

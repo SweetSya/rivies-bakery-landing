@@ -58,15 +58,15 @@ onMounted(() => {
                                 <Link
                                     href="/account-settings"
                                     :preserveScroll="true"
-                                    class="flex flex-nowrap items-center gap-3 rounded bg-primary-200/70 px-4 py-2 font-semibold text-nowrap text-foreground backdrop-blur-lg hover:scale-95 hover:opacity-90 dark:bg-primary-800/70"
-                                    ><User class="h-5 w-5" /> Informasi Diri</Link
+                                    class="text-xs md:text-base flex flex-nowrap items-center gap-3 rounded bg-primary-200/70 px-4 py-2 font-semibold text-nowrap text-foreground backdrop-blur-lg hover:scale-95 hover:opacity-90 dark:bg-primary-800/70"
+                                    ><User class="h-5 w-5" /> Informasi Akun</Link
                                 >
                             </div>
                             <div class="swiper-slide !w-fit">
                                 <Link
                                     href="/account-settings/address"
                                     :preserveScroll="true"
-                                    class="flex flex-nowrap items-center gap-3 rounded bg-primary-200/70 px-4 py-2 font-semibold text-nowrap text-foreground backdrop-blur-lg hover:scale-95 hover:opacity-90 dark:bg-primary-800/70"
+                                    class="text-xs md:text-base flex flex-nowrap items-center gap-3 rounded bg-primary-200/70 px-4 py-2 font-semibold text-nowrap text-foreground backdrop-blur-lg hover:scale-95 hover:opacity-90 dark:bg-primary-800/70"
                                     ><MapPin class="h-5 w-5" /> Daftar Alamat</Link
                                 >
                             </div>
@@ -74,7 +74,7 @@ onMounted(() => {
                                 <Link
                                     href="/account-settings/transactions"
                                     :preserveScroll="true"
-                                    class="flex flex-nowrap items-center gap-3 rounded bg-primary-200/70 px-4 py-2 font-semibold text-nowrap text-foreground backdrop-blur-lg hover:scale-95 hover:opacity-90 dark:bg-primary-800/70"
+                                    class="text-xs md:text-base flex flex-nowrap items-center gap-3 rounded bg-primary-200/70 px-4 py-2 font-semibold text-nowrap text-foreground backdrop-blur-lg hover:scale-95 hover:opacity-90 dark:bg-primary-800/70"
                                     ><History class="h-5 w-5" /> Transaksi</Link
                                 >
                             </div>
@@ -82,7 +82,7 @@ onMounted(() => {
                                 <Link
                                     href="/account-settings/vouchers"
                                     :preserveScroll="true"
-                                    class="flex flex-nowrap items-center gap-3 rounded bg-primary-200/70 px-4 py-2 font-semibold text-nowrap text-foreground backdrop-blur-lg hover:scale-95 hover:opacity-90 dark:bg-primary-800/70"
+                                    class="text-xs md:text-base flex flex-nowrap items-center gap-3 rounded bg-primary-200/70 px-4 py-2 font-semibold text-nowrap text-foreground backdrop-blur-lg hover:scale-95 hover:opacity-90 dark:bg-primary-800/70"
                                     ><Percent class="h-5 w-5" /> Voucher</Link
                                 >
                             </div>
@@ -90,7 +90,7 @@ onMounted(() => {
                                 <Link
                                     href="/account-settings/change-password"
                                     :preserveScroll="true"
-                                    class="flex flex-nowrap items-center gap-3 rounded bg-primary-200/70 px-4 py-2 font-semibold text-nowrap text-foreground backdrop-blur-lg hover:scale-95 hover:opacity-90 dark:bg-primary-800/70"
+                                    class="text-xs md:text-base flex flex-nowrap items-center gap-3 rounded bg-primary-200/70 px-4 py-2 font-semibold text-nowrap text-foreground backdrop-blur-lg hover:scale-95 hover:opacity-90 dark:bg-primary-800/70"
                                     ><Lock class="h-5 w-5" /> Ubah Password</Link
                                 >
                             </div>
@@ -98,7 +98,7 @@ onMounted(() => {
                                 <Link
                                     href="/account-settings/email-verification"
                                     :preserveScroll="true"
-                                    class="flex flex-nowrap items-center gap-3 rounded bg-primary-200/70 px-4 py-2 font-semibold text-nowrap text-foreground backdrop-blur-lg hover:scale-95 hover:opacity-90 dark:bg-primary-800/70"
+                                    class="text-xs md:text-base flex flex-nowrap items-center gap-3 rounded bg-primary-200/70 px-4 py-2 font-semibold text-nowrap text-foreground backdrop-blur-lg hover:scale-95 hover:opacity-90 dark:bg-primary-800/70"
                                     ><Mail class="h-5 w-5" /> Verifikasi Email</Link
                                 >
                             </div>
@@ -107,8 +107,8 @@ onMounted(() => {
                 </div>
             </section>
             <section class="px-4 py-8 lg:py-12">
-                <h2 class="mb-2 text-start text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white"><slot name="settingsHeader" /></h2>
-                <p class="mb-6 text-start font-light text-gray-500 sm:text-xl lg:mb-10 dark:text-gray-400">
+                <h2 class="mb-1 text-start text-lg xs:text-xl md:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white"><slot name="settingsHeader" /></h2>
+                <p class="mb-6 text-start font-normal text-gray-500 text-base sm:text-lg lg:mb-10 dark:text-gray-400">
                     <slot name="settingsDescription" />
                 </p>
                 <div>

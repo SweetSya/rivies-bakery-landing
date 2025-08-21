@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import ProductCard from '@/components/cards/ProductCard.vue';
 import ProductCardSkeleton from '@/components/cards/ProductCardSkeleton.vue';
+import BaseModal from '@/components/modal/BaseModal.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowLeft, ArrowRight, Filter, FilterIcon, Search, X } from 'lucide-vue-next';
+import { ArrowLeft, ArrowRight, Filter, Search, X } from 'lucide-vue-next';
 import { Swiper } from 'swiper';
 import { Navigation, Pagination } from 'swiper/modules';
 import TomSelect from 'tom-select';
@@ -68,7 +69,7 @@ const autoFetchLimit = AUTO_FETCH_LIMIT;
 const sentinel = ref<HTMLElement | null>(null);
 const observer = ref<IntersectionObserver | null>(null);
 const tomSelectRef = ref<TomSelectRef>({});
-
+const modalFilter = ref<typeof BaseModal>();
 // --- Filter State ---
 const appliedFilter = ref<AppliedFilter>({
     categories: [],
@@ -404,15 +405,14 @@ onMounted(() => {
                             <span
                                 v-for="category of appliedFilter.categories"
                                 :key="category"
-                                class="rounded bg-primary-600 px-3 py-2 text-xs md:text-base font-light text-foreground"
+                                class="rounded bg-primary-600 px-3 py-2 text-xs font-light text-foreground md:text-base"
                                 >{{ category }}</span
                             >
                         </div>
                     </div>
                     <div class="mb-auto flex items-center space-x-4">
                         <button
-                            data-modal-target="filter-modal"
-                            data-modal-toggle="filter-modal"
+                            @click="modalFilter?.open()"
                             class="inline-flex cursor-pointer items-center rounded-lg border border-border bg-background px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
                         >
                             Filter <Filter class="ms-2 h-4 w-4" />
@@ -454,89 +454,66 @@ onMounted(() => {
                 </div>
             </section>
             <!-- Main modal -->
-            <div
-                id="filter-modal"
-                tabindex="-1"
-                class="fixed top-0 right-0 left-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full overflow-x-hidden overflow-y-auto p-4 md:inset-0"
-            >
-                <div class="relative max-h-full w-full max-w-4xl">
-                    <!-- Modal content -->
-                    <form @submit.prevent="setFilters()" class="relative rounded-lg bg-background">
-                        <!-- Modal header -->
-                        <div
-                            class="flex items-center justify-between rounded-t border-b border-gray-200 bg-primary-600 p-4 md:p-5 dark:border-gray-600"
-                        >
-                            <h3 class="flex items-center gap-4 text-xl font-medium text-foreground"><FilterIcon class="h-5 w-5" /> Filter Produk</h3>
-                            <button
-                                type="button"
-                                class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-foreground md:text-lg dark:hover:bg-gray-600 dark:hover:text-white"
-                                data-modal-hide="filter-modal"
-                            >
-                                <X class="h-5 w-5 text-foreground" aria-hidden="true" />
-                                <span class="sr-only">Close modal</span>
-                            </button>
-                        </div>
-                        <!-- Modal body -->
-                        <div class="space-y-4 p-4 md:p-5">
-                            <div>
-                                <div class="mb-6 grid gap-6 md:grid-cols-2">
-                                    <div class="col-span-2">
-                                        <label for="select-category" class="mb-2 block text-sm font-medium text-foreground md:text-lg dark:text-white"
-                                            >Pilih Kategori</label
-                                        >
-                                        <select
-                                            id="select-category"
-                                            @change="
-                                                appliedFilter.categories = Array.isArray(tomSelectRef.category?.getValue())
-                                                    ? (tomSelectRef.category?.getValue() as string[])
-                                                    : [tomSelectRef.category?.getValue() as string]
-                                            "
-                                            placeholder="Cari kategori.."
-                                        ></select>
-                                    </div>
+            <BaseModal :id="'filter-produk'" :title="'Filter Produk'" :is-closeable="true" ref="modalFilter">
+                <template #modalIcon>
+                    <Filter class="h-5 w-5" />
+                </template>
+                <template #modalContent>
+                    <form @submit.prevent="(setFilters(), modalFilter?.close())">
+                        <div class="space-y-4">
+                            <div class="mb-6 grid gap-6 md:grid-cols-2">
+                                <div class="col-span-2">
+                                    <label for="select-category" class="mb-2 block text-sm font-medium text-foreground md:text-lg dark:text-white"
+                                        >Pilih Kategori</label
+                                    >
+                                    <select
+                                        id="select-category"
+                                        @change="
+                                            appliedFilter.categories = Array.isArray(tomSelectRef.category?.getValue())
+                                                ? (tomSelectRef.category?.getValue() as string[])
+                                                : [tomSelectRef.category?.getValue() as string]
+                                        "
+                                        placeholder="Cari kategori.."
+                                    ></select>
                                 </div>
-                                <div class="mb-6 grid gap-6 md:grid-cols-2">
-                                    <div class="col-span-2">
-                                        <label for="price" class="mb-2 block text-sm font-medium text-foreground md:text-lg dark:text-white"
-                                            >Harga</label
-                                        >
-                                        <div class="flex flex-wrap gap-5 md:flex-nowrap">
-                                            <div class="flex grow">
-                                                <span
-                                                    class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/20 bg-primary-500 px-3 text-sm text-foreground md:text-lg"
-                                                >
-                                                    Rp
-                                                </span>
-                                                <input
-                                                    type="number"
-                                                    v-model="appliedFilter.priceMin"
-                                                    id="minimum-price"
-                                                    class="base-input block w-full min-w-0 flex-1 rounded-none rounded-e-lg"
-                                                />
-                                            </div>
-                                            <div class="flex grow">
-                                                <span
-                                                    class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/20 bg-primary-500 px-3 text-sm text-foreground md:text-lg"
-                                                >
-                                                    Rp
-                                                </span>
-                                                <input
-                                                    type="number"
-                                                    v-model="appliedFilter.priceMax"
-                                                    id="maximum-price"
-                                                    class="base-input block w-full min-w-0 flex-1 rounded-none rounded-e-lg"
-                                                />
-                                            </div>
+                            </div>
+                            <div class="mb-6 grid gap-6 md:grid-cols-2">
+                                <div class="col-span-2">
+                                    <label for="price" class="mb-2 block text-sm font-medium text-foreground md:text-lg dark:text-white">Harga</label>
+                                    <div class="flex flex-wrap gap-5 md:flex-nowrap">
+                                        <div class="flex grow">
+                                            <span
+                                                class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/20 bg-primary-500 px-3 text-sm text-foreground md:text-lg"
+                                            >
+                                                Rp
+                                            </span>
+                                            <input
+                                                type="number"
+                                                v-model="appliedFilter.priceMin"
+                                                id="minimum-price"
+                                                class="base-input block w-full min-w-0 flex-1 rounded-none rounded-e-lg"
+                                            />
+                                        </div>
+                                        <div class="flex grow">
+                                            <span
+                                                class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/20 bg-primary-500 px-3 text-sm text-foreground md:text-lg"
+                                            >
+                                                Rp
+                                            </span>
+                                            <input
+                                                type="number"
+                                                v-model="appliedFilter.priceMax"
+                                                id="maximum-price"
+                                                class="base-input block w-full min-w-0 flex-1 rounded-none rounded-e-lg"
+                                            />
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <!-- Modal footer -->
-                        <div class="flex items-center justify-end space-x-2 rounded-b px-4 pb-4 md:px-5 md:pb-5">
+                        <div class="flex items-center justify-end space-x-2 rounded-b py-4 md:py-5">
                             <button
-                                data-modal-hide="filter-modal"
-                                aria-hidden="true"
                                 type="submit"
                                 class="w-full cursor-pointer rounded-lg border border-primary-500 bg-primary-500 px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-primary-700 focus:z-10 focus:ring-4 focus:ring-primary-200 focus:outline-none md:text-base dark:border-primary-600 dark:bg-primary-600"
                             >
@@ -544,8 +521,8 @@ onMounted(() => {
                             </button>
                         </div>
                     </form>
-                </div>
-            </div>
+                </template>
+            </BaseModal>
         </template>
     </AppLayout>
 </template>

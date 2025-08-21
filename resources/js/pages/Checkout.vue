@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import LoadingSpinner from '@/components/LoadingSpinner.vue';
+import BaseModal from '@/components/modal/BaseModal.vue';
 import { useAppearance } from '@/composables/useAppearance';
 import { useCart } from '@/composables/useCart';
 import { useCheckout } from '@/composables/useCheckout';
@@ -7,9 +7,8 @@ import { formatRupiah } from '@/composables/useHelperFunctions';
 import { useNotifications } from '@/composables/useNotifications';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { Modal, ModalInterface, ModalOptions } from 'flowbite';
 import { ArrowRight, CreditCard } from 'lucide-vue-next';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onUnmounted, ref } from 'vue';
 
 const { appearance } = useAppearance();
 const { notivueSuccess } = useNotifications();
@@ -49,7 +48,7 @@ const handleHoldToCancel = (initiate: boolean) => {
             // Reset progress
             holdToCancelProgress.value = 0;
             notivueSuccess('Pembayaran dibatalkan');
-            paymentModal.value?.hide();
+            paymentModal.value?.close();
             return;
         }
         handleHoldToCancel(false);
@@ -59,7 +58,7 @@ const handleHoldToCancel = (initiate: boolean) => {
 // Create payment
 const createPayment = () => {
     // Show payment modal
-    paymentModal.value?.show();
+    paymentModal.value?.open();
     loadingPayment.value = true;
 
     holdToCancel.value = false;
@@ -73,18 +72,7 @@ const createPayment = () => {
         resetCart();
     }, 2000);
 };
-const paymentModal = ref<ModalInterface | null>(null);
-onMounted(() => {
-    const modalElement = document.getElementById('payment-modal');
-
-    if (modalElement) {
-        const modalOptions: ModalOptions = {
-            backdrop: 'static',
-        };
-
-        paymentModal.value = new Modal(modalElement, modalOptions);
-    }
-});
+const paymentModal = ref(null);
 
 onUnmounted(() => {
     resetCheckout();
@@ -428,88 +416,67 @@ onUnmounted(() => {
                     </div>
                 </div>
             </section>
-            <div
-                id="payment-modal"
-                data-modal-backdrop="static"
-                tabindex="-1"
-                class="fixed top-0 right-0 left-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full overflow-x-hidden overflow-y-auto p-4 md:inset-0"
-            >
-                <div class="relative max-h-full w-full max-w-xl">
-                    <!-- Modal content -->
-                    <div class="relative rounded-lg bg-background shadow-md shadow-foreground/10">
-                        <!-- Modal header -->
+            <BaseModal :id="'payment-modal'" static="static" :is-loading="loadingPayment" :title="'Proses Pembayaran'" ref="paymentModal">
+                <template #modalIcon>
+                    <CreditCard class="h-5 w-5" />
+                </template>
+                <template #modalContent>
+                    <img :src="`/assets/images/qris-logo-${appearance}.png`" class="mx-auto h-16 rounded object-contain md:h-24" alt="QRIS" />
+                    <p class="mx-5 mt-1 text-center text-xs font-normal text-gray-500 md:text-base dark:text-gray-400">
+                        Harap lakukan pembayaran sebelum
+                        <span class="text-primary-600 dark:text-primary-500">{{ new Date().toLocaleString() }}</span> untuk menghindari pembatalan
+                    </p>
+                    <div class="flex flex-col items-center justify-center space-y-2 rounded p-3">
+                        <p class="text-lg font-bold md:text-xl">Rivies Bakery</p>
+                        <div class="rounded-lg border-4 border-primary-500 shadow-lg shadow-foreground/10">
+                            <img src="/assets/images/qris.png" class="max-h-40 rounded md:max-h-52" alt="QRIS" />
+                        </div>
 
-                        <div
-                            class="flex items-center justify-between rounded-t border-b border-gray-200 bg-primary-600 p-4 md:p-5 dark:border-gray-600"
+                        <p class="text-center text-lg font-bold md:text-xl">{{ formatRupiah(350000) }}</p>
+                        <p
+                            class="text-center text-base font-bold underline md:text-xl"
+                            :class="{
+                                'text-primary-500': ['', 'pending', 'unpaid'].includes(checkout.payment.status ?? 'unpaid'),
+                                'text-green-500': checkout.payment.status === 'paid',
+                            }"
                         >
-                            <h3 class="flex items-center gap-4 text-xl font-medium text-foreground">
-                                <CreditCard class="h-5 w-5" /> Proses Pembayaran
-                            </h3>
-                        </div>
-                        <!-- Modal body -->
-                        <LoadingSpinner :extendClass="'h-40'" :message="'Sedang membuat pembayaran...'" v-show="loadingPayment" />
-                        <div v-show="!loadingPayment" class="flex flex-col items-center justify-center space-y-1 p-4 md:p-5">
-                            <!-- <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Metode Pembayaran</h2> -->
-                            <img :src="`/assets/images/qris-logo-${appearance}.png`" class="h-16 rounded object-contain md:h-24" alt="QRIS" />
-                            <p class="mt-1 text-center text-xs font-normal text-gray-500 md:text-base dark:text-gray-400">
-                                Harap lakukan pembayaran sebelum
-                                <span class="text-primary-600 dark:text-primary-500">{{ new Date().toLocaleString() }}</span> untuk menghindari
-                                pembatalan
-                            </p>
-                            <div class="flex flex-col items-center justify-center space-y-2 rounded p-3">
-                                <p class="text-xl font-bold">Rivies Bakery</p>
-                                <div class="rounded-lg border-4 border-primary-500 shadow-lg shadow-foreground/10">
-                                    <img src="/assets/images/qris.png" class="rounded max-h-40  md:max-h-52" alt="QRIS" />
-                                </div>
-
-                                <p class="text-xl font-bold">{{ formatRupiah(350000) }}</p>
-                                <p
-                                    class="text-xl font-bold underline"
-                                    :class="{
-                                        'text-primary-500': ['', 'pending', 'unpaid'].includes(checkout.payment.status ?? 'unpaid'),
-                                        'text-green-500': checkout.payment.status === 'paid',
-                                    }"
-                                >
-                                    Menunggu pembayaran
-                                </p>
-                                <p class="text-sm font-normal text-gray-500 dark:text-gray-400">Pengecekan dalam 5 detik..</p>
-                            </div>
-                            <p class="mt-1 text-center text-xs font-normal text-gray-500 md:text-base dark:text-gray-400">
-                                Untuk melihat seluruh riwayat pembayaran, silahkan kunjungi
-                                <Link href="/payment-history" class="text-primary-600 underline hover:opacity-80 dark:text-primary-500"
-                                    >halaman ini</Link
-                                >
-                            </p>
-                        </div>
-                        <!-- Modal footer -->
-                        <div v-show="!loadingPayment" class="flex items-center justify-between space-x-2 rounded-b px-4 pb-4 md:px-5 md:pb-5">
-                            <button
-                                type="button"
-                                @click="paymentModal?.hide()"
-                                class="relative cursor-pointer overflow-hidden rounded-lg border-2 border-primary-500 bg-primary-600 px-5 py-2 text-center text-base text-foreground hover:opacity-80 focus:z-10 focus:ring-1 focus:ring-primary-300 focus:outline-none"
-                            >
-                                <div class="relative z-10">Tutup</div>
-                            </button>
-                            <button
-                                type="button"
-                                @mousedown="handleHoldToCancel(true)"
-                                @mouseleave="holdToCancel = false"
-                                @mouseup="holdToCancel = false"
-                                @touchstart="handleHoldToCancel(true)"
-                                @touchend="holdToCancel = false"
-                                :class="holdToCancel ? 'bg-transparent' : ''"
-                                class="relative cursor-pointer overflow-hidden rounded-lg border-2 border-red-500 bg-red-500 px-5 py-2 text-center text-base text-foreground hover:opacity-80 focus:z-10 focus:ring-1 focus:ring-red-300 focus:outline-none"
-                            >
-                                <div class="relative z-10">Batalkan pesanan (Tahan)</div>
-                                <div
-                                    :style="{ width: `${(holdToCancelProgress / 2000) * 100}%` }"
-                                    class="absolute top-0 left-0 -z-0 h-full bg-red-500"
-                                ></div>
-                            </button>
-                        </div>
+                            Menunggu pembayaran
+                        </p>
+                        <p class="text-center text-sm font-normal text-base-400">Pengecekan dalam 5 detik..</p>
                     </div>
-                </div>
-            </div>
+                    <p class="mx-5 mt-1 text-center text-xs font-normal text-gray-500 md:text-base dark:text-gray-400">
+                        Untuk melihat seluruh riwayat pembayaran, silahkan kunjungi
+                        <Link href="/payment-history" class="text-primary-600 underline hover:opacity-80 dark:text-primary-500">halaman ini</Link>
+                    </p>
+
+                    <!-- Modal footer -->
+                    <div class="flex items-center justify-between space-x-2 rounded-b py-4 md:py-5">
+                        <button
+                            type="button"
+                            @click="paymentModal?.close()"
+                            class="relative cursor-pointer overflow-hidden rounded-lg border-2 border-primary-500 bg-primary-600 px-5 py-2 text-center text-base text-foreground hover:opacity-80 focus:z-10 focus:ring-1 focus:ring-primary-300 focus:outline-none"
+                        >
+                            <div class="relative z-10">Tutup</div>
+                        </button>
+                        <button
+                            type="button"
+                            @mousedown="handleHoldToCancel(true)"
+                            @mouseleave="holdToCancel = false"
+                            @mouseup="holdToCancel = false"
+                            @touchstart="handleHoldToCancel(true)"
+                            @touchend="holdToCancel = false"
+                            :class="holdToCancel ? 'bg-transparent' : ''"
+                            class="relative cursor-pointer overflow-hidden rounded-lg border-2 border-red-500 bg-red-500 px-5 py-2 text-center text-base text-foreground hover:opacity-80 focus:z-10 focus:ring-1 focus:ring-red-300 focus:outline-none"
+                        >
+                            <div class="relative z-10">Batalkan pesanan (Tahan)</div>
+                            <div
+                                :style="{ width: `${(holdToCancelProgress / 2000) * 100}%` }"
+                                class="absolute top-0 left-0 -z-0 h-full bg-red-500"
+                            ></div>
+                        </button>
+                    </div>
+                </template>
+            </BaseModal>
         </template>
     </AppLayout>
 </template>
