@@ -31,7 +31,7 @@ const handleClick = (event: MouseEvent) => {
         :disabled="props.disabled"
         @click="handleClick"
         :class="{
-            'flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary-400 px-5 py-2.5 text-sm font-medium text-background hover:opacity-85 focus:ring-4 focus:ring-primary-300 focus:outline-none dark:bg-primary-600 dark:focus:ring-primary-800': true,
+            'flex cursor-pointer items-center justify-center gap-2 rounded bg-primary-500 px-5 py-2.5 text-sm font-medium text-background hover:opacity-85 focus:ring-4 focus:ring-primary-300 focus:outline-none dark:bg-primary-400 dark:focus:ring-primary-800': true,
             [props.extendClass || '']: true,
             'pointer-events-none opacity-70': props.disabled,
             'opacity-50': props.isLoading,
@@ -48,7 +48,7 @@ const handleClick = (event: MouseEvent) => {
         :disabled="props.disabled"
         @click="handleClick"
         :class="{
-            'flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary-400 px-5 py-2.5 text-sm font-medium text-background hover:opacity-85 focus:ring-4 focus:ring-primary-300 focus:outline-none dark:bg-primary-600 dark:focus:ring-primary-800': true,
+            'flex cursor-pointer items-center justify-center gap-2 rounded bg-primary-500 px-5 py-2.5 text-sm font-medium text-background hover:opacity-85 focus:ring-4 focus:ring-primary-300 focus:outline-none dark:bg-primary-400 dark:focus:ring-primary-800': true,
             [props.extendClass || '']: true,
             'pointer-events-none opacity-70': props.disabled,
             'opacity-50': props.isLoading,
