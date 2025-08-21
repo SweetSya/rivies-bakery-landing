@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ButtonMain from '@/components/buttons/ButtonMain.vue';
 import BaseModal from '@/components/modal/BaseModal.vue';
 import { useAppearance } from '@/composables/useAppearance';
 import { useCart } from '@/composables/useCart';
@@ -72,7 +73,7 @@ const createPayment = () => {
         resetCart();
     }, 2000);
 };
-const paymentModal = ref(null);
+const paymentModal = ref<InstanceType<typeof BaseModal> | null>(null);
 
 onUnmounted(() => {
     resetCheckout();
@@ -392,14 +393,9 @@ onUnmounted(() => {
                                     <dd class="text-base font-bold text-gray-900 dark:text-white">{{ formatRupiah(cart.grandTotal) }}</dd>
                                 </dl>
                             </div>
-
-                            <button
-                                @click="createPayment"
-                                :class="isCheckoutEmpty() || isCartEmpty() ? 'pointer-events-none opacity-50' : ''"
-                                class="flex w-full cursor-pointer items-center justify-center rounded-lg bg-primary-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 focus:outline-none dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-                            >
-                                Proses Pembayaran
-                            </button>
+                            <ButtonMain type="submit" @click="createPayment" :extendClass="'!w-full'" :disabled="isCheckoutEmpty() || isCartEmpty()">
+                                <template #content> Proses Pembayaran </template>
+                            </ButtonMain>
 
                             <div class="flex items-center justify-center gap-2">
                                 <span class="text-sm font-normal text-gray-500 dark:text-gray-400"> atau </span>

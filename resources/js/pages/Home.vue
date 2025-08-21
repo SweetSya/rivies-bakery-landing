@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ButtonMain from '@/components/buttons/ButtonMain.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
@@ -133,13 +134,9 @@ onMounted(() => {
                 </div>
                 <section class="mx-auto mb-8 flex max-w-screen-md flex-wrap items-center justify-center gap-3 text-center lg:mb-16">
                     <p class="text-gray-500 sm:text-xl dark:text-gray-400">Penasaran dengan produk kami ?</p>
-                    <Link
-                        href="/products"
-                        class="inline-flex items-center rounded-lg bg-primary-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:opacity-80 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900"
-                    >
-                        Telusuri Produk
-                        <ArrowRight class="ms-2 h-4 w-4" />
-                    </Link>
+                    <ButtonMain type="button" :extend-class="'!w-fit'" :disabled="false" :href="'/products'">
+                        <template #content> Telusuri Produk <ArrowRight class="h-4 w-4" /> </template>
+                    </ButtonMain>
                 </section>
                 <div class="swiper swiper-banner h-80 w-full rounded-lg shadow-xl shadow-foreground/10">
                     <!-- Carousel wrapper -->
@@ -175,13 +172,9 @@ onMounted(() => {
                         Di Rivies Bakery, setiap roti, kue, dan pastry dibuat sepenuh hati dengan bahan pilihan terbaik. Nikmati aroma segar yang
                         menggoda dan rasa yang memanjakan lidah. Saatnya bawa pulang kebahagiaan, satu gigitan demi satu
                     </p>
-                    <Link
-                        href="/about"
-                        class="inline-flex items-center rounded-lg bg-primary-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:opacity-80 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900"
-                    >
-                        Mengenai
-                        <ArrowRight class="ms-2 h-4 w-4" />
-                    </Link>
+                    <ButtonMain type="button" :extend-class="'!w-fit'" :disabled="false" :href="'/about'">
+                        <template #content> Mengenai Kami <ArrowRight class="h-4 w-4" /> </template>
+                    </ButtonMain>
                 </div>
             </section>
         </template>

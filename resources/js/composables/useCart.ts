@@ -134,7 +134,7 @@ export function useCart() {
     const resetCart = () => {
         cart.value = {
             items: [],
-            tax: 0,
+            tax: 10,
             cupon: {
                 code: '',
                 type: '',

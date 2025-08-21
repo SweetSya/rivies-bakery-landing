@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ButtonMain from '@/components/buttons/ButtonMain.vue';
 import BaseModal from '@/components/modal/BaseModal.vue';
 import AccountSettings from '@/layouts/AccountSettingsLayout.vue';
 import { gsap } from 'gsap';
@@ -31,15 +32,12 @@ defineOptions({
         <!-- Content -->
         <template #settingsContent>
             <div class="mb-8 flex justify-start">
-                <button
-                    @click="addModal?.open()"
-                    class="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 focus:outline-none dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-                >
-                    Tambah Alamat Baru <Plus class="h-4 w-4" />
-                </button>
+                <ButtonMain id="add-new-address" type="button" :disabled="false" @click="addModal?.open()">
+                    <template #content> Tambah Alamat Baru <Plus class="h-4 w-4" /> </template>
+                </ButtonMain>
             </div>
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div v-for="value of [1, 2, 3]" class="rounded-lg border bg-transparent p-4 ps-4">
+                <div v-for="value of [1, 2, 3]" :key="value" class="rounded-lg border bg-transparent p-4 ps-4">
                     <div class="flex items-start">
                         <div class="w-full space-y-2 text-sm">
                             <div class="border-b pb-2 text-base leading-none font-bold text-foreground md:text-lg">

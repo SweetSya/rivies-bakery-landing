@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ButtonMain from '@/components/buttons/ButtonMain.vue';
 import ProductCart from '@/components/carts/ProductCart.vue';
 import { useCart } from '@/composables/useCart';
 import { formatRupiah } from '@/composables/useHelperFunctions';
@@ -158,21 +159,17 @@ const cart = computed(() => getCart());
                                         />
                                     </div>
                                     <div class="flex gap-2">
-                                        <button
-                                            type="submit"
-                                            :class="cart.cupon.code != '' ? 'pointer-events-none opacity-50' : ''"
-                                            class="flex w-full grow cursor-pointer items-center justify-center rounded-lg bg-primary-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 focus:outline-none dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-                                        >
-                                            Terapkan Kode
-                                        </button>
-                                        <button
+                                        <ButtonMain type="submit" :disabled="cart.cupon.code != ''" :extend-class="'!w-full !text-xs !py-2'">
+                                            <template #content> Terapkan Kode </template>
+                                        </ButtonMain>
+                                        <ButtonMain
                                             v-if="cart.cupon.code != ''"
-                                            @click="(notivueSuccess('Berhasil membersihkan kode diskon'), clearAppliedCupon())"
                                             type="button"
-                                            class="flex cursor-pointer items-center justify-center rounded-lg bg-primary-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 focus:outline-none dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                                            :extend-class="'!w-fit !text-xs !py-2'"
+                                            @click="(notivueSuccess('Berhasil membersihkan kode diskon'), clearAppliedCupon())"
                                         >
-                                            <X class="h-5 w-5" />
-                                        </button>
+                                            <template #content> <X class="h-5 w-5" /></template>
+                                        </ButtonMain>
                                     </div>
                                 </form>
                             </div>
@@ -219,12 +216,9 @@ const cart = computed(() => getCart());
                                     </dl>
                                 </div>
 
-                                <Link
-                                    href="/checkout"
-                                    :class="isCartEmpty() ? 'pointer-events-none opacity-50' : ''"
-                                    class="flex w-full items-center justify-center rounded-lg bg-primary-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 focus:outline-none dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-                                    >Proses Checkout</Link
-                                >
+                                <ButtonMain type="submit" :href="'/checkout'" :disabled="isCartEmpty()">
+                                    <template #content> Proses Checkout </template>
+                                </ButtonMain>
 
                                 <div class="flex items-center justify-center gap-2">
                                     <span class="text-sm font-normal text-gray-500 dark:text-gray-400"> atau </span>

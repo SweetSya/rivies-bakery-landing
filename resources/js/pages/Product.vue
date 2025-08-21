@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ButtonMain from '@/components/buttons/ButtonMain.vue';
 import ProductCard from '@/components/cards/ProductCard.vue';
 import ProductCardSkeleton from '@/components/cards/ProductCardSkeleton.vue';
 import BaseModal from '@/components/modal/BaseModal.vue';
@@ -6,7 +7,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowLeft, ArrowRight, Filter, Search, X } from 'lucide-vue-next';
+import { ArrowDown, ArrowLeft, ArrowRight, Filter, Search, X } from 'lucide-vue-next';
 import { Swiper } from 'swiper';
 import { Navigation, Pagination } from 'swiper/modules';
 import TomSelect from 'tom-select';
@@ -442,15 +443,11 @@ onMounted(() => {
                     <ProductCardSkeleton :total="5" v-if="pageProps.loading" />
                 </div>
                 <div ref="sentinel"></div>
-                <div class="w-full text-center">
-                    <button
-                        v-if="!pageProps.loading"
-                        @click="fetchManually"
-                        type="button"
-                        class="cursor-pointer rounded-lg border border-primary-600 bg-primary-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-700 hover:text-white focus:z-10 focus:ring-4 focus:ring-primary-200 focus:outline-none dark:border-primary-600 dark:bg-primary-600 dark:text-white dark:hover:bg-primary-700 dark:hover:text-white dark:focus:ring-primary-900"
-                    >
-                        Muat lebih banyak
-                    </button>
+
+                <div class="flex w-full justify-center">
+                    <ButtonMain v-if="!pageProps.loading" @click="fetchManually" type="button" :extend-class="'!w-fit'">
+                        <template #content> Muat lebih banyak <ArrowDown class="h-4 w-4" /> </template>
+                    </ButtonMain>
                 </div>
             </section>
             <!-- Main modal -->
