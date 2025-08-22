@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import BaseModal from '@/components/modal/BaseModal.vue';
+import PaymentModal from '@/components/modal/PaymentModal.vue';
 import AccountSettings from '@/layouts/AccountSettingsLayout.vue';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Eye } from 'lucide-vue-next';
+import { ReceiptText } from 'lucide-vue-next';
 import { Swiper } from 'swiper';
 import { Navigation, Pagination } from 'swiper/modules';
+import { ref } from 'vue';
 
 // Register Library
 Swiper.use([Navigation, Pagination]);
@@ -15,6 +18,9 @@ defineOptions({
         AccountSettings,
     },
 });
+
+const detailModal = ref<typeof BaseModal | null>(null);
+const paymentModal = ref<typeof PaymentModal | null>(null);
 </script>
 
 <template>
@@ -52,27 +58,106 @@ defineOptions({
 
                             <div class="flex flex-wrap justify-between gap-3">
                                 <button
-                                    class="flex cursor-pointer items-center justify-center text-sm font-medium text-nowrap text-foreground underline hover:opacity-80"
+                                    @click="detailModal?.open()"
+                                    class="flex cursor-pointer items-center justify-center text-sm md:text-base font-medium text-nowrap text-foreground underline hover:opacity-80"
                                 >
-                                    <Eye class="me-2 h-4 w-4" /> Detail Transaksi
+                                    <ReceiptText class="me-2 h-4 w-4" /> Detail Transaksi
                                 </button>
-                                <div class="flex flex-wrap gap-3">
+                                <div class="flex flex-wrap gap-2">
                                     <button
-                                        class="flex cursor-pointer items-center justify-center text-sm font-medium text-nowrap text-foreground underline hover:opacity-80"
+                                        class="flex cursor-pointer items-center justify-center text-sm md:text-base font-medium text-nowrap text-red-600 underline hover:opacity-80 dark:text-red-500"
                                     >
-                                        Lakukan Pembayaran
+                                        Batalkan
                                     </button>
-                                    <!-- <button
-                                            class="flex cursor-pointer items-center justify-center text-sm font-medium text-nowrap text-foreground underline hover:opacity-80"
-                                        >
-                                            Cek Status
-                                        </button> -->
+                                    <div>
+                                        |
+                                    </div>
+                                    <button
+                                        @click="paymentModal?.createPayment()"
+                                        class="flex cursor-pointer items-center justify-center text-sm md:text-base font-medium text-nowrap text-green-600 underline hover:opacity-80"
+                                    >
+                                        Bayar
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <BaseModal :id="'detail-modal'" :title="'Detail Transaksi'" :isCloseable="true" :isLoading="false" ref="detailModal">
+                <template #modalIcon>
+                    <ReceiptText class="h-5 w-5" />
+                </template>
+                <template #modalContent>
+                    <div class="flex flex-col gap-3 text-xs md:text-base">
+                        <table class="table-col-one-nowrap w-full">
+                            <tbody class="">
+                                <tr class="">
+                                    <td class="px-2 py-1 font-bold">ID</td>
+                                    <td class="px-2">:</td>
+                                    <td class="px-2">RVB201220250001</td>
+                                </tr>
+                                <tr class="">
+                                    <td class="px-2 py-1 font-bold">Total</td>
+                                    <td class="px-2">:</td>
+                                    <td class="px-2">Rp 250.000</td>
+                                </tr>
+                                <tr class="">
+                                    <td class="px-2 py-1 font-bold">Metode</td>
+                                    <td class="px-2">:</td>
+                                    <td class="px-2">QRIS</td>
+                                </tr>
+                                <tr class="">
+                                    <td class="px-2 py-1 font-bold">Status</td>
+                                    <td class="px-2">:</td>
+                                    <td class="px-2">Selesai</td>
+                                </tr>
+                                <tr class="">
+                                    <td class="px-2 py-1 font-bold">Pembayaran /<br />Selesai</td>
+                                    <td class="px-2">:</td>
+                                    <td class="px-2">20 Desember 2025, 15:16 /<br />20 Desember 2025, 15:16</td>
+                                </tr>
+                                <tr class="">
+                                    <td class="px-2 pt-3 text-center font-bold" colspan="3">Detail</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <ul class="px-2">
+                            <li class="w-full rounded border-y p-2">
+                                <p class="font-semibold text-primary-600 dark:text-primary-400">lorem ipsum dolor sit amet</p>
+                                <div class="flex justify-between">
+                                    <span>2 * 50.000</span>
+                                    <span>Rp 100.000</span>
+                                </div>
+                            </li>
+                            <li class="w-full rounded border-y p-2 text-xs md:text-base">
+                                <p class="font-semibold text-primary-600 dark:text-primary-400">lorem ipsum dolor sit amet</p>
+                                <div class="flex justify-between">
+                                    <span>2 * 50.000</span>
+                                    <span>Rp 100.000</span>
+                                </div>
+                            </li>
+                            <li class="w-full rounded border-y p-2 text-xs md:text-base">
+                                <p class="font-semibold text-primary-600 dark:text-primary-400">lorem ipsum dolor sit amet</p>
+                                <div class="flex justify-between">
+                                    <span>2 * 50.000</span>
+                                    <span>Rp 100.000</span>
+                                </div>
+                            </li>
+                        </ul>
+                        <div class="col-span-2 mt-5 flex justify-end gap-2">
+                            <button
+                                type="button"
+                                @click="detailModal?.close()"
+                                class="relative cursor-pointer overflow-hidden rounded-lg border-2 border-primary-500 bg-primary-600 px-5 py-2 text-center text-base text-foreground hover:opacity-80 focus:z-10 focus:ring-1 focus:ring-primary-300 focus:outline-none"
+                            >
+                                <div class="relative z-10">Tutup</div>
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </BaseModal>
+            <PaymentModal :ref="'paymentModal'" />
         </template>
     </AccountSettings>
 </template>

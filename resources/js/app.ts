@@ -13,6 +13,7 @@ const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 const notivue = createNotivue({
     position: 'top-right',
     pauseOnHover: true,
+    limit: 5,
 });
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),

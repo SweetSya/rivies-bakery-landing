@@ -357,13 +357,6 @@ onUnmounted(() => {
                             <div class="space-y-4">
                                 <div class="space-y-2">
                                     <dl class="flex items-center justify-between gap-4">
-                                        <dt class="text-base font-normal text-gray-500 dark:text-gray-400">Total</dt>
-                                        <dd class="text-base font-medium text-gray-900 dark:text-white">
-                                            {{ formatRupiah(cart.total - cart.discount.product - cart.discount.cupon) }}
-                                        </dd>
-                                    </dl>
-
-                                    <dl class="flex items-center justify-between gap-4">
                                         <dt class="text-base font-normal text-gray-500 dark:text-gray-400">Hemat</dt>
                                         <dd class="text-base font-medium" :class="cart.discount.product ? 'text-green-500' : 'text-foreground'">
                                             {{ formatRupiah(cart.discount.product) }}
@@ -373,6 +366,12 @@ onUnmounted(() => {
                                         <dt class="text-base font-normal text-gray-500 dark:text-gray-400">Voucher</dt>
                                         <dd class="text-base font-medium" :class="cart.discount.cupon ? 'text-green-500' : 'text-foreground'">
                                             {{ formatRupiah(cart.discount.cupon) }}
+                                        </dd>
+                                    </dl>
+                                    <dl class="flex items-center justify-between gap-4">
+                                        <dt class="text-base font-normal text-gray-500 dark:text-gray-400">Total</dt>
+                                        <dd class="text-base font-medium text-gray-900 dark:text-white">
+                                            {{ formatRupiah(cart.total - cart.discount.product - cart.discount.cupon) }}
                                         </dd>
                                     </dl>
                                     <!-- <dl class="flex items-center justify-between gap-4">
@@ -394,7 +393,7 @@ onUnmounted(() => {
                                 </dl>
                             </div>
                             <ButtonMain type="submit" @click="createPayment" :extendClass="'!w-full'" :disabled="isCheckoutEmpty() || isCartEmpty()">
-                                <template #content> Proses Pembayaran </template>
+                                Proses Pembayaran
                             </ButtonMain>
 
                             <div class="flex items-center justify-center gap-2">
@@ -442,7 +441,9 @@ onUnmounted(() => {
                     </div>
                     <p class="mx-5 mt-1 text-center text-xs font-normal text-gray-500 md:text-base dark:text-gray-400">
                         Untuk melihat seluruh riwayat pembayaran, silahkan kunjungi
-                        <Link href="/payment-history" class="text-primary-600 underline hover:opacity-80 dark:text-primary-500">halaman ini</Link>
+                        <Link href="/account-settings/transactions" class="text-primary-600 underline hover:opacity-80 dark:text-primary-500"
+                            >halaman ini</Link
+                        >
                     </p>
 
                     <!-- Modal footer -->

@@ -2,6 +2,7 @@
 import ButtonMain from '@/components/buttons/ButtonMain.vue';
 import { formatRupiah } from '@/composables/useHelperFunctions';
 import { Link } from '@inertiajs/vue3';
+import { ShoppingBag } from 'lucide-vue-next';
 
 defineProps<{
     id: string;
@@ -21,16 +22,19 @@ defineProps<{
 </script>
 
 <template>
-    <Link :href="`/products/${slug}`" :key="id" class="group/card mx-auto w-full max-w-[220px] overflow-hidden">
+    <div :key="id" class="group/card mx-auto w-full max-w-[220px] overflow-hidden">
         <div class="relative h-56 w-full overflow-hidden rounded-md">
-            <img loading="lazy" src="/storage/images/logo.png" class="h-full w-full scale-105 object-cover group-hover/card:scale-100" alt="" />
-            <span class="absolute top-2 right-2 rounded-sm bg-primary-700 px-2.5 py-0.5 text-xs font-medium text-background dark:bg-primary-400">{{
-                category.name
-            }}</span>
-            <span
-                :class="status.isReady ? 'border-green-600 bg-green-500/80 backdrop-blur-md' : 'border-red-600 bg-red-600/80 backdrop-blur-md'"
-                class="absolute right-2 bottom-2 rounded-sm border px-2.5 py-0.5 text-xs font-medium text-base-100"
-                >{{ status.label }}</span
+            <Link :href="`/products/${slug}`">
+                <img loading="lazy" src="/storage/images/logo.png" class="h-full w-full scale-105 object-cover group-hover/card:scale-100" alt="" />
+                <span
+                    class="absolute top-2 right-2 rounded-sm bg-primary-700 px-2.5 py-0.5 text-xs font-medium text-background dark:bg-primary-400"
+                    >{{ category.name }}</span
+                >
+                <span
+                    :class="status.isReady ? 'border-green-600 bg-green-500/80 backdrop-blur-md' : 'border-red-600 bg-red-600/80 backdrop-blur-md'"
+                    class="absolute right-2 bottom-2 rounded-sm border px-2.5 py-0.5 text-xs font-medium text-base-100"
+                    >{{ status.label }}</span
+                ></Link
             >
         </div>
         <div class="relative space-y-2 py-3">
@@ -43,9 +47,10 @@ defineProps<{
             </p>
         </div>
         <div class="flex w-full gap-2">
-            <ButtonMain type="button" :extend-class="'!w-full !font-semibold !text-xs !py-2'" :href="`/products/${slug}`">
-                <template #content> Lihat </template>
+            <ButtonMain type="button" :extend-class="'!w-full !font-semibold !text-xs !py-2'" :href="`/products/${slug}`"> Lihat </ButtonMain>
+            <ButtonMain type="button" :extend-class="'!w-fit'" @click="$emit('handleAddToCart')">
+                <ShoppingBag class="h-3 w-3" />
             </ButtonMain>
         </div>
-    </Link>
+    </div>
 </template>

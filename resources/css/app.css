@@ -330,4 +330,11 @@
             transform: rotate(1turn);
         }
     }
+    /* Custom table */
+    .table-col-one-nowrap td:nth-child(1),
+    .table-col-one-nowrap td:nth-child(2) {
+        white-space: nowrap;
+        text-wrap: nowrap;
+        width: 1px;
+    }
 }

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ButtonMain from '@/components/buttons/ButtonMain.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
@@ -175,18 +176,11 @@ onMounted(() => {
                         menggoda dan rasa yang memanjakan lidah. Saatnya bawa pulang kebahagiaan, satu gigitan demi satu
                     </p>
                     <div class="flex w-full gap-2">
-                        <button
-                            @click="product && addToCart(product)"
-                            class="inline-flex grow-1 cursor-pointer items-center justify-center gap-3 rounded-l-lg border-2 border-primary-600 bg-transparent px-3 py-1 text-center text-base font-semibold text-primary hover:bg-primary-600 hover:text-background md:text-lg"
-                        >
-                            Tambahkan
+                        <ButtonMain type="button" :outline="true" :extend-class="'!grow !rounded-l-lg '" @click="product && addToCart(product)">
                             <ShoppingBag class="h-5 w-5" />
-                        </button>
-                        <button
-                            class="inline-block w-fit cursor-pointer rounded-r-lg border-2 border-primary-600 bg-transparent px-3 py-1 text-center text-base font-semibold text-primary hover:bg-primary-600 hover:text-background md:text-lg"
-                        >
-                            <Bookmark class="h-5 w-5" />
-                        </button>
+                            Tambah ke Keranjang
+                        </ButtonMain>
+                        <ButtonMain type="button" :outline="true" :extend-class="'!rounded-r-lg'"> <Bookmark class="h-5 w-5" /></ButtonMain>
                     </div>
                 </div>
             </section>

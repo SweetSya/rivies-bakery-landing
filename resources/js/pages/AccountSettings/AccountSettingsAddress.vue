@@ -33,7 +33,7 @@ defineOptions({
         <template #settingsContent>
             <div class="mb-8 flex justify-start">
                 <ButtonMain id="add-new-address" type="button" :disabled="false" @click="addModal?.open()">
-                    <template #content> Tambah Alamat Baru <Plus class="h-4 w-4" /> </template>
+                    Tambah Alamat Baru <Plus class="h-4 w-4" />
                 </ButtonMain>
             </div>
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">

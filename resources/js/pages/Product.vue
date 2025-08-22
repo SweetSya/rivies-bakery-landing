@@ -3,6 +3,7 @@ import ButtonMain from '@/components/buttons/ButtonMain.vue';
 import ProductCard from '@/components/cards/ProductCard.vue';
 import ProductCardSkeleton from '@/components/cards/ProductCardSkeleton.vue';
 import BaseModal from '@/components/modal/BaseModal.vue';
+import { useCart } from '@/composables/useCart';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
@@ -53,6 +54,8 @@ interface AppliedFilter {
     priceMin: number;
     searchTerm: string;
 }
+// --- Imports ---
+const { addToCart } = useCart();
 
 // --- Constants ---
 const AUTO_FETCH_LIMIT = 2;
@@ -95,7 +98,7 @@ const mockProducts = [
         id: 'product-1',
         name: 'Product 1',
         price: 10000,
-        image: '/storage/images/products/1.jpg',
+        image: '/storage/images/logo.png',
         slug: 'product-1',
         discount: 15,
         status: { label: 'Preorder (3 Hari)', isReady: false },
@@ -105,7 +108,7 @@ const mockProducts = [
         id: 'product-2',
         name: 'Product 2',
         price: 20000,
-        image: '/storage/images/products/2.jpg',
+        image: '/storage/images/logo.png',
         slug: 'product-2',
         discount: 10,
         status: { label: 'Preorder (3 Hari)', isReady: false },
@@ -115,7 +118,7 @@ const mockProducts = [
         id: 'product-3',
         name: 'Product 3',
         price: 30000,
-        image: '/storage/images/products/3.jpg',
+        image: '/storage/images/logo.png',
         slug: 'product-3',
         discount: 0,
         status: { label: 'Preorder (3 Hari)', isReady: false },
@@ -128,7 +131,7 @@ const mockNewProducts = [
         id: 'product-4',
         name: 'Product 4',
         price: 40000,
-        image: '/storage/images/products/4.jpg',
+        image: '/storage/images/logo.png',
         slug: 'product-4',
         discount: 5,
         status: { label: 'Preorder (3 Hari)', isReady: false },
@@ -138,7 +141,7 @@ const mockNewProducts = [
         id: 'product-5',
         name: 'Product 5',
         price: 50000,
-        image: '/storage/images/products/5.jpg',
+        image: '/storage/images/logo.png',
         slug: 'product-5',
         discount: 20,
         status: { label: 'Preorder (3 Hari)', isReady: false },
@@ -148,7 +151,7 @@ const mockNewProducts = [
         id: 'product-6',
         name: 'Product 6',
         price: 60000,
-        image: '/storage/images/products/6.jpg',
+        image: '/storage/images/logo.png',
         slug: 'product-6',
         discount: 25,
         status: { label: 'Order Sekarang', isReady: true },
@@ -158,7 +161,7 @@ const mockNewProducts = [
         id: 'product-7',
         name: 'Product 7',
         price: 70000,
-        image: '/storage/images/products/7.jpg',
+        image: '/storage/images/logo.png',
         slug: 'product-7',
         discount: 30,
         status: { label: 'Order Sekarang', isReady: true },
@@ -247,6 +250,14 @@ const fetchProducts = () => {
             }
         });
     }, 1000);
+};
+
+const handleBeforeAddProductToCart = (product: Product) => {
+    const cartItem = {
+        ...product,
+        quantity: 1,
+    };
+    addToCart(cartItem);
 };
 
 // --- Filter Logic ---
@@ -439,6 +450,7 @@ onMounted(() => {
                         :discount="product.discount"
                         :status="product.status"
                         :category="product.category"
+                        @handle-add-to-cart="handleBeforeAddProductToCart(product)"
                     />
                     <ProductCardSkeleton :total="5" v-if="pageProps.loading" />
                 </div>
@@ -446,7 +458,7 @@ onMounted(() => {
 
                 <div class="flex w-full justify-center">
                     <ButtonMain v-if="!pageProps.loading" @click="fetchManually" type="button" :extend-class="'!w-fit'">
-                        <template #content> Muat lebih banyak <ArrowDown class="h-4 w-4" /> </template>
+                        Muat lebih banyak <ArrowDown class="h-4 w-4" />
                     </ButtonMain>
                 </div>
             </section>

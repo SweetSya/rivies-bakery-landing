@@ -135,7 +135,7 @@ onMounted(() => {
                 <section class="mx-auto mb-8 flex max-w-screen-md flex-wrap items-center justify-center gap-3 text-center lg:mb-16">
                     <p class="text-gray-500 sm:text-xl dark:text-gray-400">Penasaran dengan produk kami ?</p>
                     <ButtonMain type="button" :extend-class="'!w-fit'" :disabled="false" :href="'/products'">
-                        <template #content> Telusuri Produk <ArrowRight class="h-4 w-4" /> </template>
+                        Telusuri Produk <ArrowRight class="h-4 w-4" />
                     </ButtonMain>
                 </section>
                 <div class="swiper swiper-banner h-80 w-full rounded-lg shadow-xl shadow-foreground/10">
@@ -173,7 +173,7 @@ onMounted(() => {
                         menggoda dan rasa yang memanjakan lidah. Saatnya bawa pulang kebahagiaan, satu gigitan demi satu
                     </p>
                     <ButtonMain type="button" :extend-class="'!w-fit'" :disabled="false" :href="'/about'">
-                        <template #content> Mengenai Kami <ArrowRight class="h-4 w-4" /> </template>
+                        Mengenai Kami <ArrowRight class="h-4 w-4" />
                     </ButtonMain>
                 </div>
             </section>

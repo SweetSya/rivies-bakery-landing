@@ -160,7 +160,7 @@ const cart = computed(() => getCart());
                                     </div>
                                     <div class="flex gap-2">
                                         <ButtonMain type="submit" :disabled="cart.cupon.code != ''" :extend-class="'!w-full !text-xs !py-2'">
-                                            <template #content> Terapkan Kode </template>
+                                            Terapkan Kode
                                         </ButtonMain>
                                         <ButtonMain
                                             v-if="cart.cupon.code != ''"
@@ -168,7 +168,7 @@ const cart = computed(() => getCart());
                                             :extend-class="'!w-fit !text-xs !py-2'"
                                             @click="(notivueSuccess('Berhasil membersihkan kode diskon'), clearAppliedCupon())"
                                         >
-                                            <template #content> <X class="h-5 w-5" /></template>
+                                            <X class="h-5 w-5" />
                                         </ButtonMain>
                                     </div>
                                 </form>
@@ -179,13 +179,6 @@ const cart = computed(() => getCart());
                                 <div class="space-y-4">
                                     <div class="space-y-2">
                                         <dl class="flex items-center justify-between gap-4">
-                                            <dt class="text-base font-normal text-gray-500 dark:text-gray-400">Total</dt>
-                                            <dd class="text-base font-medium text-gray-900 dark:text-white">
-                                                {{ formatRupiah(cart.total - cart.discount.product - cart.discount.cupon) }}
-                                            </dd>
-                                        </dl>
-
-                                        <dl class="flex items-center justify-between gap-4">
                                             <dt class="text-base font-normal text-gray-500 dark:text-gray-400">Hemat</dt>
                                             <dd class="text-base font-medium" :class="cart.discount.product ? 'text-green-500' : 'text-foreground'">
                                                 {{ formatRupiah(cart.discount.product) }}
@@ -195,6 +188,12 @@ const cart = computed(() => getCart());
                                             <dt class="text-base font-normal text-gray-500 dark:text-gray-400">Voucher</dt>
                                             <dd class="text-base font-medium" :class="cart.discount.cupon ? 'text-green-500' : 'text-foreground'">
                                                 {{ formatRupiah(cart.discount.cupon) }}
+                                            </dd>
+                                        </dl>
+                                        <dl class="flex items-center justify-between gap-4">
+                                            <dt class="text-base font-normal text-gray-500 dark:text-gray-400">Total</dt>
+                                            <dd class="text-base font-medium text-gray-900 dark:text-white">
+                                                {{ formatRupiah(cart.total - cart.discount.product - cart.discount.cupon) }}
                                             </dd>
                                         </dl>
                                         <!-- <dl class="flex items-center justify-between gap-4">
@@ -216,9 +215,7 @@ const cart = computed(() => getCart());
                                     </dl>
                                 </div>
 
-                                <ButtonMain type="submit" :href="'/checkout'" :disabled="isCartEmpty()">
-                                    <template #content> Proses Checkout </template>
-                                </ButtonMain>
+                                <ButtonMain type="submit" :href="'/checkout'" :disabled="isCartEmpty()"> Proses Checkout </ButtonMain>
 
                                 <div class="flex items-center justify-center gap-2">
                                     <span class="text-sm font-normal text-gray-500 dark:text-gray-400"> atau </span>
