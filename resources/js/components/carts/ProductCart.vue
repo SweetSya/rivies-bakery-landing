@@ -3,7 +3,6 @@ import { useCart, type CartItem } from '@/composables/useCart';
 import { formatRupiah } from '@/composables/useHelperFunctions';
 import { Link } from '@inertiajs/vue3';
 import { Minus, Plus, Trash2 } from 'lucide-vue-next';
-import { defineProps } from 'vue';
 
 const { setCartQuantity, removeFromCart } = useCart();
 
@@ -76,7 +75,7 @@ const props = defineProps<CartItem>();
                         <Trash2 class="me-1.5 h-5 w-5" />
                     </button>
                 </div>
-            </div>
+        </div>
         </div>
     </div>
 </template>

@@ -1,8 +1,7 @@
 <script setup lang="ts">
+import ButtonMain from '@/components/buttons/ButtonMain.vue';
 import { formatRupiah } from '@/composables/useHelperFunctions';
 import { Link } from '@inertiajs/vue3';
-import { defineProps } from 'vue';
-import ButtonMain from '../buttons/ButtonMain.vue';
 
 defineProps<{
     id: string;

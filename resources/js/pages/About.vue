@@ -203,7 +203,7 @@ const timelineCompany = [
                             class="relative mb-6 h-full sm:mb-0"
                             :class="'w-[' + 180 / timelineCompany.length + 'vw]'"
                         >
-                        <img :src="item.background" class="absolute -z-10 mt-8 h-full w-full object-cover brightness-50" alt="" />
+                            <img :src="item.background" class="absolute -z-10 mt-8 h-full w-full object-cover brightness-50" alt="" />
                             <div class="flex items-center">
                                 <div
                                     class="z-10 flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary-600 font-bold text-base-50 ring-0 ring-background sm:ring-8"

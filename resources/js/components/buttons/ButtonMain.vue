@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import { Link } from '@inertiajs/vue3';
-import { defineProps } from 'vue';
-import LoadingSpinner from '../LoadingSpinner.vue';
+
 const props = defineProps<{
     id?: string;
     type: 'button' | 'submit' | 'reset';
@@ -10,13 +10,12 @@ const props = defineProps<{
     extendClass?: string;
     href?: string;
 }>();
-// Declare the click event
+
 const emit = defineEmits<{
     click: [event: MouseEvent];
 }>();
 
 const handleClick = (event: MouseEvent) => {
-    // Fix: use isLoading instead of loading
     if (!props.disabled && !props.isLoading) {
         emit('click', event);
     }

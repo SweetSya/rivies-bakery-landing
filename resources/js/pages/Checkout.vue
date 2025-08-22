@@ -446,7 +446,7 @@ onUnmounted(() => {
                     </p>
 
                     <!-- Modal footer -->
-                    <div class="flex items-center justify-between space-x-2 rounded-b py-4 md:py-5">
+                    <div class="flex items-center justify-between space-x-2 rounded-b pt-5">
                         <button
                             type="button"
                             @click="paymentModal?.close()"
