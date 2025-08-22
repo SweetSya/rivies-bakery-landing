@@ -2,12 +2,13 @@
 import BaseModal from '@/components/modal/BaseModal.vue';
 import PaymentModal from '@/components/modal/PaymentModal.vue';
 import AccountSettings from '@/layouts/AccountSettingsLayout.vue';
+import axios from 'axios';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ReceiptText } from 'lucide-vue-next';
 import { Swiper } from 'swiper';
 import { Navigation, Pagination } from 'swiper/modules';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 // Register Library
 Swiper.use([Navigation, Pagination]);
@@ -21,6 +22,57 @@ defineOptions({
 
 const detailModal = ref<typeof BaseModal | null>(null);
 const paymentModal = ref<typeof PaymentModal | null>(null);
+// Load Midtrans Snap.js
+onMounted(() => {
+    if (!window.snap) {
+        const script = document.createElement('script');
+        script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
+        script.type = 'text/javascript';
+        script.setAttribute('data-client-key', 'Mid-client-k3PgVBEIepTcmJRn'); // Replace with your actual client key
+        script.onload = () => {
+            console.log('Midtrans Snap.js loaded');
+        };
+        script.onerror = () => {
+            console.error('Failed to load Midtrans Snap.js');
+        };
+        document.head.appendChild(script);
+    }
+});
+
+const createSnapPayment = () => {
+    axios
+        .get('/payment-midtrans')
+        .then((response) => {
+            const { snap_token } = response.data;
+
+            // Check if snap is available before using
+            if (window.snap) {
+                window.snap.pay(snap_token, {
+                    onSuccess: function (result) {
+                        console.log('Payment success:', result);
+                        // Handle success
+                    },
+                    onPending: function (result) {
+                        console.log('Payment pending:', result);
+                        // Handle pending
+                    },
+                    onError: function (result) {
+                        console.log('Payment error:', result);
+                        // Handle error
+                    },
+                    onClose: function () {
+                        console.log('Payment popup closed');
+                        // Handle close
+                    },
+                });
+            } else {
+                console.error('Midtrans Snap not loaded');
+            }
+        })
+        .catch((error) => {
+            console.error('Error creating payment:', error);
+        });
+};
 </script>
 
 <template>
@@ -59,22 +111,20 @@ const paymentModal = ref<typeof PaymentModal | null>(null);
                             <div class="flex flex-wrap justify-between gap-3">
                                 <button
                                     @click="detailModal?.open()"
-                                    class="flex cursor-pointer items-center justify-center text-sm md:text-base font-medium text-nowrap text-foreground underline hover:opacity-80"
+                                    class="flex cursor-pointer items-center justify-center text-sm font-medium text-nowrap text-foreground underline hover:opacity-80 md:text-base"
                                 >
                                     <ReceiptText class="me-2 h-4 w-4" /> Detail Transaksi
                                 </button>
                                 <div class="flex flex-wrap gap-2">
                                     <button
-                                        class="flex cursor-pointer items-center justify-center text-sm md:text-base font-medium text-nowrap text-red-600 underline hover:opacity-80 dark:text-red-500"
+                                        class="flex cursor-pointer items-center justify-center text-sm font-medium text-nowrap text-red-600 underline hover:opacity-80 md:text-base dark:text-red-500"
                                     >
                                         Batalkan
                                     </button>
-                                    <div>
-                                        |
-                                    </div>
+                                    <div>|</div>
                                     <button
-                                        @click="paymentModal?.createPayment()"
-                                        class="flex cursor-pointer items-center justify-center text-sm md:text-base font-medium text-nowrap text-green-600 underline hover:opacity-80"
+                                        @click="createSnapPayment()"
+                                        class="flex cursor-pointer items-center justify-center text-sm font-medium text-nowrap text-green-600 underline hover:opacity-80 md:text-base"
                                     >
                                         Bayar
                                     </button>

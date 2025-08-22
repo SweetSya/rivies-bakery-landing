@@ -1,7 +1,12 @@
 <?php
 
+use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
+
+// Testing
+Route::get('/payment-midtrans', [PaymentController::class, 'createPayment']);
 
 // Home
 Route::get('/', function () {
