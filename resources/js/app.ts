@@ -8,6 +8,7 @@ import { createApp, h } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
 import { initializeTheme } from './composables/useAppearance';
 
+
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 // Initiate Notivue
 const notivue = createNotivue({

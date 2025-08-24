@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import { Link } from '@inertiajs/vue3';
 
 const props = defineProps<{
@@ -37,10 +36,10 @@ const handleClick = (event: MouseEvent) => {
                 : 'bg-primary-500 dark:bg-primary-400']: true,
             [props.extendClass || '']: true,
             'pointer-events-none opacity-70': props.disabled,
-            'opacity-50': props.isLoading,
+            'pointer-events-none opacity-50': props.isLoading,
         }"
     >
-        <LoadingSpinner :extendClass="'scale-25 h-4'" v-show="isLoading" />
+        <p v-show="isLoading">Loading..</p>
         <slot v-if="!isLoading" />
     </button>
     <Link
@@ -57,10 +56,10 @@ const handleClick = (event: MouseEvent) => {
                 : 'bg-primary-500 dark:bg-primary-400']: true,
             [props.extendClass || '']: true,
             'pointer-events-none opacity-70': props.disabled,
-            'opacity-50': props.isLoading,
+            'portrait: opacity-50': props.isLoading,
         }"
     >
-        <LoadingSpinner :extendClass="'scale-25 h-4'" v-show="isLoading" />
+        <p v-show="isLoading">Loading..</p>
         <slot v-if="!isLoading" />
     </Link>
 </template>

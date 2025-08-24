@@ -47,9 +47,14 @@ interface Product {
 interface TomSelectRef {
     category?: TomSelect;
 }
+interface Category {
+    id: string;
+    title: string;
+}
 
 interface AppliedFilter {
-    categories: string[];
+    categoriesLength: number;
+    categories: Category[];
     priceMax: number;
     priceMin: number;
     searchTerm: string;
@@ -76,6 +81,7 @@ const tomSelectRef = ref<TomSelectRef>({});
 const modalFilter = ref<typeof BaseModal>();
 // --- Filter State ---
 const appliedFilter = ref<AppliedFilter>({
+    categoriesLength: 0,
     categories: [],
     priceMax: 0,
     priceMin: 0,
@@ -85,7 +91,7 @@ const appliedFilter = ref<AppliedFilter>({
 // --- Computed ---
 const isFiltersApplied = computed(() => {
     return (
-        appliedFilter.value.categories.length > 0 ||
+        appliedFilter.value.categoriesLength > 0 ||
         appliedFilter.value.priceMax ||
         appliedFilter.value.priceMin ||
         appliedFilter.value.searchTerm !== ''
@@ -265,7 +271,7 @@ const syncFilterFromSessionStorage = () => {
     const storedFilter = sessionStorage.getItem('appliedFilter');
     if (storedFilter) {
         appliedFilter.value = JSON.parse(storedFilter);
-        tomSelectRef.value.category?.setValue(appliedFilter.value.categories || []);
+        tomSelectRef.value.category?.setValue(appliedFilter.value.categories.map((cat) => cat.id) || []);
     }
 };
 
@@ -273,8 +279,20 @@ const syncFilterToSessionStorage = () => {
     sessionStorage.setItem('appliedFilter', JSON.stringify(appliedFilter.value));
 };
 
+const setCategories = () => {
+    if (Array.isArray(tomSelectRef.value.category?.getValue())) {
+        appliedFilter.value.categories = MOCK_CATEGORIES.filter((cat) => (tomSelectRef.value.category?.getValue() as string[]).includes(cat.id));
+    }
+    appliedFilter.value.categoriesLength = appliedFilter.value.categories.length;
+};
+const removeCategory = (categoryId: string) => {
+    appliedFilter.value.categories = appliedFilter.value.categories.filter((cat) => cat.id !== categoryId);
+    tomSelectRef.value.category?.setValue(appliedFilter.value.categories.map((cat) => cat.id) || []);
+    setFilters();
+};
 const setFilters = () => {
     if (!pageProps.value.loading) {
+        setCategories();
         products.value = [];
         fetchProducts();
         fetchCount.value = autoFetchLimit;
@@ -285,6 +303,7 @@ const setFilters = () => {
 const resetFilters = () => {
     if (!pageProps.value.loading) {
         appliedFilter.value = {
+            categoriesLength: 0,
             categories: [],
             priceMax: 0,
             priceMin: 0,
@@ -415,11 +434,12 @@ onMounted(() => {
                         <h2 class="mt-3 text-xl font-semibold text-foreground sm:text-2xl dark:text-white">Produk Rivies</h2>
                         <div class="mt-2 flex flex-wrap justify-start gap-2">
                             <span
-                                v-for="category of appliedFilter.categories"
-                                :key="category"
-                                class="rounded bg-primary-600 px-3 py-2 text-xs font-light text-foreground md:text-base"
-                                >{{ category }}</span
-                            >
+                                v-for="category in appliedFilter.categories"
+                                :key="category.id"
+                                id="category-{{ category.id }}"
+                                class="flex items-center gap-2 rounded bg-primary-600 px-3 py-2 text-xs font-light text-foreground md:text-base"
+                                >{{ category.title }} <X class="h-4 w-4 cursor-pointer" @click="removeCategory(category.id)"
+                            /></span>
                         </div>
                     </div>
                     <div class="mb-auto flex items-center space-x-4">
@@ -430,7 +450,7 @@ onMounted(() => {
                             Filter <Filter class="ms-2 h-4 w-4" />
                         </button>
                         <button
-                            v-if="isFiltersApplied"
+                            v-show="isFiltersApplied"
                             @click="resetFilters"
                             class="inline-flex cursor-pointer items-center rounded-lg border border-border bg-background px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
                         >
@@ -475,15 +495,7 @@ onMounted(() => {
                                     <label for="select-category" class="mb-2 block text-sm font-medium text-foreground md:text-lg dark:text-white"
                                         >Pilih Kategori</label
                                     >
-                                    <select
-                                        id="select-category"
-                                        @change="
-                                            appliedFilter.categories = Array.isArray(tomSelectRef.category?.getValue())
-                                                ? (tomSelectRef.category?.getValue() as string[])
-                                                : [tomSelectRef.category?.getValue() as string]
-                                        "
-                                        placeholder="Cari kategori.."
-                                    ></select>
+                                    <select id="select-category" placeholder="Cari kategori.."></select>
                                 </div>
                             </div>
                             <div class="mb-6 grid gap-6 md:grid-cols-2">

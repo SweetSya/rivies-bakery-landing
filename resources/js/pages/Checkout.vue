@@ -1,23 +1,26 @@
 <script setup lang="ts">
 import ButtonMain from '@/components/buttons/ButtonMain.vue';
-import BaseModal from '@/components/modal/BaseModal.vue';
-import { useAppearance } from '@/composables/useAppearance';
 import { useCart } from '@/composables/useCart';
 import { useCheckout } from '@/composables/useCheckout';
 import { formatRupiah } from '@/composables/useHelperFunctions';
+import { useMidtrans } from '@/composables/useMidtrans';
 import { useNotifications } from '@/composables/useNotifications';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
-import { ArrowRight, CreditCard } from 'lucide-vue-next';
-import { computed, onUnmounted, ref } from 'vue';
+import PaymentSuccessAnimation from '@/lotties/payment-success.json';
+import { Head, Link, router } from '@inertiajs/vue3';
+import axios from 'axios';
+import { LottieAnimation } from 'lottie-web-vue';
+import { ArrowRight } from 'lucide-vue-next';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
-const { appearance } = useAppearance();
-const { notivueSuccess } = useNotifications();
+const { notivueSuccess, notivueError, notivueInfo } = useNotifications();
+const { pay, snapLoading } = useMidtrans();
 
 const { getCart, resetCart, isCartEmpty } = useCart();
 const { getCheckout, isCheckoutEmpty, resetCheckout } = useCheckout();
 
 const selectAddress = ref(<string>'');
+let anim = ref();
 
 defineOptions({
     components: {
@@ -28,53 +31,61 @@ defineOptions({
 // Use computed to make it reactive
 const checkout = computed(() => getCheckout());
 const cart = computed(() => getCart());
-const loadingPayment = ref(false);
-
-// Hold to cancel
-const holdToCancel = ref(false);
-const holdToCancelProgress = ref(0);
-const handleHoldToCancel = (initiate: boolean) => {
-    if (initiate) {
-        holdToCancel.value = true;
-        holdToCancelProgress.value = 0;
-    }
-    setTimeout(() => {
-        if (!holdToCancel.value) {
-            holdToCancelProgress.value = 0;
-            return null;
-        }
-        holdToCancelProgress.value += 100;
-        if (holdToCancelProgress.value >= 2200) {
-            holdToCancel.value = false;
-            // Reset progress
-            holdToCancelProgress.value = 0;
-            notivueSuccess('Pembayaran dibatalkan');
-            paymentModal.value?.close();
-            return;
-        }
-        handleHoldToCancel(false);
-    }, 100);
-};
-
+const snapPaymentLoading = ref(false);
+const afterPaymentCompleteAnimation = ref(false);
 // Create payment
-const createPayment = () => {
-    // Show payment modal
-    paymentModal.value?.open();
-    loadingPayment.value = true;
+const createSnapPayment = async () => {
+    // check payment method
+    if (checkout.value.payment.method === 'online') {
+        // Save to DB and prefetch
+        snapPaymentLoading.value = true;
+        try {
+            const response = await axios.get('/payment-midtrans');
+            const { snap_token } = response.data;
+            // Save snap token to DB
 
-    holdToCancel.value = false;
-    holdToCancelProgress.value = 0;
-
-    // Payment api request here
-    setTimeout(() => {
-        loadingPayment.value = false;
-        // Reset checkout
-        resetCheckout();
+            await pay(snap_token, {
+                onSuccess: (result: any) => (
+                    router.push({
+                        url: `?payment-completed=true&order-id=${result.order_id}`,
+                    }),
+                    afterPaymentComplete()
+                ),
+                onPending: (result: any) => (notivueInfo('Pembayaran sedang diproses.'), console.log(result)),
+                onError: (result: any) => (notivueError('Pembayaran gagal.'), console.log(result)),
+                onClose: () => (resetCart(), resetCheckout()),
+            });
+            snapPaymentLoading.value = false;
+        } catch (error) {
+            console.error('Payment error:', error);
+        }
+    } else {
+        // Handle other payment methods
+        notivueInfo('Silahkan tunjukkan pembayaran di tempat.');
         resetCart();
-    }, 2000);
+        resetCheckout();
+    }
 };
-const paymentModal = ref<InstanceType<typeof BaseModal> | null>(null);
-
+const afterPaymentComplete = () => {
+    notivueSuccess('Pembayaran berhasil.');
+    resetCart();
+    resetCheckout();
+    afterPaymentCompleteAnimation.value = true;
+};
+onMounted(() => {
+    //Check params
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('payment-completed')) {
+        if (params.get('payment-completed') === 'true') {
+            const orderId = params.get('order-id') || '';
+            if (orderId) {
+                // Check DB
+                // Success
+                afterPaymentComplete();
+            }
+        }
+    }
+});
 onUnmounted(() => {
     resetCheckout();
 });
@@ -129,9 +140,21 @@ onUnmounted(() => {
         <!-- Content -->
         <template #content>
             <section class="py-8 antialiased md:py-16">
+                <div class="mb-10 flex flex-col items-center justify-center" v-show="afterPaymentCompleteAnimation">
+                    <h2 class="text-xl md:text-4xl font-semibold text-primary-500">Pembayaran Berhasil</h2>
+                    <p class="text-center text-base-500">Pihak kami akan mengkonfirmasi pesananmu melalui nomor yang ada</p>
+                    <LottieAnimation
+                        v-if="afterPaymentCompleteAnimation"
+                        :animation-data="PaymentSuccessAnimation"
+                        :loop="true"
+                        :auto-play="true"
+                        :speed="1"
+                        class="h-70"
+                    />
+                </div>
                 <div v-show="isCartEmpty()">
-                    <div class="text-center text-gray-500">
-                        <p class="text-lg font-semibold">Keranjang Anda kosong</p>
+                    <div class="text-center text-base-500">
+                        <p class="text-lg font-semibold">Keranjangmu kosong</p>
                         <p class="my-2">Tambahkan produk ke keranjang untuk memulai belanja disini.</p>
                         <div class="flex items-center justify-center gap-2">
                             <Link
@@ -149,12 +172,12 @@ onUnmounted(() => {
                     <div class="mt-6 sm:mt-8 lg:flex lg:items-start lg:gap-12 xl:gap-16">
                         <div class="min-w-0 flex-1 space-y-8">
                             <div class="space-y-4">
-                                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Detail Pengiriman</h2>
+                                <h2 class="text-xl font-semibold text-base-900 dark:text-white">Detail Pengiriman</h2>
 
                                 <select
                                     id="countries"
                                     v-model="selectAddress"
-                                    class="block w-full rounded-lg border border-gray-300 bg-background p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+                                    class="block w-full rounded-lg border border-base-300 bg-background p-2.5 text-sm text-base-900 focus:border-primary-500 focus:ring-primary-500 dark:border-base-600 dark:text-white dark:placeholder:text-base-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
                                 >
                                     <option value="" selected>Pilih alamat..</option>
                                     <option value="address1">Alamat 1</option>
@@ -162,38 +185,38 @@ onUnmounted(() => {
                                 </select>
                                 <p
                                     v-show="![''].includes(selectAddress)"
-                                    class="mt-1 text-xs font-normal text-gray-500 md:text-base dark:text-gray-400"
+                                    class="mt-1 text-xs font-normal text-base-500 md:text-base dark:text-base-400"
                                 >
                                     Ditambahkan secara otomatis berdasarkan data yang ada, untuk mengubah alamat harap
                                     <Link href="/account" class="text-primary-600 underline">klik disini</Link>
                                 </p>
                                 <div class="grid grid-cols-1 gap-4 overflow-hidden sm:grid-cols-2" v-show="selectAddress !== ''">
                                     <div>
-                                        <label for="name" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Nama Lengkap </label>
+                                        <label for="name" class="mb-2 block text-sm font-medium text-base-900 dark:text-white"> Nama Lengkap </label>
                                         <input
                                             v-model="checkout.fullName"
                                             type="text"
                                             id="name"
-                                            class="block w-full rounded-lg border border-gray-300 bg-transparent p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+                                            class="block w-full rounded-lg border border-base-300 bg-transparent p-2.5 text-sm text-base-900 focus:border-primary-500 focus:ring-primary-500 dark:border-base-600 dark:text-white dark:placeholder:text-base-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
                                             placeholder=""
                                             required
                                         />
                                     </div>
 
                                     <div>
-                                        <label for="name" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Email </label>
+                                        <label for="name" class="mb-2 block text-sm font-medium text-base-900 dark:text-white"> Email </label>
                                         <input
                                             v-model="checkout.email"
                                             type="email"
                                             id="email"
-                                            class="block w-full rounded-lg border border-gray-300 bg-transparent p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+                                            class="block w-full rounded-lg border border-base-300 bg-transparent p-2.5 text-sm text-base-900 focus:border-primary-500 focus:ring-primary-500 dark:border-base-600 dark:text-white dark:placeholder:text-base-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
                                             placeholder=""
                                             required
                                         />
                                     </div>
 
                                     <div class="col-span-2">
-                                        <label for="address" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">
+                                        <label for="address" class="mb-2 block text-sm font-medium text-base-900 dark:text-white">
                                             Alamat Lengkap
                                         </label>
                                         <textarea
@@ -201,7 +224,7 @@ onUnmounted(() => {
                                             name="address"
                                             id="address"
                                             rows="4"
-                                            class="block w-full rounded-lg border border-gray-300 bg-transparent p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+                                            class="block w-full rounded-lg border border-base-300 bg-transparent p-2.5 text-sm text-base-900 focus:border-primary-500 focus:ring-primary-500 dark:border-base-600 dark:text-white dark:placeholder:text-base-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
                                         ></textarea>
                                     </div>
                                 </div>
@@ -211,46 +234,47 @@ onUnmounted(() => {
                                 <h3 class="text-xl font-semibold text-foreground">Metode Pembayaran</h3>
 
                                 <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-                                    <label for="pay-with-qris" class="cursor-pointer rounded-lg border bg-transparent p-4 ps-4">
+                                    <label for="pay-with-online" class="cursor-pointer rounded-lg border bg-transparent p-4 ps-4">
                                         <div class="flex items-start">
                                             <div class="flex h-5 items-center">
                                                 <input
-                                                    id="pay-with-qris"
+                                                    id="pay-with-online"
                                                     aria-describedby="pay-on-delivery-text"
                                                     type="radio"
                                                     name="payment-method"
                                                     v-model="checkout.payment.method"
-                                                    value="QRIS"
+                                                    value="online"
                                                     class="h-4 w-4 bg-background text-primary-600 focus:ring-2 focus:ring-primary-600"
                                                 />
                                             </div>
 
                                             <div class="ms-4 text-sm">
-                                                <div class="leading-none font-medium text-gray-900 dark:text-white">QRIS</div>
-                                                <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-gray-500 dark:text-gray-400">
-                                                    Tidak ada biaya tambahan
+                                                <div class="leading-none font-medium text-base-900 dark:text-white">Online</div>
+                                                <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-base-500 dark:text-base-400">
+                                                    Pembayaran secara online melalui payment gateway
                                                 </p>
                                             </div>
                                         </div>
                                     </label>
 
-                                    <label for="pay-with-manual" class="cursor-pointer rounded-lg border bg-transparent p-4 ps-4">
+                                    <label for="pay-with-offline" class="cursor-pointer rounded-lg border bg-transparent p-4 ps-4">
                                         <div class="flex items-start">
                                             <div class="flex h-5 items-center">
                                                 <input
-                                                    id="pay-with-manual"
+                                                    id="pay-with-offline"
                                                     aria-describedby="pay-on-delivery-text"
                                                     type="radio"
                                                     name="payment-method"
-                                                    value=""
+                                                    v-model="checkout.payment.method"
+                                                    value="offline"
                                                     class="h-4 w-4 bg-background text-primary-600 focus:ring-2 focus:ring-primary-600"
                                                 />
                                             </div>
 
                                             <div class="ms-4 text-sm">
-                                                <div class="leading-none font-medium text-gray-900 dark:text-white">Manual (Transfer / Cash)</div>
-                                                <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-gray-500 dark:text-gray-400">
-                                                    Tidak ada tambahan
+                                                <div class="leading-none font-medium text-base-900 dark:text-white">Offline (Manual)</div>
+                                                <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-base-500 dark:text-base-400">
+                                                    Pembayaran dengan konfirmasi melalui pihak Rivie's Bakery
                                                 </p>
                                             </div>
                                         </div>
@@ -259,7 +283,7 @@ onUnmounted(() => {
                             </div>
 
                             <div class="space-y-4">
-                                <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Metode Pengambilan</h3>
+                                <h3 class="text-xl font-semibold text-base-900 dark:text-white">Metode Pengambilan</h3>
 
                                 <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                                     <label for="delivery-with-pickup" class="cursor-pointer rounded-lg border bg-transparent p-4 ps-4">
@@ -277,8 +301,8 @@ onUnmounted(() => {
                                             </div>
 
                                             <div class="ms-4 text-sm">
-                                                <div class="leading-none font-medium text-gray-900 dark:text-white">Di Toko</div>
-                                                <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-gray-500 dark:text-gray-400">
+                                                <div class="leading-none font-medium text-base-900 dark:text-white">Di Toko</div>
+                                                <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-base-500 dark:text-base-400">
                                                     Tidak ada tambahan
                                                 </p>
                                             </div>
@@ -300,8 +324,8 @@ onUnmounted(() => {
                                             </div>
 
                                             <div class="ms-4 text-sm">
-                                                <div class="leading-none font-medium text-gray-900 dark:text-white">GoSend</div>
-                                                <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-gray-500 dark:text-gray-400">
+                                                <div class="leading-none font-medium text-base-900 dark:text-white">GoSend</div>
+                                                <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-base-500 dark:text-base-400">
                                                     Biaya menyesuaikan jarak
                                                 </p>
                                             </div>
@@ -323,8 +347,8 @@ onUnmounted(() => {
                                             </div>
 
                                             <div class="ms-4 text-sm">
-                                                <div class="leading-none font-medium text-gray-900 dark:text-white">Lainnya (JNE,JNT,dll)</div>
-                                                <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-gray-500 dark:text-gray-400">
+                                                <div class="leading-none font-medium text-base-900 dark:text-white">Lainnya (JNE,JNT,dll)</div>
+                                                <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-base-500 dark:text-base-400">
                                                     Biaya menyesuaikan jarak
                                                 </p>
                                             </div>
@@ -333,8 +357,8 @@ onUnmounted(() => {
                                 </div>
                             </div>
                             <div v-show="checkout.delivery.method === 'PICKUP'" class="space-y-3">
-                                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Estimasi Pengambilan</h2>
-                                <p class="mt-1 text-xs font-normal text-gray-500 md:text-base dark:text-gray-400">
+                                <h2 class="text-lg font-semibold text-base-900 dark:text-white">Estimasi Pengambilan</h2>
+                                <p class="mt-1 text-xs font-normal text-base-500 md:text-base dark:text-base-400">
                                     Jika tidak terisi, estimasi akan diatur secara otomatis berdasarkan jam buka toko dan dikonfirmasi melalui nomor
                                     telepon yang terdaftar.
                                 </p>
@@ -343,7 +367,7 @@ onUnmounted(() => {
                                         <input
                                             id="default-datepicker"
                                             type="datetime-local"
-                                            class="block w-full rounded-lg border border-gray-300 bg-transparent p-2.5 text-sm text-gray-900 scheme-light focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:text-white dark:scheme-dark dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+                                            class="block w-full rounded-lg border border-base-300 bg-transparent p-2.5 text-sm text-base-900 scheme-light focus:border-primary-500 focus:ring-primary-500 dark:border-base-600 dark:text-white dark:scheme-dark dark:placeholder:text-base-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
                                             placeholder="Select date"
                                         />
                                     </div>
@@ -352,52 +376,58 @@ onUnmounted(() => {
                         </div>
 
                         <div class="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md">
-                            <p class="text-xl font-semibold text-gray-900 dark:text-white">Rangkuman Pemesanan</p>
+                            <p class="text-xl font-semibold text-base-900 dark:text-white">Rangkuman Pemesanan</p>
 
                             <div class="space-y-4">
                                 <div class="space-y-2">
                                     <dl class="flex items-center justify-between gap-4">
-                                        <dt class="text-base font-normal text-gray-500 dark:text-gray-400">Hemat</dt>
+                                        <dt class="text-base font-normal text-base-500 dark:text-base-400">Hemat</dt>
                                         <dd class="text-base font-medium" :class="cart.discount.product ? 'text-green-500' : 'text-foreground'">
                                             {{ formatRupiah(cart.discount.product) }}
                                         </dd>
                                     </dl>
                                     <dl v-if="cart.discount.cupon" class="flex items-center justify-between gap-4">
-                                        <dt class="text-base font-normal text-gray-500 dark:text-gray-400">Voucher</dt>
+                                        <dt class="text-base font-normal text-base-500 dark:text-base-400">Voucher</dt>
                                         <dd class="text-base font-medium" :class="cart.discount.cupon ? 'text-green-500' : 'text-foreground'">
                                             {{ formatRupiah(cart.discount.cupon) }}
                                         </dd>
                                     </dl>
                                     <dl class="flex items-center justify-between gap-4">
-                                        <dt class="text-base font-normal text-gray-500 dark:text-gray-400">Total</dt>
-                                        <dd class="text-base font-medium text-gray-900 dark:text-white">
+                                        <dt class="text-base font-normal text-base-500 dark:text-base-400">Total</dt>
+                                        <dd class="text-base font-medium text-base-900 dark:text-white">
                                             {{ formatRupiah(cart.total - cart.discount.product - cart.discount.cupon) }}
                                         </dd>
                                     </dl>
                                     <!-- <dl class="flex items-center justify-between gap-4">
-                                            <dt class="text-base font-normal text-gray-500 dark:text-gray-400">Pengiriman</dt>
-                                            <dd class="text-base font-medium text-gray-900 dark:text-white">Rp 99.000</dd>
+                                            <dt class="text-base font-normal text-base-500 dark:text-base-400">Pengiriman</dt>
+                                            <dd class="text-base font-medium text-base-900 dark:text-white">Rp 99.000</dd>
                                         </dl> -->
 
                                     <dl class="flex items-center justify-between gap-4">
-                                        <dt class="text-base font-normal text-gray-500 dark:text-gray-400">Pajak</dt>
-                                        <dd class="text-base font-medium text-gray-900 dark:text-white">
+                                        <dt class="text-base font-normal text-base-500 dark:text-base-400">Pajak</dt>
+                                        <dd class="text-base font-medium text-base-900 dark:text-white">
                                             {{ formatRupiah((cart.tax / 100) * (cart.total - (cart.discount.cupon + cart.discount.product))) }}
                                         </dd>
                                     </dl>
                                 </div>
 
-                                <dl class="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
-                                    <dt class="text-base font-bold text-gray-900 dark:text-white">Total Akhir</dt>
-                                    <dd class="text-base font-bold text-gray-900 dark:text-white">{{ formatRupiah(cart.grandTotal) }}</dd>
+                                <dl class="flex items-center justify-between gap-4 border-t border-base-200 pt-2 dark:border-base-700">
+                                    <dt class="text-base font-bold text-base-900 dark:text-white">Total Akhir</dt>
+                                    <dd class="text-base font-bold text-base-900 dark:text-white">{{ formatRupiah(cart.grandTotal) }}</dd>
                                 </dl>
                             </div>
-                            <ButtonMain type="submit" @click="createPayment" :extendClass="'!w-full'" :disabled="isCheckoutEmpty() || isCartEmpty()">
+                            <ButtonMain
+                                type="submit"
+                                @click="createSnapPayment"
+                                :extendClass="'!w-full'"
+                                :disabled="isCheckoutEmpty() || isCartEmpty()"
+                                :isLoading="snapPaymentLoading"
+                            >
                                 Proses Pembayaran
                             </ButtonMain>
 
                             <div class="flex items-center justify-center gap-2">
-                                <span class="text-sm font-normal text-gray-500 dark:text-gray-400"> atau </span>
+                                <span class="text-sm font-normal text-base-500 dark:text-base-400"> atau </span>
                                 <Link
                                     href="/cart"
                                     title=""
@@ -411,69 +441,6 @@ onUnmounted(() => {
                     </div>
                 </div>
             </section>
-            <BaseModal :id="'payment-modal'" static="static" :is-loading="loadingPayment" :title="'Proses Pembayaran'" ref="paymentModal">
-                <template #modalIcon>
-                    <CreditCard class="h-5 w-5" />
-                </template>
-                <template #modalContent>
-                    <img :src="`/assets/images/qris-logo-${appearance}.png`" class="mx-auto h-16 rounded object-contain md:h-24" alt="QRIS" />
-                    <p class="mx-5 mt-1 text-center text-xs font-normal text-gray-500 md:text-base dark:text-gray-400">
-                        Harap lakukan pembayaran sebelum
-                        <span class="text-primary-600 dark:text-primary-500">{{ new Date().toLocaleString() }}</span> untuk menghindari pembatalan
-                    </p>
-                    <div class="flex flex-col items-center justify-center space-y-2 rounded p-3">
-                        <p class="text-lg font-bold md:text-xl">Rivies Bakery</p>
-                        <div class="rounded-lg border-4 border-primary-500 shadow-lg shadow-foreground/10">
-                            <img src="/assets/images/qris.png" class="max-h-40 rounded md:max-h-52" alt="QRIS" />
-                        </div>
-
-                        <p class="text-center text-lg font-bold md:text-xl">{{ formatRupiah(350000) }}</p>
-                        <p
-                            class="text-center text-base font-bold underline md:text-xl"
-                            :class="{
-                                'text-primary-500': ['', 'pending', 'unpaid'].includes(checkout.payment.status ?? 'unpaid'),
-                                'text-green-500': checkout.payment.status === 'paid',
-                            }"
-                        >
-                            Menunggu pembayaran
-                        </p>
-                        <p class="text-center text-sm font-normal text-base-400">Pengecekan dalam 5 detik..</p>
-                    </div>
-                    <p class="mx-5 mt-1 text-center text-xs font-normal text-gray-500 md:text-base dark:text-gray-400">
-                        Untuk melihat seluruh riwayat pembayaran, silahkan kunjungi
-                        <Link href="/account-settings/transactions" class="text-primary-600 underline hover:opacity-80 dark:text-primary-500"
-                            >halaman ini</Link
-                        >
-                    </p>
-
-                    <!-- Modal footer -->
-                    <div class="flex items-center justify-between space-x-2 rounded-b pt-5">
-                        <button
-                            type="button"
-                            @click="paymentModal?.close()"
-                            class="relative cursor-pointer overflow-hidden rounded-lg border-2 border-primary-500 bg-primary-600 px-5 py-2 text-center text-base text-foreground hover:opacity-80 focus:z-10 focus:ring-1 focus:ring-primary-300 focus:outline-none"
-                        >
-                            <div class="relative z-10">Tutup</div>
-                        </button>
-                        <button
-                            type="button"
-                            @mousedown="handleHoldToCancel(true)"
-                            @mouseleave="holdToCancel = false"
-                            @mouseup="holdToCancel = false"
-                            @touchstart="handleHoldToCancel(true)"
-                            @touchend="holdToCancel = false"
-                            :class="holdToCancel ? 'bg-transparent' : ''"
-                            class="relative cursor-pointer overflow-hidden rounded-lg border-2 border-red-500 bg-red-500 px-5 py-2 text-center text-base text-foreground hover:opacity-80 focus:z-10 focus:ring-1 focus:ring-red-300 focus:outline-none"
-                        >
-                            <div class="relative z-10">Batalkan pesanan (Tahan)</div>
-                            <div
-                                :style="{ width: `${(holdToCancelProgress / 2000) * 100}%` }"
-                                class="absolute top-0 left-0 -z-0 h-full bg-red-500"
-                            ></div>
-                        </button>
-                    </div>
-                </template>
-            </BaseModal>
         </template>
     </AppLayout>
 </template>

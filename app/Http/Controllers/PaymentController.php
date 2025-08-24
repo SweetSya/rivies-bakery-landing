@@ -21,7 +21,30 @@ class PaymentController extends Controller
         $params = array(
             'transaction_details' => array(
                 'order_id' => rand(),
-                'gross_amount' => 10000,
+                'gross_amount' => 30000,
+            ),
+            'item_details' => array(
+                array(
+                    'id' => 'ITEM1',
+                    'price' => 10000,
+                    'quantity' => 2,
+                    'name' => 'Midtrans Bear',
+                ),
+                array(
+                    'id' => 'ITEM1',
+                    'price' => 10000,
+                    'quantity' => 1,
+                    'name' => 'Midtrans Bear 2',
+                )
+            ),
+            'customer_details' => array(
+                'first_name' => 'Andri',
+                'last_name' => 'Setiawan',
+                'email' => 'andri.setiawan@example.com',
+                'phone' => '08123456789'
+            ),
+            "callbacks" =>  array(
+                "finish" => "https://rivies-bakery-landing.test/checkout?payment-completed=true&order-id=123"
             )
         );
 

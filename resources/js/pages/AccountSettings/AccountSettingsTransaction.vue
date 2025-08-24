@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import BaseModal from '@/components/modal/BaseModal.vue';
 import PaymentModal from '@/components/modal/PaymentModal.vue';
+import { useMidtrans } from '@/composables/useMidtrans';
+import { useNotifications } from '@/composables/useNotifications';
 import AccountSettings from '@/layouts/AccountSettingsLayout.vue';
 import axios from 'axios';
 import { gsap } from 'gsap';
@@ -8,11 +10,14 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ReceiptText } from 'lucide-vue-next';
 import { Swiper } from 'swiper';
 import { Navigation, Pagination } from 'swiper/modules';
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 
 // Register Library
 Swiper.use([Navigation, Pagination]);
 gsap.registerPlugin(ScrollTrigger);
+
+const { notivueSuccess, notivueError, notivueInfo } = useNotifications();
+const { pay } = useMidtrans();
 
 defineOptions({
     components: {
@@ -22,56 +27,21 @@ defineOptions({
 
 const detailModal = ref<typeof BaseModal | null>(null);
 const paymentModal = ref<typeof PaymentModal | null>(null);
-// Load Midtrans Snap.js
-onMounted(() => {
-    if (!window.snap) {
-        const script = document.createElement('script');
-        script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
-        script.type = 'text/javascript';
-        script.setAttribute('data-client-key', 'Mid-client-k3PgVBEIepTcmJRn'); // Replace with your actual client key
-        script.onload = () => {
-            console.log('Midtrans Snap.js loaded');
-        };
-        script.onerror = () => {
-            console.error('Failed to load Midtrans Snap.js');
-        };
-        document.head.appendChild(script);
-    }
-});
 
-const createSnapPayment = () => {
-    axios
-        .get('/payment-midtrans')
-        .then((response) => {
-            const { snap_token } = response.data;
+const createSnapPayment = async () => {
+    try {
+        const response = await axios.get('/payment-midtrans');
+        const { snap_token } = response.data;
 
-            // Check if snap is available before using
-            if (window.snap) {
-                window.snap.pay(snap_token, {
-                    onSuccess: function (result) {
-                        console.log('Payment success:', result);
-                        // Handle success
-                    },
-                    onPending: function (result) {
-                        console.log('Payment pending:', result);
-                        // Handle pending
-                    },
-                    onError: function (result) {
-                        console.log('Payment error:', result);
-                        // Handle error
-                    },
-                    onClose: function () {
-                        console.log('Payment popup closed');
-                        // Handle close
-                    },
-                });
-            } else {
-                console.error('Midtrans Snap not loaded');
-            }
-        })
-        .catch((error) => {
-            console.error('Error creating payment:', error);
+        await pay(snap_token, {
+            onSuccess: (result: any) => console.log(result),
+            onPending: (result: any) => notivueInfo('Pembayaran sedang diproses.'),
+            onError: (result: any) => notivueError('Pembayaran gagal.'),
+            onClose: () => console.log('Closed'),
         });
+    } catch (error) {
+        console.error('Payment error:', error);
+    }
 };
 </script>
 
