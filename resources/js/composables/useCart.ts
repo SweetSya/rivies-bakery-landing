@@ -41,7 +41,7 @@ export type Cart = {
 const cart = ref<Cart>({
     items: [],
     total: 0,
-    tax: 10,
+    tax: 0,
     cupon: {
         code: '',
         type: '',
@@ -66,26 +66,24 @@ export function useCart() {
             },
             grandTotal: 0,
         };
-        cart.value.items.reduce((total, item) => {
+
+        cart.value.items.forEach((item) => {
             temp.total += (item.price - item.discount) * item.quantity;
             temp.discount.product += item.discount * item.quantity;
-            temp.grandTotal = temp.total;
-            return temp.grandTotal;
-        }, 0);
-
+        });
         // Check for coupon
         if (cart.value.cupon.code) {
             if (cart.value.cupon.type === 'percentage') {
-                temp.discount.cupon = (temp.grandTotal * cart.value.cupon.discount) / 100;
+                temp.discount.cupon = (temp.total * cart.value.cupon.discount) / 100;
             } else if (cart.value.cupon.type === 'fixed') {
                 temp.discount.cupon = cart.value.cupon.discount;
             }
-            temp.grandTotal -= temp.discount.cupon;
+            temp.total -= temp.discount.cupon;
         }
 
         cart.value.total = temp.total;
         cart.value.discount = temp.discount;
-        cart.value.grandTotal = temp.grandTotal + temp.grandTotal * (cart.value.tax / 100);
+        cart.value.grandTotal = temp.total + (temp.total * cart.value.tax) / 100;
     };
     const addToCart = (item: CartItem) => {
         if (isProductInCart(item.id)) {
@@ -133,7 +131,7 @@ export function useCart() {
     const resetCart = () => {
         cart.value = {
             items: [],
-            tax: 10,
+            tax: 0,
             cupon: {
                 code: '',
                 type: '',

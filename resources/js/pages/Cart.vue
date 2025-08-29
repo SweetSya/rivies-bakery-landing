@@ -193,7 +193,7 @@ const cart = computed(() => getCart());
                                         <dl class="flex items-center justify-between gap-4">
                                             <dt class="text-base font-normal text-gray-500 dark:text-gray-400">Total</dt>
                                             <dd class="text-base font-medium text-gray-900 dark:text-white">
-                                                {{ formatRupiah(cart.total - cart.discount.product - cart.discount.cupon) }}
+                                                {{ formatRupiah(cart.total) }}
                                             </dd>
                                         </dl>
                                         <!-- <dl class="flex items-center justify-between gap-4">
@@ -204,7 +204,7 @@ const cart = computed(() => getCart());
                                         <dl class="flex items-center justify-between gap-4">
                                             <dt class="text-base font-normal text-gray-500 dark:text-gray-400">Pajak</dt>
                                             <dd class="text-base font-medium text-gray-900 dark:text-white">
-                                                {{ formatRupiah((cart.tax / 100) * (cart.total - (cart.discount.cupon + cart.discount.product))) }}
+                                                {{ formatRupiah((cart.tax / 100) * cart.total) }}
                                             </dd>
                                         </dl>
                                     </div>
