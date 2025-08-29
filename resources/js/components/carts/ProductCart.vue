@@ -3,7 +3,9 @@ import { useCart, type CartItem } from '@/composables/useCart';
 import { formatRupiah } from '@/composables/useHelperFunctions';
 import { Link } from '@inertiajs/vue3';
 import { Minus, Plus, Trash2 } from 'lucide-vue-next';
+import { useAPI } from '@/composables/useAPI';
 
+const { getStorage } = useAPI();
 const { setCartQuantity, removeFromCart } = useCart();
 
 const props = defineProps<CartItem>();
@@ -13,7 +15,7 @@ const props = defineProps<CartItem>();
     <div :key="props.id" class="rounded-lg border border-base-400/20 bg-base-50/5 p-4 shadow-sm md:p-6">
         <div class="space-y-4 md:flex md:items-center md:justify-between md:gap-6 md:space-y-0">
             <a href="#" class="w-20 shrink-0 md:order-1">
-                <img class="h-20 w-20 rounded-lg object-cover" :src="props.image" alt="imac image" />
+                <img class="h-20 w-20 rounded-lg object-cover" :src="getStorage(props.image)" alt="imac image" />
             </a>
 
             <label for="counter-input" class="sr-only">Choose quantity:</label>
@@ -46,9 +48,9 @@ const props = defineProps<CartItem>();
                 </div>
                 <div class="text-end md:order-4 md:w-32">
                     <p class="text-base font-bold text-gray-900 dark:text-white">
-                        {{ formatRupiah(props.price * props.quantity - props.price * props.quantity * (props.discount / 100)) }}
+                        {{ formatRupiah((props.price - props.discount) * props.quantity) }}
                     </p>
-                    <sup class="text-primary-600 line-through">
+                    <sup v-if="props.discount" class="text-primary-600 line-through">
                         {{ formatRupiah(props.price * props.quantity) }}
                     </sup>
                 </div>
@@ -75,7 +77,7 @@ const props = defineProps<CartItem>();
                         <Trash2 class="me-1.5 h-5 w-5" />
                     </button>
                 </div>
-        </div>
+            </div>
         </div>
     </div>
 </template>

@@ -16,8 +16,9 @@ export type CartItem = {
     };
     category: {
         name: string;
-        id?: string;
-    };
+        id: string;
+        slug?: string;
+    }[];
     quantity: number;
     notes?: string;
 };
@@ -66,11 +67,9 @@ export function useCart() {
             grandTotal: 0,
         };
         cart.value.items.reduce((total, item) => {
-            const itemTotal = item.price * item.quantity;
-            const itemDiscount = itemTotal * (item.discount / 100);
-            temp.total += itemTotal;
-            temp.discount.product += itemDiscount;
-            temp.grandTotal += itemTotal - itemDiscount;
+            temp.total += (item.price - item.discount) * item.quantity;
+            temp.discount.product += item.discount * item.quantity;
+            temp.grandTotal = temp.total;
             return temp.grandTotal;
         }, 0);
 

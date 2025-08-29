@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -13,9 +14,8 @@ Route::get('/payment-midtrans', [PaymentController::class, 'createPayment']);
 Route::get('/', [HomeController::class, 'view'])->name('home');
 
 // Products
-Route::get('/products', function () {
-    return Inertia::render('Product');
-})->name('product');
+Route::get('/products', [ProductController::class, 'view'])->name('products');
+Route::get('/products/fetch', [ProductController::class, 'fetch']);
 Route::get('/products/{slug}', function ($id) {
     return Inertia::render('ProductDetail', [
         'id' => $id,

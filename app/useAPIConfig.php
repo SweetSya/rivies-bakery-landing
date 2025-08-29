@@ -31,7 +31,7 @@ trait useAPIConfig
             $this->config['header'] => 'Bearer ' . $this->config['key'],
         ];
     }
-    public function apiGet($endpoint, $params)
+    public function apiGet($endpoint, $params = [])
     {
         $client = Http::withHeaders($this->getAPIHeader());
         $response = $client->get($this->config['url'] . $endpoint, $params);

@@ -5,7 +5,8 @@ import ProductCardSkeleton from '@/components/cards/ProductCardSkeleton.vue';
 import BaseModal from '@/components/modal/BaseModal.vue';
 import { useCart } from '@/composables/useCart';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import axios from 'axios';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowDown, ArrowLeft, ArrowRight, Filter, Search, X } from 'lucide-vue-next';
@@ -25,6 +26,10 @@ defineOptions({
 // --- Types ---
 interface PageProps {
     loading: boolean;
+    paginate: number;
+    page: number;
+    message: string;
+    pageEnd: boolean;
 }
 
 interface Product {
@@ -40,8 +45,9 @@ interface Product {
     };
     category: {
         name: string;
-        id?: string;
-    };
+        id: string;
+        slug?: string;
+    }[];
 }
 
 interface TomSelectRef {
@@ -49,7 +55,9 @@ interface TomSelectRef {
 }
 interface Category {
     id: string;
-    title: string;
+    name: string;
+    slug: string;
+    image: string;
 }
 
 interface AppliedFilter {
@@ -61,17 +69,19 @@ interface AppliedFilter {
 }
 // --- Imports ---
 const { addToCart } = useCart();
+const page = usePage();
 
 // --- Constants ---
 const AUTO_FETCH_LIMIT = 2;
-const MOCK_CATEGORIES = [
-    { id: 'category_1', title: 'Pastry', url: 'http://en.wikipedia.org/wiki/Spectrometers' },
-    { id: 'category_2', title: 'Pastry 2', url: 'http://en.wikipedia.org/wiki/Star_chart' },
-];
+const CATEGORIES = ref<Category[]>([]);
 // --- State ---
 const products = ref<Product[]>([]);
 const pageProps = ref<PageProps>({
     loading: true,
+    paginate: 10,
+    page: 0,
+    message: '',
+    pageEnd: false,
 });
 const fetchCount = ref(2);
 const autoFetchLimit = AUTO_FETCH_LIMIT;
@@ -98,82 +108,6 @@ const isFiltersApplied = computed(() => {
     );
 });
 
-// --- Mock Data ---
-const mockProducts = [
-    {
-        id: 'product-1',
-        name: 'Product 1',
-        price: 10000,
-        image: '/storage/images/logo.png',
-        slug: 'product-1',
-        discount: 15,
-        status: { label: 'Preorder (3 Hari)', isReady: false },
-        category: { name: 'Pastry' },
-    },
-    {
-        id: 'product-2',
-        name: 'Product 2',
-        price: 20000,
-        image: '/storage/images/logo.png',
-        slug: 'product-2',
-        discount: 10,
-        status: { label: 'Preorder (3 Hari)', isReady: false },
-        category: { id: 'category_1', name: 'Pastry' },
-    },
-    {
-        id: 'product-3',
-        name: 'Product 3',
-        price: 30000,
-        image: '/storage/images/logo.png',
-        slug: 'product-3',
-        discount: 0,
-        status: { label: 'Preorder (3 Hari)', isReady: false },
-        category: { id: 'category_2', name: 'Pastry 2' },
-    },
-];
-
-const mockNewProducts = [
-    {
-        id: 'product-4',
-        name: 'Product 4',
-        price: 40000,
-        image: '/storage/images/logo.png',
-        slug: 'product-4',
-        discount: 5,
-        status: { label: 'Preorder (3 Hari)', isReady: false },
-        category: { name: 'Pastry' },
-    },
-    {
-        id: 'product-5',
-        name: 'Product 5',
-        price: 50000,
-        image: '/storage/images/logo.png',
-        slug: 'product-5',
-        discount: 20,
-        status: { label: 'Preorder (3 Hari)', isReady: false },
-        category: { name: 'Pastry' },
-    },
-    {
-        id: 'product-6',
-        name: 'Product 6',
-        price: 60000,
-        image: '/storage/images/logo.png',
-        slug: 'product-6',
-        discount: 25,
-        status: { label: 'Order Sekarang', isReady: true },
-        category: { name: 'Pastry' },
-    },
-    {
-        id: 'product-7',
-        name: 'Product 7',
-        price: 70000,
-        image: '/storage/images/logo.png',
-        slug: 'product-7',
-        discount: 30,
-        status: { label: 'Order Sekarang', isReady: true },
-        category: { name: 'Pastry' },
-    },
-];
 // --- Initialization ---
 const initializeSwiper = () => {
     new Swiper('.swiper-banner', {
@@ -192,9 +126,9 @@ const initializeTomSelect = () => {
     tomSelectRef.value.category = new TomSelect('#select-category', {
         maxItems: null,
         valueField: 'id',
-        labelField: 'title',
-        searchField: ['title'],
-        options: MOCK_CATEGORIES,
+        labelField: 'name',
+        searchField: ['name'],
+        options: CATEGORIES.value,
         plugins: {
             remove_button: {
                 title: 'Remove this item',
@@ -218,10 +152,11 @@ const initializeIntersectionObserver = () => {
 };
 
 const loadInitialData = () => {
-    setTimeout(() => {
-        products.value = mockProducts;
-        pageProps.value.loading = false;
-    }, 1000);
+    CATEGORIES.value = page.props.categories as Category[];
+    initializeSwiper();
+    syncFilterFromSessionStorage();
+    initializeTomSelect();
+    fetchProducts();
 };
 
 // --- Business Logic ---
@@ -238,24 +173,39 @@ const fetchManually = () => {
         fetchCount.value = 0;
     }
 };
-
-const fetchProducts = () => {
+const handleUnsuccesfulFetch = (message: string) => {
+    pageProps.value.loading = false;
+    // Handle error case
+    fetchCount.value = 2;
+    pageProps.value.pageEnd = true;
+    pageProps.value.message = message;
+};
+const fetchProducts = async () => {
     pageProps.value.loading = true;
-    setTimeout(() => {
-        products.value.push(...mockNewProducts);
-        pageProps.value.loading = false;
+    pageProps.value.page += 1;
+    // Check filters
+    let applyingFilters = ``;
+    if (appliedFilter.value.categoriesLength > 0) {
+        applyingFilters += '&categories=' + appliedFilter.value.categories.map((cat) => cat.slug).join(',');
+    }
+    const response = await axios.get('/products/fetch?page=' + pageProps.value.page + '&paginate=' + pageProps.value.paginate + applyingFilters);
+    if (!response.data.success) {
+        handleUnsuccesfulFetch(response.data.message || 'Something went wrong, please refresh the page');
+        return;
+    }
+    console.log(response.data.products);
+    products.value.push(...response.data.products);
 
-        // Check if sentinel is visible and auto-fetch if needed
-        nextTick(() => {
-            if (sentinel.value && observer.value) {
-                observer.value.takeRecords();
-                const rect = sentinel.value.getBoundingClientRect();
-                if (rect.top >= 0 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)) {
-                    autoFetch();
-                }
+    pageProps.value.loading = false;
+    nextTick(() => {
+        if (sentinel.value && observer.value) {
+            observer.value.takeRecords();
+            const rect = sentinel.value.getBoundingClientRect();
+            if (rect.top >= 0 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)) {
+                autoFetch();
             }
-        });
-    }, 1000);
+        }
+    });
 };
 
 const handleBeforeAddProductToCart = (product: Product) => {
@@ -281,7 +231,16 @@ const syncFilterToSessionStorage = () => {
 
 const setCategories = () => {
     if (Array.isArray(tomSelectRef.value.category?.getValue())) {
-        appliedFilter.value.categories = MOCK_CATEGORIES.filter((cat) => (tomSelectRef.value.category?.getValue() as string[]).includes(cat.id));
+        const selectedIds = tomSelectRef.value.category?.getValue() as string[];
+        // Only keep plain properties
+        appliedFilter.value.categories = CATEGORIES.value
+            .filter((cat) => selectedIds.includes(cat.id))
+            .map((cat) => ({
+                id: cat.id,
+                name: cat.name,
+                slug: cat.slug,
+                image: cat.image,
+            }));
     }
     appliedFilter.value.categoriesLength = appliedFilter.value.categories.length;
 };
@@ -294,8 +253,11 @@ const setFilters = () => {
     if (!pageProps.value.loading) {
         setCategories();
         products.value = [];
+        pageProps.value.page = 0;
+        pageProps.value.pageEnd = false;
+        pageProps.value.message = '';
+        fetchCount.value = AUTO_FETCH_LIMIT;
         fetchProducts();
-        fetchCount.value = autoFetchLimit;
         syncFilterToSessionStorage();
     }
 };
@@ -320,12 +282,9 @@ const resetFilters = () => {
 // --- Mounted Hook ---
 onMounted(() => {
     nextTick(() => {
-        initializeSwiper();
-        initializeTomSelect();
-        syncFilterFromSessionStorage();
+        loadInitialData();
     });
 
-    loadInitialData();
     initializeIntersectionObserver();
 });
 </script>
@@ -437,8 +396,8 @@ onMounted(() => {
                                 v-for="category in appliedFilter.categories"
                                 :key="category.id"
                                 id="category-{{ category.id }}"
-                                class="flex items-center gap-2 rounded bg-primary-600 px-3 py-2 text-xs font-light text-foreground md:text-base"
-                                >{{ category.title }} <X class="h-4 w-4 cursor-pointer" @click="removeCategory(category.id)"
+                                class="flex items-center gap-2 rounded bg-primary-600 px-3 py-2 text-xs font-light text-background md:text-base"
+                                >{{ category.name }} <X class="h-4 w-4 cursor-pointer" @click="removeCategory(category.id)"
                             /></span>
                         </div>
                     </div>
@@ -458,7 +417,7 @@ onMounted(() => {
                         </button>
                     </div>
                 </div>
-                <div class="mb-4 grid gap-4 xs:grid-cols-2 md:mb-8 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                <div class="mb-4 grid grid-cols-2 gap-4 md:mb-8 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                     <ProductCard
                         v-for="product in products"
                         :key="product.id"
@@ -474,10 +433,18 @@ onMounted(() => {
                     />
                     <ProductCardSkeleton :total="5" v-if="pageProps.loading" />
                 </div>
+                <p v-if="pageProps.message != ''" class="mb-6 text-center font-light text-gray-500 md:text-lg dark:text-gray-400">
+                    - {{ pageProps.message }} -
+                </p>
                 <div ref="sentinel"></div>
 
                 <div class="flex w-full justify-center">
-                    <ButtonMain v-if="!pageProps.loading" @click="fetchManually" type="button" :extend-class="'!w-fit'">
+                    <ButtonMain
+                        v-if="!pageProps.loading && fetchCount == 2 && !pageProps.pageEnd"
+                        @click="fetchManually"
+                        type="button"
+                        :extend-class="'!w-fit'"
+                    >
                         Muat lebih banyak <ArrowDown class="h-4 w-4" />
                     </ButtonMain>
                 </div>
