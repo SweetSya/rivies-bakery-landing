@@ -54,7 +54,13 @@ export function useCheckout() {
         return 'unpaid';
     };
     const isCheckoutEmpty = () => {
-        return !checkout.value.fullName || !checkout.value.email || !checkout.value.address || !checkout.value.payment.method || !checkout.value.delivery.method;
+        return (
+            !checkout.value.fullName ||
+            !checkout.value.email ||
+            !checkout.value.address ||
+            !checkout.value.payment.method ||
+            !checkout.value.delivery.method
+        );
     };
     return {
         getCheckout,

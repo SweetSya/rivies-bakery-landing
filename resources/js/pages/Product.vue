@@ -9,7 +9,7 @@ import { Head, Link, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowDown, ArrowLeft, ArrowRight, Filter, Search, X } from 'lucide-vue-next';
+import { ArrowDown, ArrowLeft, ArrowRight, Filter, Minus, Search, X } from 'lucide-vue-next';
 import { Swiper } from 'swiper';
 import { Navigation, Pagination } from 'swiper/modules';
 import TomSelect from 'tom-select';
@@ -47,6 +47,7 @@ interface Product {
         name: string;
         id: string;
         slug?: string;
+        image?: string;
     }[];
 }
 
@@ -188,6 +189,15 @@ const fetchProducts = async () => {
     if (appliedFilter.value.categoriesLength > 0) {
         applyingFilters += '&categories=' + appliedFilter.value.categories.map((cat) => cat.slug).join(',');
     }
+    if (appliedFilter.value.priceMin > 0) {
+        applyingFilters += '&price_min=' + appliedFilter.value.priceMin;
+    }
+    if (appliedFilter.value.priceMax > 0) {
+        applyingFilters += '&price_max=' + appliedFilter.value.priceMax;
+    }
+    if (appliedFilter.value.searchTerm !== '') {
+        applyingFilters += '&search=' + appliedFilter.value.searchTerm;
+    }
     const response = await axios.get('/products/fetch?page=' + pageProps.value.page + '&paginate=' + pageProps.value.paginate + applyingFilters);
     if (!response.data.success) {
         handleUnsuccesfulFetch(response.data.message || 'Something went wrong, please refresh the page');
@@ -249,14 +259,17 @@ const removeCategory = (categoryId: string) => {
     tomSelectRef.value.category?.setValue(appliedFilter.value.categories.map((cat) => cat.id) || []);
     setFilters();
 };
+const resetPageProps = () => {
+    products.value = [];
+    pageProps.value.page = 0;
+    pageProps.value.pageEnd = false;
+    pageProps.value.message = '';
+    fetchCount.value = AUTO_FETCH_LIMIT;
+};
 const setFilters = () => {
     if (!pageProps.value.loading) {
         setCategories();
-        products.value = [];
-        pageProps.value.page = 0;
-        pageProps.value.pageEnd = false;
-        pageProps.value.message = '';
-        fetchCount.value = AUTO_FETCH_LIMIT;
+        resetPageProps();
         fetchProducts();
         syncFilterToSessionStorage();
     }
@@ -272,9 +285,8 @@ const resetFilters = () => {
             searchTerm: '',
         };
         tomSelectRef.value.category?.clear();
-        products.value = [];
+        resetPageProps();
         fetchProducts();
-        fetchCount.value = autoFetchLimit;
         syncFilterToSessionStorage();
     }
 };
@@ -378,7 +390,6 @@ onMounted(() => {
                             v-model="appliedFilter.searchTerm"
                             class="block w-full rounded-lg border bg-base-300/5 px-4 py-3 ps-10"
                             placeholder="Cari sesuatu.."
-                            required
                         />
                         <button
                             class="absolute end-2.5 bottom-2 inline-flex cursor-pointer items-center rounded-lg border border-border bg-background px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
@@ -459,21 +470,21 @@ onMounted(() => {
                         <div class="space-y-4">
                             <div class="mb-6 grid gap-6 md:grid-cols-2">
                                 <div class="col-span-2">
-                                    <label for="select-category" class="mb-2 block text-sm font-medium text-foreground md:text-lg dark:text-white"
-                                        >Pilih Kategori</label
-                                    >
+                                    <label class="mb-2 block text-sm font-medium text-foreground md:text-lg dark:text-white">Pilih Kategori</label>
                                     <select id="select-category" placeholder="Cari kategori.."></select>
                                 </div>
                             </div>
                             <div class="mb-6 grid gap-6 md:grid-cols-2">
                                 <div class="col-span-2">
-                                    <label for="price" class="mb-2 block text-sm font-medium text-foreground md:text-lg dark:text-white">Harga</label>
-                                    <div class="flex flex-wrap gap-5 md:flex-nowrap">
+                                    <label for="price" class="mb-2 block text-sm font-medium text-foreground md:text-lg dark:text-white"
+                                        >Harga (Rupiah)</label
+                                    >
+                                    <div class="flex flex-wrap items-center gap-5 md:flex-nowrap">
                                         <div class="flex grow">
                                             <span
-                                                class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/20 bg-primary-500 px-3 text-sm text-foreground md:text-lg"
+                                                class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/20 bg-primary-600 px-2 text-sm text-background md:text-base"
                                             >
-                                                Rp
+                                                Min.
                                             </span>
                                             <input
                                                 type="number"
@@ -482,11 +493,12 @@ onMounted(() => {
                                                 class="base-input block w-full min-w-0 flex-1 rounded-none rounded-e-lg"
                                             />
                                         </div>
+                                        <div><Minus class="h-4 w-4" /></div>
                                         <div class="flex grow">
                                             <span
-                                                class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/20 bg-primary-500 px-3 text-sm text-foreground md:text-lg"
+                                                class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/20 bg-primary-600 px-2 text-sm text-background md:text-base"
                                             >
-                                                Rp
+                                                Max.
                                             </span>
                                             <input
                                                 type="number"
