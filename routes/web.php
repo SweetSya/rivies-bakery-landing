@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -9,9 +10,7 @@ use Inertia\Inertia;
 Route::get('/payment-midtrans', [PaymentController::class, 'createPayment']);
 
 // Home
-Route::get('/', function () {
-    return Inertia::render('Home');
-})->name('home');
+Route::get('/', [HomeController::class, 'view'])->name('home');
 
 // Products
 Route::get('/products', function () {

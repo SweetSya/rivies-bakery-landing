@@ -1,25 +1,28 @@
 <script setup lang="ts">
 import ButtonMain from '@/components/buttons/ButtonMain.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowDown, ArrowLeft, ArrowRight } from 'lucide-vue-next';
 import { Swiper } from 'swiper';
 import { Navigation, Pagination } from 'swiper/modules';
 
+import { useAPI } from '@/composables/useAPI';
 import { nextTick, onMounted } from 'vue';
 
 // Register Library
 Swiper.use([Navigation, Pagination]);
 gsap.registerPlugin(ScrollTrigger);
 
+const page = usePage();
 defineOptions({
     components: {
         AppLayout,
     },
 });
-
+const serverData = page.props.serverData as any;
+const { getStorage } = useAPI();
 onMounted(() => {
     nextTick(() => {
         new Swiper('.swiper-banner', {
@@ -88,48 +91,15 @@ onMounted(() => {
                 <ArrowDown class="animate__animated animate__fadeInDown animate__infinite animate__slow mx-auto h-10 w-10" />
             </div>
             <section class="mx-auto max-w-screen-xl px-4 py-8 sm:py-16 lg:px-6">
-                <div class="grid grid-cols-2 gap-4 pb-8 sm:pb-16 md:grid-cols-3 lg:grid-cols-6">
+                <div class="mx-auto grid max-w-screen-lg grid-cols-2 gap-4 pb-8 xs:grid-cols-3 sm:pb-16 md:grid-cols-4 lg:grid-cols-6">
                     <Link
-                        href="#"
+                        v-for="value in serverData.categories"
+                        :key="value.id"
+                        :href="`/products?categories=${value.slug}`"
                         class="relative flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded border border-primary-600 bg-primary-500/40 p-4 hover:bg-transparent"
                     >
-                        <img src="/assets/svg/bread.svg" class="aspect-square h-1/2" alt="" />
-                        <h3 class="mb-2 text-xl font-bold text-primary-600 dark:text-primary-500">Bread</h3>
-                    </Link>
-                    <Link
-                        href="#"
-                        class="relative flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded border border-primary-600 bg-primary-500/40 p-4 hover:bg-transparent"
-                    >
-                        <img src="/assets/svg/bread.svg" class="aspect-square h-1/2" alt="" />
-                        <h3 class="mb-2 text-xl font-bold text-primary-600 dark:text-primary-500">Bread</h3>
-                    </Link>
-                    <Link
-                        href="#"
-                        class="relative flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded border border-primary-600 bg-primary-500/40 p-4 hover:bg-transparent"
-                    >
-                        <img src="/assets/svg/bread.svg" class="aspect-square h-1/2" alt="" />
-                        <h3 class="mb-2 text-xl font-bold text-primary-600 dark:text-primary-500">Bread</h3>
-                    </Link>
-                    <Link
-                        href="#"
-                        class="relative flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded border border-primary-600 bg-primary-500/40 p-4 hover:bg-transparent"
-                    >
-                        <img src="/assets/svg/bread.svg" class="aspect-square h-1/2" alt="" />
-                        <h3 class="mb-2 text-xl font-bold text-primary-600 dark:text-primary-500">Bread</h3>
-                    </Link>
-                    <Link
-                        href="#"
-                        class="relative flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded border border-primary-600 bg-primary-500/40 p-4 hover:bg-transparent"
-                    >
-                        <img src="/assets/svg/bread.svg" class="aspect-square h-1/2" alt="" />
-                        <h3 class="mb-2 text-xl font-bold text-primary-600 dark:text-primary-500">Bread</h3>
-                    </Link>
-                    <Link
-                        href="#"
-                        class="relative flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded border border-primary-600 bg-primary-500/40 p-4 hover:bg-transparent"
-                    >
-                        <img src="/assets/svg/bread.svg" class="aspect-square h-1/2" alt="" />
-                        <h3 class="mb-2 text-xl font-bold text-primary-600 dark:text-primary-500">Bread</h3>
+                        <img :src="getStorage(value.image)" class="aspect-square h-2/5" alt="" />
+                        <h3 class="mb-2 text-base font-bold text-primary-600 md:text-lg lg:text-xl dark:text-primary-500">{{ value.name }}</h3>
                     </Link>
                 </div>
                 <section class="mx-auto mb-8 flex max-w-screen-md flex-wrap items-center justify-center gap-3 text-center lg:mb-16">
