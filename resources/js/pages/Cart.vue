@@ -115,7 +115,7 @@ const cart = computed(() => getCart());
                                     :id="item.id"
                                     :name="item.name"
                                     :price="item.price"
-                                    :image="item.image"
+                                    :thumbnail="item.thumbnail"
                                     :slug="item.slug"
                                     :discount="item.discount"
                                     :quantity="item.quantity"

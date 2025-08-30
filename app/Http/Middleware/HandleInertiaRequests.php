@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
 
@@ -41,9 +42,14 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name' => config('app.name'),
             'production' => config('app.env') === 'production',
+            'is_auth' => Auth::check(),
             'auth' => [
-                'user' => $request->user(),
+                'user' => Auth::user() ? [
+                    'name' => Auth::user()->name,
+                    'email' => Auth::user()->email,
+                ] : null,
             ],
+            'pathname' => $request->path(),
             'ziggy' => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),

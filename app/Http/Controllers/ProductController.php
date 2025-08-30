@@ -15,17 +15,8 @@ class ProductController extends Controller
         $data = $response->json();
         return Inertia::render('Product', $data);
     }
-    public function fetch(Request $request)
+    public function preprocess_product(array $products): array
     {
-        $params = $request->all();
-        $response = $this->apiGet('products/fetch', $params);
-        $products = $response->json();
-        if (count($products) < 1) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Akhir dari produk',
-            ]);
-        }
         foreach ($products as &$product) {
             // Get price as float
             $price = isset($product['prices'][0]['price']) ? (float)$product['prices'][0]['price'] : 0;
@@ -63,18 +54,91 @@ class ProductController extends Controller
                 'id' => $product['id'],
                 'name' => $product['name'],
                 'price' => $price,
-                'image' => $product['image'] ?? '../assets/placeholder/image.png',
+                'images' => $product['images'] ?? ['../assets/placeholder/image.png'],
+                'thumbnail' => $product['thumbnail'] ?? '../assets/placeholder/image.png',
                 'slug' => $product['slug'],
                 'discount' => (float)$discount,
                 'status' => $status,
                 'category' => $category,
             ];
         }
+        return $products;
+    }
+    public function preprocess_prices(array $prices): array
+    {
+        foreach ($prices as &$price) {
+            // Get price as float
+            $priceValue = isset($price['price']) ? (float)$price['price'] : 0;
+
+            // Get discount 
+            $discount = 0;
+            if (isset($price['discounts']) && count($price['discounts']) > 0) {
+                $type = $price['discounts'][0]['type'];
+                if ($type === 'percentage') {
+                    $discount = $priceValue * ($price['discounts'][0]['value'] ?? 0) / 100;
+                }
+                if ($type === 'fixed') {
+                    $discount = $price['discounts'][0]['value'] ?? 0;
+                }
+            }
+            // Build new product structure
+            $price = [
+                'id' => $price['id'],
+                'tag' => $price['tag'],
+                'price' => $price['price'],
+                'discount' => $discount,
+            ];
+        }
+        return $prices;
+    }
+    public function fetch(Request $request)
+    {
+        $params = $request->all();
+        $response = $this->apiGet('products/fetch', $params);
+        $products = $response->json();
+        $processed_products = $this->preprocess_product($products);
+        if (count($processed_products) < 1) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akhir dari produk',
+            ]);
+        }
+
         return response()->json(
             [
                 'success' => true,
-                'products' => $products,
+                'products' => $processed_products,
             ]
         );
+    }
+    public function single(Request $request)
+    {
+        // get slug from params
+        $slug = $request->input('slug');
+        if (!$slug) {
+            return redirect()->route('products', [
+                'warn' => 'Produk tidak ditemukan'
+            ]);
+        }
+        $response = $this->apiGet("products/single", [
+            'slug' => $slug,
+        ]);
+        $product = $response->json();
+        $prices = $product['prices'];
+        $processed_prices = $this->preprocess_prices($prices);
+        $processed_products = $this->preprocess_product([$product]);
+        $product = $processed_products[0] ?? null;
+        $product['id'] = $prices[0]['id'] ?? null;
+        $product['price'] = $prices[0]['price'] ?? null;
+        $producet['discount'] = $processed_prices[0]['discount'] ?? null;
+        if (!$product) {
+            return redirect()->route('products', [
+                'warn' => 'Produk tidak ditemukan'
+            ]);
+        }
+        return Inertia::render('ProductDetail', [
+            'product' => $product,
+            'prices' => $processed_prices,
+        ]);
     }
 }

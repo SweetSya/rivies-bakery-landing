@@ -36,9 +36,10 @@ interface Product {
     id: string;
     name: string;
     price: number;
-    image: string;
+    thumbnail: string;
     slug: string;
     discount: number;
+    images?: Array<string>;
     status: {
         label: string;
         isReady: boolean;
@@ -46,7 +47,7 @@ interface Product {
     category: {
         name: string;
         id: string;
-        slug?: string;
+        slug: string;
         image?: string;
     }[];
 }
@@ -138,6 +139,11 @@ const initializeTomSelect = () => {
         persist: false,
         create: false,
     });
+    if (appliedFilter.value.categoriesLength > 0) {
+        setTimeout(() => {
+            tomSelectRef.value.category?.setValue(appliedFilter.value.categories.map((cat) => cat.id) || []);
+        }, 200);
+    }
 };
 
 const initializeIntersectionObserver = () => {
@@ -154,12 +160,29 @@ const initializeIntersectionObserver = () => {
 
 const loadInitialData = () => {
     CATEGORIES.value = page.props.categories as Category[];
-    initializeSwiper();
     syncFilterFromSessionStorage();
+    initializeFiltersViaParams();
+    initializeSwiper();
     initializeTomSelect();
     fetchProducts();
 };
-
+const initializeFiltersViaParams = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('categories')) {
+        const categories = urlParams.get('categories')?.split(',') || [];
+        appliedFilter.value.categories = CATEGORIES.value.filter((cat) => categories.includes(cat.slug));
+        appliedFilter.value.categoriesLength = appliedFilter.value.categories.length;
+    }
+    if (urlParams.has('price_min')) {
+        appliedFilter.value.priceMin = Number(urlParams.get('price_min'));
+    }
+    if (urlParams.has('price_max')) {
+        appliedFilter.value.priceMax = Number(urlParams.get('price_max'));
+    }
+    if (urlParams.has('search')) {
+        appliedFilter.value.searchTerm = urlParams.get('search') || '';
+    }
+};
 // --- Business Logic ---
 const autoFetch = () => {
     if (!pageProps.value.loading && fetchCount.value < autoFetchLimit) {
@@ -185,25 +208,31 @@ const fetchProducts = async () => {
     pageProps.value.loading = true;
     pageProps.value.page += 1;
     // Check filters
-    let applyingFilters = ``;
+    const filterParams = [];
     if (appliedFilter.value.categoriesLength > 0) {
-        applyingFilters += '&categories=' + appliedFilter.value.categories.map((cat) => cat.slug).join(',');
+        filterParams.push('categories=' + appliedFilter.value.categories.map((cat) => cat.slug).join(','));
     }
     if (appliedFilter.value.priceMin > 0) {
-        applyingFilters += '&price_min=' + appliedFilter.value.priceMin;
+        filterParams.push('price_min=' + appliedFilter.value.priceMin);
     }
     if (appliedFilter.value.priceMax > 0) {
-        applyingFilters += '&price_max=' + appliedFilter.value.priceMax;
+        filterParams.push('price_max=' + appliedFilter.value.priceMax);
     }
     if (appliedFilter.value.searchTerm !== '') {
-        applyingFilters += '&search=' + appliedFilter.value.searchTerm;
+        filterParams.push('search=' + appliedFilter.value.searchTerm);
     }
-    const response = await axios.get('/products/fetch?page=' + pageProps.value.page + '&paginate=' + pageProps.value.paginate + applyingFilters);
+    // Set URL
+    const applyingFilters = filterParams.join('&');
+    const newUrl = `${window.location.pathname}${applyingFilters ? '?' + applyingFilters : ''}`;
+    window.history.replaceState({}, '', newUrl);
+    // Fetch products to API
+    const params = 'page=' + pageProps.value.page + '&paginate=' + pageProps.value.paginate + '&' + applyingFilters;
+    const response = await axios.get('/products/fetch?' + params);
     if (!response.data.success) {
         handleUnsuccesfulFetch(response.data.message || 'Something went wrong, please refresh the page');
         return;
     }
-    console.log(response.data.products);
+    // console.log(response.data.products);
     products.value.push(...response.data.products);
 
     pageProps.value.loading = false;
@@ -231,7 +260,6 @@ const syncFilterFromSessionStorage = () => {
     const storedFilter = sessionStorage.getItem('appliedFilter');
     if (storedFilter) {
         appliedFilter.value = JSON.parse(storedFilter);
-        tomSelectRef.value.category?.setValue(appliedFilter.value.categories.map((cat) => cat.id) || []);
     }
 };
 
@@ -435,7 +463,7 @@ onMounted(() => {
                         :id="product.id"
                         :name="product.name"
                         :price="product.price"
-                        :image="product.image"
+                        :thumbnail="product.thumbnail"
                         :slug="product.slug"
                         :discount="product.discount"
                         :status="product.status"

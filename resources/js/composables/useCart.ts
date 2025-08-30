@@ -1,15 +1,17 @@
 import { ref } from 'vue';
 import { useNotifications } from './useNotifications';
 
-const { notivueSuccess, notivueError, notivueInfo } = useNotifications();
+const { notivueSuccess, notivueInfo } = useNotifications();
 
 export type CartItem = {
     id: string;
     name: string;
     price: number;
-    image: string;
+    thumbnail: string;
+    description?: string;
     slug: string;
     discount: number;
+    images?: Array<string>;
     status: {
         label: string;
         isReady: boolean;
@@ -17,7 +19,8 @@ export type CartItem = {
     category: {
         name: string;
         id: string;
-        slug?: string;
+        slug: string;
+        image?: string;
     }[];
     quantity: number;
     notes?: string;

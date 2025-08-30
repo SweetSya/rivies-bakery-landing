@@ -16,11 +16,7 @@ Route::get('/', [HomeController::class, 'view'])->name('home');
 // Products
 Route::get('/products', [ProductController::class, 'view'])->name('products');
 Route::get('/products/fetch', [ProductController::class, 'fetch']);
-Route::get('/products/{slug}', function ($id) {
-    return Inertia::render('ProductDetail', [
-        'id' => $id,
-    ]);
-})->name('product.detail');
+Route::get('/products/detail', [ProductController::class, 'single'])->name('product.detail');
 Route::get('/cart', function () {
     return Inertia::render('Cart');
 

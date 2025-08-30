@@ -15,7 +15,7 @@ const props = defineProps<CartItem>();
     <div :key="props.id" class="rounded-lg border border-base-400/20 bg-base-50/5 p-4 shadow-sm md:p-6">
         <div class="space-y-4 md:flex md:items-center md:justify-between md:gap-6 md:space-y-0">
             <a href="#" class="w-20 shrink-0 md:order-1">
-                <img class="h-20 w-20 rounded-lg object-cover" :src="getStorage(props.image)" alt="imac image" />
+                <img class="h-20 w-20 rounded-lg object-cover" :src="getStorage(props.thumbnail)" alt="imac image" />
             </a>
 
             <label for="counter-input" class="sr-only">Choose quantity:</label>

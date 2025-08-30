@@ -11,17 +11,18 @@ defineProps<{
     id: string;
     name: string;
     price: number;
-    image: string;
+    thumbnail: string;
     slug: string;
+    discount: number;
+    images?: Array<string>;
     status: {
         label: string;
         isReady: boolean;
     };
-    discount?: number;
     category: {
         name: string;
         id: string;
-        slug?: string;
+        slug: string;
         image?: string;
     }[];
 }>();
@@ -30,8 +31,8 @@ defineProps<{
 <template>
     <div :key="id" class="group/card mx-auto w-full max-w-[220px] overflow-hidden">
         <div class="relative h-36 w-full overflow-hidden rounded-md xs:h-44 md:h-56">
-            <Link :href="`/products/${slug}`">
-                <img loading="lazy" :src="getStorage(image)" class="h-full w-full scale-105 object-cover group-hover/card:scale-100" alt="" />
+            <Link :href="`/products/detail?slug=${slug}`">
+                <img loading="lazy" :src="getStorage(thumbnail)" class="h-full w-full scale-105 object-cover group-hover/card:scale-100" alt="" />
                 <div class="absolute top-1 right-0 flex w-full flex-wrap justify-end gap-1 px-1 text-xs font-medium text-background">
                     <span class="rounded-sm border border-border bg-background px-2 py-2" v-for="value in category" :key="value.id">
                         <img class="max-w-3" :src="getStorage(value.image || '')" alt="" />
@@ -53,10 +54,12 @@ defineProps<{
             </p>
         </div>
         <div class="flex w-full gap-2">
-            <ButtonMain type="button" :extend-class="'!w-full !font-semibold !text-xs !py-2'" :href="`/products/${slug}`"> Lihat </ButtonMain>
-            <ButtonMain type="button" :extend-class="'!w-fit'" @click="$emit('handleAddToCart')">
-                <ShoppingBag class="h-3 w-3" />
+            <ButtonMain type="button" :extend-class="'!w-full !font-semibold !text-xs !py-2'" :href="`/products/detail?slug=${slug}`">
+                Lihat
             </ButtonMain>
+            <!-- <ButtonMain type="button" :extend-class="'!w-fit'" @click="$emit('handleAddToCart')">
+                <ShoppingBag class="h-3 w-3" />
+            </ButtonMain> -->
         </div>
     </div>
 </template>

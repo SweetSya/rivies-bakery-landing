@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useAppearance } from '@/composables/useAppearance';
 import { useCart } from '@/composables/useCart';
+import { useNotifications } from '@/composables/useNotifications';
 import { Link, usePage } from '@inertiajs/vue3';
 import { initFlowbite } from 'flowbite';
 import { DoorOpen, Menu, Moon, ShoppingBag, ShoppingCart, Sun, User, X } from 'lucide-vue-next';
@@ -8,6 +9,7 @@ import { darkTheme, lightTheme, Notification, Notivue } from 'notivue';
 import SimpleParallax from 'simple-parallax-js/vanilla';
 import { onMounted, ref, watch } from 'vue';
 
+const { notivueInfo } = useNotifications();
 const { updateAppearance, appearance } = useAppearance();
 const page = usePage();
 const { getCartTotalItem, initializeCart } = useCart();
@@ -26,8 +28,40 @@ watch(
     },
     { immediate: true },
 );
-
 const parallaxElement = ref<Element | null>(null);
+type LinkedPages = {
+    title: string;
+    url: string;
+}[];
+const links: LinkedPages = [
+    {
+        title: 'Beranda',
+        url: '/',
+    },
+    {
+        title: 'Produk',
+        url: '/products',
+    },
+    {
+        title: 'Tentang',
+        url: '/about',
+    },
+    {
+        title: 'Galeri',
+        url: '/gallery',
+    },
+    {
+        title: 'Kontak',
+        url: '/contact',
+    },
+];
+const isActiveLink = (url: string) => {
+    const pathname = ('/' + page.props.pathname) as string;
+    if (url === '/') {
+        return pathname === '/';
+    }
+    return pathname.startsWith(url);
+};
 onMounted(() => {
     parallaxElement.value = document.querySelector('.page-background img');
     if (parallaxElement.value) {
@@ -40,6 +74,11 @@ onMounted(() => {
     }
     initializeCart();
     initFlowbite();
+    // Check params if have "?warn"
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('warn')) {
+        notivueInfo(urlParams.get('warn') as string);
+    }
 });
 </script>
 
@@ -74,20 +113,13 @@ onMounted(() => {
         <div class="mx-auto w-full max-w-screen-xl px-4">
             <div class="flex items-center justify-between">
                 <ul class="mt-0 flex flex-row text-sm font-medium rtl:space-x-reverse">
-                    <li class="group/nav-link cursor-pointer border-b-2 border-transparent px-2 py-3 hover:border-foreground">
-                        <Link href="/" class="px-4 py-4 text-foreground">Beranda</Link>
-                    </li>
-                    <li class="group/nav-link cursor-pointer border-b-2 border-transparent px-2 py-3 hover:border-foreground">
-                        <Link href="/products" class="px-4 py-4 text-foreground">Produk</Link>
-                    </li>
-                    <li class="group/nav-link cursor-pointer border-b-2 border-transparent px-2 py-3 hover:border-foreground">
-                        <Link href="/about" class="px-4 py-4 text-foreground">Tentang</Link>
-                    </li>
-                    <li class="group/nav-link cursor-pointer border-b-2 border-transparent px-2 py-3 hover:border-foreground">
-                        <Link href="/gallery" class="px-4 py-4 text-foreground">Galeri</Link>
-                    </li>
-                    <li class="group/nav-link cursor-pointer border-b-2 border-transparent px-2 py-3 hover:border-foreground">
-                        <Link href="/contact" class="px-4 py-4 text-foreground">Kontak</Link>
+                    <li
+                        v-for="(value, index) in links"
+                        :key="index"
+                        :class="{ '!border-b-primary-600': isActiveLink(value.url) }"
+                        class="group/nav-link cursor-pointer border-b-2 border-transparent px-2 py-3 hover:border-foreground/50"
+                    >
+                        <Link :href="value.url" class="px-4 py-4 text-foreground">{{ value.title }}</Link>
                     </li>
                 </ul>
                 <div class="flex gap-2">
@@ -174,7 +206,7 @@ onMounted(() => {
     <!-- Navigation drawer components -->
     <div
         id="drawer-navigation"
-        class="fixed top-0 right-0 z-[60] h-screen w-80 translate-x-full overflow-y-auto border-l border-foreground/20 bg-background/50 p-4 backdrop-blur-lg transition-transform duration-500"
+        class="fixed top-0 right-0 z-[60] h-screen w-80 translate-x-full overflow-y-auto border-l border-foreground/20 bg-background p-4 backdrop-blur-lg transition-transform duration-300"
         tabindex="-1"
         aria-labelledby="drawer-navigation-label"
     >
@@ -190,23 +222,16 @@ onMounted(() => {
         <div class="mt-4 overflow-y-auto py-4">
             <ul class="space-y-2 font-medium">
                 <li>
-                    <Link href="/products" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-foreground/10">
-                        <span class="ms-3">Produk</span>
-                    </Link>
-                </li>
-                <li>
-                    <Link href="/about" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-foreground/10">
-                        <span class="ms-3">Tentang</span>
-                    </Link>
-                </li>
-                <li>
-                    <Link href="/gallery" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-foreground/10">
-                        <span class="ms-3">Galeri</span>
-                    </Link>
-                </li>
-                <li>
-                    <Link href="/contact" class="group flex items-center rounded-lg p-2 text-foreground hover:bg-foreground/10">
-                        <span class="ms-3">Kontak</span>
+                    <Link
+                        v-for="(value, index) in links"
+                        :key="index"
+                        :href="value.url"
+                        :class="{
+                            '!bg-primary-500/80': isActiveLink(value.url),
+                        }"
+                        class="group flex items-center border-b border-foreground/20 p-2 py-3 text-foreground hover:bg-primary-500/80"
+                    >
+                        <span class="ms-3">{{ value.title }}</span>
                     </Link>
                 </li>
             </ul>

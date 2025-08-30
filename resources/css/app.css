@@ -16,6 +16,9 @@
 /* Initialize Tomselect */
 @import 'tom-select/dist/css/tom-select.css';
 
+/* Initialize Photoswipe */
+@import 'photoswipe/style.css';
+
 /* Intialize Swiper */
 @import 'swiper/css/bundle';
 /* Remove Arrow Icon */
