@@ -47,6 +47,19 @@ Route::get('/login', function () {
 Route::get('/register', function () {
     return Inertia::render('Register');
 })->name('register');
+Route::group(['prefix' => 'account-settings', 'middleware' => 'checkAuth'], function () {
+    Route::get('/test', function () {
+        return 'API good to go for "bakery-store"';
+    });
+    Route::group(['prefix' => 'home',], function () {
+        Route::get('/', [HomeController::class, 'main']);
+    });
+    Route::group(['prefix' => 'products',], function () {
+        Route::get('/', [ProductController::class, 'main']);
+        Route::get('/fetch', [ProductController::class, 'fetch']);
+        Route::get('/single', [ProductController::class, 'single']);
+    });
+});
 // Account Settings
 Route::get('/account-settings', function () {
     return Inertia::render('AccountSettings/AccountSettingsInformation');
