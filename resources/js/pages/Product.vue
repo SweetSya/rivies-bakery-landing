@@ -3,10 +3,10 @@ import ButtonMain from '@/components/buttons/ButtonMain.vue';
 import ProductCard from '@/components/cards/ProductCard.vue';
 import ProductCardSkeleton from '@/components/cards/ProductCardSkeleton.vue';
 import BaseModal from '@/components/modal/BaseModal.vue';
+import { useAPI } from '@/composables/useAPI';
 import { useCart } from '@/composables/useCart';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import axios from 'axios';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowDown, ArrowLeft, ArrowRight, Filter, Minus, Search, X } from 'lucide-vue-next';
@@ -22,6 +22,7 @@ gsap.registerPlugin(ScrollTrigger);
 defineOptions({
     components: { AppLayout },
 });
+const { fetchAPI } = useAPI();
 
 // --- Types ---
 interface PageProps {
@@ -227,7 +228,7 @@ const fetchProducts = async () => {
     window.history.replaceState({}, '', newUrl);
     // Fetch products to API
     const params = 'page=' + pageProps.value.page + '&paginate=' + pageProps.value.paginate + '&' + applyingFilters;
-    const response = await axios.get('/products/fetch?' + params);
+    const response = await fetchAPI('products/fetch?' + params);
     if (!response.data.success) {
         handleUnsuccesfulFetch(response.data.message || 'Something went wrong, please refresh the page');
         return;
@@ -543,7 +544,7 @@ onMounted(() => {
                         <div class="flex items-center justify-end space-x-2 rounded-b py-4 md:py-5">
                             <button
                                 type="submit"
-                                class="w-full cursor-pointer rounded-lg border border-primary-500 bg-primary-500 px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-primary-700 focus:z-10 focus:ring-4 focus:ring-primary-200 focus:outline-none md:text-base dark:border-primary-600 dark:bg-primary-600"
+                                class="w-full cursor-pointer rounded-lg border border-primary-500 bg-primary-500 px-5 py-2 text-center text-xs font-medium text-background hover:bg-primary-700 focus:z-10 focus:ring-4 focus:ring-primary-200 focus:outline-none md:text-base dark:border-primary-600 dark:bg-primary-600"
                             >
                                 Terapkan
                             </button>

@@ -31,9 +31,9 @@ trait useAPIConfig
             $this->config['header'] => 'Bearer ' . $this->config['key'],
         ];
     }
-    public function apiGet($endpoint, $params = [])
+    public function apiGet($endpoint, $params = [], $headers = [], $aborting = true)
     {
-        $client = Http::withHeaders($this->getAPIHeader());
+        $client = Http::withHeaders(array_merge($this->getAPIHeader(), $headers));
         $response = $client->get($this->config['url'] . $endpoint, $params);
         if (!$response->ok()) {
             $error = [
@@ -42,7 +42,27 @@ trait useAPIConfig
             ];
             $error_code = time() . '-' . rand(1000, 9999);
             Log::error('API GET Error [' . $error_code . ']: ' . json_encode($error));
-            abort(500, $error_code);
+            if ($aborting) {
+                abort(500, $error_code);
+            }
+            // return $error;
+        }
+        return $response;
+    }
+    public function apiPost($endpoint, $params = [], $headers = [], $aborting = true)
+    {
+        $client = Http::withHeaders(array_merge($this->getAPIHeader(), $headers));
+        $response = $client->post($this->config['url'] . $endpoint, $params);
+        if (!$response->ok()) {
+            $error = [
+                'status' => $response->status(),
+                'message' => $response->json()['message'] ?? 'Error occurred',
+            ];
+            $error_code = time() . '-' . rand(1000, 9999);
+            Log::error('API POST Error [' . $error_code . ']: ' . json_encode($error));
+            if ($aborting) {
+                abort(500, $error_code);
+            }
             // return $error;
         }
         return $response;

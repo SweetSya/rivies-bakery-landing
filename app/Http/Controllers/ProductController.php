@@ -116,26 +116,32 @@ class ProductController extends Controller
         // get slug from params
         $slug = $request->input('slug');
         if (!$slug) {
-            return redirect()->route('products', [
+            return redirect()->route('products')->withErrors([
                 'warn' => 'Produk tidak ditemukan'
             ]);
         }
-        $response = $this->apiGet("products/single", [
-            'slug' => $slug,
-        ]);
-        $product = $response->json();
-        $prices = $product['prices'];
+        $response = $this->apiGet(
+            "products/single",
+            [
+                'slug' => $slug,
+            ],
+            aborting: false
+        );
+        $data = $response->json();
+        if (!$response->ok()) {
+            return redirect()->route('products')->withErrors([
+                'warn' => 'Produk tidak ditemukan'
+            ]);
+        }
+
+        $prices = $data['prices'];
         $processed_prices = $this->preprocess_prices($prices);
-        $processed_products = $this->preprocess_product([$product]);
+        $processed_products = $this->preprocess_product([$data]);
         $product = $processed_products[0] ?? null;
         $product['id'] = $prices[0]['id'] ?? null;
         $product['price'] = $prices[0]['price'] ?? null;
-        $producet['discount'] = $processed_prices[0]['discount'] ?? null;
-        if (!$product) {
-            return redirect()->route('products', [
-                'warn' => 'Produk tidak ditemukan'
-            ]);
-        }
+        $product['discount'] = $processed_prices[0]['discount'] ?? null;
+
         return Inertia::render('ProductDetail', [
             'product' => $product,
             'prices' => $processed_prices,

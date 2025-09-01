@@ -40,6 +40,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        env('API_APP', 'bakery-store') => [
+            'driver' => 'jwt',
+            'provider' => 'users',
+        ]
     ],
 
     /*
@@ -66,9 +70,9 @@ return [
         ],
 
         // 'users' => [
-            //     'driver' => 'database',
-            //     'table' => 'users',
-            // ],
+        //     'driver' => 'database',
+        //     'table' => 'users',
+        // ],
     ],
 
     /*

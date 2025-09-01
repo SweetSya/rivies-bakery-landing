@@ -154,9 +154,14 @@ export function useCart() {
         localStorage.setItem('cart', JSON.stringify(cart.value));
     };
     const initializeCart = () => {
-        const storedCart = localStorage.getItem('cart');
-        if (storedCart) {
-            cart.value = JSON.parse(storedCart);
+        try {
+            const storedCart = localStorage.getItem('cart');
+            if (storedCart) {
+                cart.value = JSON.parse(storedCart);
+            }
+        } catch (error) {
+            localStorage.removeItem('cart');
+            resetCart();
         }
     };
     const getCartTotalItem = () => {

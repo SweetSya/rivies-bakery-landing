@@ -57,8 +57,8 @@ defineExpose({
                 <div
                     class="flex items-center justify-between rounded-t border-b border-gray-200 bg-primary-400 p-4 md:p-5 dark:border-gray-600 dark:bg-primary-600"
                 >
-                    <h3 class="flex items-center gap-4 text-xl font-medium text-foreground"><slot name="modalIcon" /> {{ title }}</h3>
-                    <X v-if="isCloseable" class="h-5 w-5 cursor-pointer hover:opacity-80" @click="close()" />
+                    <h3 class="flex items-center gap-4 text-xl font-medium text-background"><slot name="modalIcon" /> {{ title }}</h3>
+                    <X v-if="isCloseable" class="h-5 w-5 cursor-pointer text-background hover:opacity-80" @click="close()" />
                 </div>
                 <!-- Modal body -->
                 <LoadingSpinner

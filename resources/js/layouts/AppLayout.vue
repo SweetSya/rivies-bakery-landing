@@ -4,12 +4,12 @@ import { useCart } from '@/composables/useCart';
 import { useNotifications } from '@/composables/useNotifications';
 import { Link, usePage } from '@inertiajs/vue3';
 import { initFlowbite } from 'flowbite';
-import { DoorOpen, Menu, Moon, ShoppingBag, ShoppingCart, Sun, User, X } from 'lucide-vue-next';
+import { DoorOpen, Menu, Moon, ShoppingBag, ShoppingCart, Sun, User, UserCircle, X } from 'lucide-vue-next';
 import { darkTheme, lightTheme, Notification, Notivue } from 'notivue';
 import SimpleParallax from 'simple-parallax-js/vanilla';
 import { onMounted, ref, watch } from 'vue';
 
-const { notivueInfo } = useNotifications();
+const { notivueInfo, notivueError, notivueSuccess } = useNotifications();
 const { updateAppearance, appearance } = useAppearance();
 const page = usePage();
 const { getCartTotalItem, initializeCart } = useCart();
@@ -29,6 +29,7 @@ watch(
     { immediate: true },
 );
 const parallaxElement = ref<Element | null>(null);
+
 type LinkedPages = {
     title: string;
     url: string;
@@ -56,11 +57,11 @@ const links: LinkedPages = [
     },
 ];
 const isActiveLink = (url: string) => {
-    const pathname = ('/' + page.props.pathname) as string;
-    if (url === '/') {
-        return pathname === '/';
+    let pathname = page.props.pathname as string;
+    if (pathname !== '/') {
+        pathname = '/' + pathname;
     }
-    return pathname.startsWith(url);
+    return pathname === url;
 };
 onMounted(() => {
     parallaxElement.value = document.querySelector('.page-background img');
@@ -74,10 +75,19 @@ onMounted(() => {
     }
     initializeCart();
     initFlowbite();
-    // Check params if have "?warn"
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('warn')) {
-        notivueInfo(urlParams.get('warn') as string);
+    // Check if page has error
+    if (page.props.errors && Object.keys(page.props.errors).length > 0) {
+        for (const [key, value] of Object.entries(page.props.errors)) {
+            if (key === 'warn') {
+                notivueInfo(value as string);
+            }
+            if (key === 'danger') {
+                notivueError(value as string);
+            }
+            if (key === 'success') {
+                notivueSuccess(value as string);
+            }
+        }
     }
 });
 </script>
@@ -131,16 +141,25 @@ onMounted(() => {
                         <ShoppingBag class="me-2 h-4 w-4" /><span class="font-bold">{{ getCartTotalItem() }}</span>
                     </Link>
                     <Link
+                        v-if="!page.props.isAuthed"
                         href="/login"
                         class="inline-flex items-center rounded-lg border border-border bg-background px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
                     >
                         Login <DoorOpen class="ms-2 h-4 w-4" />
                     </Link>
                     <Link
+                        v-if="page.props.isAuthed"
+                        href="/logout"
+                        class="inline-flex items-center rounded-lg border border-border bg-background px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
+                    >
+                        Logout <DoorOpen class="ms-2 h-4 w-4" />
+                    </Link>
+                    <Link
+                        v-if="page.props.isAuthed"
                         href="/account-settings"
                         class="inline-flex items-center rounded-lg border border-border bg-background px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
                     >
-                        <p class="max-w-24 overflow-hidden text-nowrap text-ellipsis whitespace-nowrap">Sultan Hakim Herrysan</p>
+                        <p class="max-w-24 overflow-hidden text-nowrap text-ellipsis whitespace-nowrap">{{ page.props.auth.user.name }}</p>
                         <User class="ms-2 h-4 w-4" />
                     </Link>
                 </div>
@@ -182,6 +201,7 @@ onMounted(() => {
                 <span class="text-sm text-base-500 group-hover:text-primary-600 dark:text-gray-400 dark:group-hover:text-primary-500">Produk</span>
             </Link>
             <Link
+                v-if="page.props.isAuthed"
                 href="/account-settings"
                 type="button"
                 class="group inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800"
@@ -189,17 +209,18 @@ onMounted(() => {
                 <img class="mb-2 h-5 w-5 rounded-full border border-foreground/20" src="/storage/images/logo.png" alt="" />
                 <span
                     class="w-16 overflow-hidden text-sm text-nowrap text-ellipsis whitespace-nowrap text-base-500 group-hover:text-primary-600 xs:w-24 dark:text-gray-400 dark:group-hover:text-primary-500"
-                    >Sultan Hakim Herrysan</span
+                    >{{ page.props.auth.user.name }}</span
                 >
             </Link>
-            <!-- <Link
+            <Link
+                v-if="!page.props.isAuthed"
                 href="login"
                 type="button"
                 class="group inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800"
             >
                 <UserCircle class="mb-2 h-5 w-5 text-base-500 group-hover:text-primary-600" />
                 <span class="text-sm text-base-500 group-hover:text-primary-600 dark:text-gray-400 dark:group-hover:text-primary-500">Login</span>
-            </Link> -->
+            </Link>
         </div>
     </div>
 

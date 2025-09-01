@@ -14,13 +14,12 @@ import { ArrowRight } from 'lucide-vue-next';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 const { notivueSuccess, notivueError, notivueInfo } = useNotifications();
-const { pay, snapLoading } = useMidtrans();
+const { pay } = useMidtrans();
 
 const { getCart, resetCart, isCartEmpty } = useCart();
 const { getCheckout, isCheckoutEmpty, resetCheckout } = useCheckout();
 
 const selectAddress = ref(<string>'');
-let anim = ref();
 
 defineOptions({
     components: {
@@ -141,7 +140,7 @@ onUnmounted(() => {
         <template #content>
             <section class="py-8 antialiased md:py-16">
                 <div class="mb-10 flex flex-col items-center justify-center" v-show="afterPaymentCompleteAnimation">
-                    <h2 class="text-xl md:text-4xl font-semibold text-primary-500">Pembayaran Berhasil</h2>
+                    <h2 class="text-xl font-semibold text-primary-500 md:text-4xl">Pembayaran Berhasil</h2>
                     <p class="text-center text-base-500">Pihak kami akan mengkonfirmasi pesananmu melalui nomor yang ada</p>
                     <LottieAnimation
                         v-if="afterPaymentCompleteAnimation"
@@ -190,7 +189,7 @@ onUnmounted(() => {
                                     Ditambahkan secara otomatis berdasarkan data yang ada, untuk mengubah alamat harap
                                     <Link href="/account" class="text-primary-600 underline">klik disini</Link>
                                 </p>
-                                <div class="grid grid-cols-1 gap-4 overflow-hidden sm:grid-cols-2" v-show="selectAddress !== ''">
+                                <div class="grid gap-4 overflow-hidden md:grid-cols-2" v-show="selectAddress !== ''">
                                     <div>
                                         <label for="name" class="mb-2 block text-sm font-medium text-base-900 dark:text-white"> Nama Lengkap </label>
                                         <input

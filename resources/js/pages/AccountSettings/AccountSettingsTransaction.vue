@@ -26,7 +26,6 @@ defineOptions({
 });
 
 const detailModal = ref<typeof BaseModal | null>(null);
-const paymentModal = ref<typeof PaymentModal | null>(null);
 
 const createSnapPayment = async () => {
     try {
@@ -35,8 +34,8 @@ const createSnapPayment = async () => {
 
         await pay(snap_token, {
             onSuccess: (result: any) => console.log(result),
-            onPending: (result: any) => notivueInfo('Pembayaran sedang diproses.'),
-            onError: (result: any) => notivueError('Pembayaran gagal.'),
+            onPending: () => notivueInfo('Pembayaran sedang diproses.'),
+            onError: () => notivueError('Pembayaran gagal.'),
             onClose: () => console.log('Closed'),
         });
     } catch (error) {
@@ -66,7 +65,7 @@ const createSnapPayment = async () => {
                 </select>
             </div>
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div v-for="value of [1, 2, 3]" class="rounded-lg border bg-transparent p-4 ps-4">
+                <div v-for="value of [1, 2, 3]" :key="value" class="rounded-lg border bg-transparent p-4 ps-4">
                     <div class="flex items-start">
                         <div class="w-full space-y-2 text-sm">
                             <div
@@ -177,7 +176,6 @@ const createSnapPayment = async () => {
                     </div>
                 </template>
             </BaseModal>
-            <PaymentModal :ref="'paymentModal'" />
         </template>
     </AccountSettings>
 </template>

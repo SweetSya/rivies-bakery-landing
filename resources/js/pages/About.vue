@@ -36,7 +36,7 @@ onMounted(() => {
         scrollTrigger: {
             trigger: '.horizontal-scroll',
             start: 'center center',
-            end: () => '+=' + (document.querySelector('.horizontal-scroll')?.offsetWidth ?? 0),
+            end: () => '+=' + ((document.querySelector('.horizontal-scroll') as HTMLElement | null)?.offsetWidth ?? 0),
             scrub: 1,
             pin: true,
         },

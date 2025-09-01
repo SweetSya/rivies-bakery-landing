@@ -26,6 +26,7 @@ defineProps<{
         image?: string;
     }[];
 }>();
+
 </script>
 
 <template>

@@ -42,14 +42,8 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name' => config('app.name'),
             'production' => config('app.env') === 'production',
-            'is_auth' => Auth::check(),
-            'auth' => [
-                'user' => Auth::user() ? [
-                    'name' => Auth::user()->name,
-                    'email' => Auth::user()->email,
-                ] : null,
-            ],
             'pathname' => $request->path(),
+            'isAuthed' => false,
             'ziggy' => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),

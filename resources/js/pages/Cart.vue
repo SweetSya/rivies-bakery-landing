@@ -1,26 +1,30 @@
 <script setup lang="ts">
 import ButtonMain from '@/components/buttons/ButtonMain.vue';
 import ProductCart from '@/components/carts/ProductCart.vue';
+import { useAPI } from '@/composables/useAPI';
 import { useCart } from '@/composables/useCart';
 import { formatRupiah } from '@/composables/useHelperFunctions';
 import { useNotifications } from '@/composables/useNotifications';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { ArrowRight, X } from 'lucide-vue-next';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 const { notivueSuccess, notivueError } = useNotifications();
-
 const { getCart, isCartEmpty, applyCupon } = useCart();
-
+const { fetchAPI } = useAPI();
 defineOptions({
     components: {
         AppLayout,
     },
 });
 
+// Use computed to make it reactive
+const cart = computed(() => getCart());
+const cartIds = computed(() => cart.value.items.map((item) => item.id).join(','));
 // Cupon
 const cuponRef = ref<string>('');
+
 const checkAndApplyCupon = () => {
     const cuponCode = cuponRef.value;
     if (cuponCode === 'DISCOUNT10') {
@@ -35,15 +39,7 @@ const checkAndApplyCupon = () => {
         clearAppliedCupon();
     }
 };
-onUnmounted(() => {
-    // clearAppliedCupon();
-});
-onMounted(() => {
-    // if(cart.value.cupon.code != '') {
-    //     cuponRef.value = cart.value.cupon.code;
-    // }
-    clearAppliedCupon();
-});
+
 const clearAppliedCupon = () => {
     cuponRef.value = '';
     applyCupon({
@@ -52,8 +48,23 @@ const clearAppliedCupon = () => {
         type: '',
     });
 };
-// Use computed to make it reactive
-const cart = computed(() => getCart());
+onMounted(async () => {
+    // const response = await fetchAPI('cart/fetch-prices', {
+    //     method: 'POST',
+    //     data: {
+    //         carts: cartIds.value,
+    //     },
+    // });
+    // if (response.status === 200) {
+    //     cart.value.prices = response.prices;
+    // }
+});
+onMounted(() => {
+    // if(cart.value.cupon.code != '') {
+    //     cuponRef.value = cart.value.cupon.code;
+    // }
+    clearAppliedCupon();
+});
 </script>
 
 <template>
@@ -109,19 +120,7 @@ const cart = computed(() => getCart());
                     <div class="mt-6 sm:mt-8 md:gap-6 lg:flex lg:items-start xl:gap-8">
                         <div class="mx-auto w-full flex-none lg:max-w-2xl xl:max-w-4xl">
                             <div v-show="!isCartEmpty()" class="space-y-6">
-                                <ProductCart
-                                    v-for="item in cart.items"
-                                    :key="item.id"
-                                    :id="item.id"
-                                    :name="item.name"
-                                    :price="item.price"
-                                    :thumbnail="item.thumbnail"
-                                    :slug="item.slug"
-                                    :discount="item.discount"
-                                    :quantity="item.quantity"
-                                    :status="item.status"
-                                    :category="item.category"
-                                />
+                                <ProductCart v-for="item in cart.items" :key="item.id" :item="item" />
                             </div>
                             <div>
                                 <div v-show="isCartEmpty()" class="text-center text-gray-500">
