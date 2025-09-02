@@ -74,14 +74,14 @@ const props = defineProps<{
                         <option v-for="value in prices" :key="value.id" :value="value.id" selected>{{ value.tag }}</option>
                     </select> -->
                 </div>
-                <div class="relative z-0">
-                    <input
-                        type="text"
-                        id="floating_standard"
-                        class="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent px-0 py-1 text-xs text-gray-900 focus:border-blue-600 focus:ring-0 focus:outline-none dark:border-gray-600 dark:text-white dark:focus:border-blue-500"
-                        placeholder="Catatan.."
-                    />
-                </div>
+            <div class="relative z-0">
+                <input
+                    type="text"
+                    id="floating_standard"
+                    class="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent px-0 py-1 text-xs text-gray-900 focus:border-blue-600 focus:ring-0 focus:outline-none dark:border-gray-600 dark:text-white dark:focus:border-blue-500"
+                    placeholder="Catatan.."
+                />
+            </div>
             </div>
             <div>
                 <div class="flex w-full items-center justify-end gap-4">

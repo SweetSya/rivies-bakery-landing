@@ -2,9 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\useCart;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
 

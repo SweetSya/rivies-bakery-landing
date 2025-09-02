@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { useAppearance } from '@/composables/useAppearance';
-import { useCart } from '@/composables/useCart';
-import { useNotifications } from '@/composables/useNotifications';
 import { Link, usePage } from '@inertiajs/vue3';
 import { initFlowbite } from 'flowbite';
 import { DoorOpen, Menu, Moon, ShoppingBag, ShoppingCart, Sun, User, UserCircle, X } from 'lucide-vue-next';
@@ -9,53 +6,49 @@ import { darkTheme, lightTheme, Notification, Notivue } from 'notivue';
 import SimpleParallax from 'simple-parallax-js/vanilla';
 import { onMounted, ref, watch } from 'vue';
 
-const { notivueInfo, notivueError, notivueSuccess } = useNotifications();
-const { updateAppearance, appearance } = useAppearance();
-const page = usePage();
-const { getCartTotalItem, initializeCart } = useCart();
+import { useAppearance } from '@/composables/useAppearance';
+import { useCart } from '@/composables/useCart';
+import { useNotifications } from '@/composables/useNotifications';
 
-const toggleAppereance = () => {
-    const newAppearance = appearance.value === 'dark' ? 'light' : 'dark';
-    updateAppearance(newAppearance);
-};
-// Reset body overflow when page changes (after drawer navigation)
-watch(
-    () => page.url,
-    () => {
-        if (document.body.classList.contains('overflow-hidden')) {
-            document.body.classList.remove('overflow-hidden');
-        }
-    },
-    { immediate: true },
-);
+// ------------------------------
+// Composables
+// ------------------------------
+const { updateAppearance, appearance } = useAppearance();
+const { getCartTotalItem, initializeCart } = useCart();
+const { notivueInfo, notivueError, notivueSuccess } = useNotifications();
+const page = usePage();
+
+// ------------------------------
+// State
+// ------------------------------
 const parallaxElement = ref<Element | null>(null);
 
-type LinkedPages = {
-    title: string;
-    url: string;
-}[];
+// ------------------------------
+// Cart Initialization
+// ------------------------------
+initializeCart();
+
+// ------------------------------
+// Appearance
+// ------------------------------
+const toggleAppearance = () => {
+    const newTheme = appearance.value === 'dark' ? 'light' : 'dark';
+    updateAppearance(newTheme);
+};
+
+// ------------------------------
+// Navigation Links
+// ------------------------------
+type LinkedPages = { title: string; url: string }[];
+
 const links: LinkedPages = [
-    {
-        title: 'Beranda',
-        url: '/',
-    },
-    {
-        title: 'Produk',
-        url: '/products',
-    },
-    {
-        title: 'Tentang',
-        url: '/about',
-    },
-    {
-        title: 'Galeri',
-        url: '/gallery',
-    },
-    {
-        title: 'Kontak',
-        url: '/contact',
-    },
+    { title: 'Beranda', url: '/' },
+    { title: 'Produk', url: '/products' },
+    { title: 'Tentang', url: '/about' },
+    { title: 'Galeri', url: '/gallery' },
+    { title: 'Kontak', url: '/contact' },
 ];
+
 const isActiveLink = (url: string) => {
     let pathname = page.props.pathname as string;
     if (pathname !== '/') {
@@ -63,7 +56,23 @@ const isActiveLink = (url: string) => {
     }
     return pathname === url;
 };
+
+// ------------------------------
+// Watchers
+// ------------------------------
+watch(
+    () => page.url,
+    () => {
+        document.body.classList.remove('overflow-hidden');
+    },
+    { immediate: true },
+);
+
+// ------------------------------
+// Lifecycle
+// ------------------------------
 onMounted(() => {
+    // Init Parallax
     parallaxElement.value = document.querySelector('.page-background img');
     if (parallaxElement.value) {
         new SimpleParallax(parallaxElement.value, {
@@ -73,21 +82,18 @@ onMounted(() => {
             overflow: true,
         });
     }
-    initializeCart();
+
+    // Init Flowbite
     initFlowbite();
-    // Check if page has error
-    if (page.props.errors && Object.keys(page.props.errors).length > 0) {
-        for (const [key, value] of Object.entries(page.props.errors)) {
-            if (key === 'warn') {
-                notivueInfo(value as string);
-            }
-            if (key === 'danger') {
-                notivueError(value as string);
-            }
-            if (key === 'success') {
-                notivueSuccess(value as string);
-            }
-        }
+
+    // Handle Errors
+    const errors = page.props.errors;
+    if (errors && Object.keys(errors).length > 0) {
+        Object.entries(errors).forEach(([key, value]) => {
+            if (key === 'warn') notivueInfo(value as string);
+            if (key === 'danger') notivueError(value as string);
+            if (key === 'success') notivueSuccess(value as string);
+        });
     }
 });
 </script>
@@ -100,7 +106,7 @@ onMounted(() => {
             <div class="flex items-center gap-3">
                 <div class="relative flex items-center justify-center">
                     <label class="inline-flex cursor-pointer items-center">
-                        <input @change="toggleAppereance" type="checkbox" :checked="appearance === 'light' ? false : true" class="peer sr-only" />
+                        <input @change="toggleAppearance" type="checkbox" :checked="appearance === 'light' ? false : true" class="peer sr-only" />
                         <div
                             class="peer relative h-6 w-11 rounded-full bg-background peer-focus:outline-none after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-base-900 after:transition-all after:content-[''] peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full"
                         >
@@ -286,9 +292,9 @@ onMounted(() => {
             </div>
         </div>
     </main>
-    <footer class="border-t border-base-500/50 p-4 md:p-8 lg:p-10">
+    <footer class="border-t border-base-500/50 p-4 mb-16 md:mb-0 md:p-8 lg:p-10">
         <div class="mx-auto max-w-screen-xl text-center">
-            <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400"
+            <span class="text-xs md:text-sm text-gray-500 sm:text-center dark:text-gray-400"
                 >© 2025 <a href="#" class="hover:underline">Rivies Bakery</a>. All Rights Reserved.</span
             >
         </div>

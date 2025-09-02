@@ -324,7 +324,15 @@
         width: 50px;
         aspect-ratio: 1;
         border-radius: 50%;
-        border: 8px solid var(--color-foreground);
+        border: 8px solid var(--color-primary-200);
+        border-right-color: var(--color-primary-600);
+        animation: l2 1s infinite linear;
+    }
+    .dark .loader {
+        width: 50px;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        border: 8px solid var(--color-primary-800);
         border-right-color: var(--color-primary-600);
         animation: l2 1s infinite linear;
     }

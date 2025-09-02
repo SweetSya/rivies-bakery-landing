@@ -39,6 +39,7 @@ trait useAPIConfig
             $error = [
                 'status' => $response->status(),
                 'message' => $response->json()['message'] ?? 'Error occurred',
+                
             ];
             $error_code = time() . '-' . rand(1000, 9999);
             Log::error('API GET Error [' . $error_code . ']: ' . json_encode($error));
@@ -57,6 +58,7 @@ trait useAPIConfig
             $error = [
                 'status' => $response->status(),
                 'message' => $response->json()['message'] ?? 'Error occurred',
+                
             ];
             $error_code = time() . '-' . rand(1000, 9999);
             Log::error('API POST Error [' . $error_code . ']: ' . json_encode($error));

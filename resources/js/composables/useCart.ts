@@ -1,7 +1,9 @@
 import { ref } from 'vue';
+import { useAPI } from './useAPI';
 import { useNotifications } from './useNotifications';
 
-const { notivueSuccess, notivueInfo } = useNotifications();
+const { notivueSuccess, notivueInfo, notivueError } = useNotifications();
+const { fetchAPI } = useAPI();
 
 export type CartItem = {
     id: string;
@@ -149,8 +151,10 @@ export function useCart() {
         };
         saveCartToStorage();
     };
-    const saveCartToStorage = () => {
-        calculateCartTotal();
+    const saveCartToStorage = (bypass?: boolean | false) => {
+        if (!bypass) {
+            calculateCartTotal();
+        }
         localStorage.setItem('cart', JSON.stringify(cart.value));
     };
     const initializeCart = () => {
@@ -173,6 +177,35 @@ export function useCart() {
     const isProductInCart = (id: string) => {
         return cart.value.items.some((item) => item.id === id);
     };
+    const validateCart = async () => {
+        let valid = true;
+        // This function can be used to validate cart items with the database
+        const response = await fetchAPI('/cart/validate', {
+            method: 'POST',
+            data: {
+                cart: cart.value,
+            },
+        });
+        if (!response.data.valid) {
+            valid = false;
+            response.data.errors.forEach((err: any) => {
+                if (err.action === 'delete_cupon') {
+                    response.data.cart.cupon = {
+                        code: '',
+                        type: '',
+                        discount: 0,
+                    };
+                    notivueError(err.message);
+                }
+                if (err.action === 'delete_item') {
+                    notivueError(err.message);
+                }
+            });
+        }
+        cart.value = response.data.cart;
+        saveCartToStorage(true);
+        return valid;
+    };
     return {
         isCartEmpty,
         isProductInCart,
@@ -184,5 +217,6 @@ export function useCart() {
         initializeCart,
         applyCupon,
         getCartTotalItem,
+        validateCart,
     };
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\useCheckJWT;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,6 +16,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class CheckAuthentication
 {
+    use useCheckJWT;
     /**
      * Handle an incoming request.
      *
@@ -22,49 +24,17 @@ class CheckAuthentication
      */
     public function handle(Request $request, Closure $next, $check): Response
     {
-        $shared = [
-            'isAuthed' => false,
-            'auth' => [
-                'token' => null,
-                'user' => null,
-            ],
-        ];
+        $shared = $this->checkJwtAuth($request);
 
-        try {
-            // Grab token from cookie
-            $jwt = json_decode($request->cookie('session_token'), true);
-
-            if (!$jwt) {
-                throw new JWTException('Token missing');
-            }
-
-            // Parse token & validate (no DB lookup)
-            $payload = JWTAuth::setToken($jwt['token'])->getPayload();
-
-            // Extract your stored claims
-            $userData = $jwt['user'];
-
-            // Fake user object so $request->user() works
-            $request->setUserResolver(fn() => (object) $userData);
-
-            $shared['isAuthed'] = true;
-            $shared['auth'] = [
-                'token' => $jwt['token'] ?? null,
-                'user' => $jwt['user'] ?? null,
-            ];
-        } catch (TokenExpiredException | TokenInvalidException | JWTException $e) {
-            // If strict check required (not default) → redirect
-            if ($check !== 'default') {
-                return redirect()->route('login')->withErrors([
-                    'warn' => $e instanceof TokenExpiredException
-                        ? 'Sesi sudah berakhir, harap login kembali'
-                        : 'Harap lakukan login untuk melanjutkan',
-                ]);
-            }
-            // Else → just stay guest (isAuthed = false)
+        // If strict mode and not authed → redirect
+        if (!$shared['isAuthed'] && $check !== 'default') {
+            return redirect()->route('login')->withErrors([
+                'warn' => 'Harap lakukan login untuk melanjutkan',
+            ]);
         }
 
         Inertia::share($shared);
+
         return $next($request);
     }
 }

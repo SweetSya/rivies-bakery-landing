@@ -139,6 +139,7 @@ class ProductController extends Controller
         $processed_products = $this->preprocess_product([$data]);
         $product = $processed_products[0] ?? null;
         $product['id'] = $prices[0]['id'] ?? null;
+        $product['product_id'] = $data['id'] ?? null;
         $product['price'] = $prices[0]['price'] ?? null;
         $product['discount'] = $processed_prices[0]['discount'] ?? null;
 

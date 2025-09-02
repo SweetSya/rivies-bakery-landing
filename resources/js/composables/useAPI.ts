@@ -17,7 +17,7 @@ export function useAPI() {
         endpoint: string,
         config: {
             method?: 'GET' | 'POST' | 'DELETE' | 'PUT';
-            data?: Record<string, any>;
+            data?: any;
             headers?: Record<string, string>;
         } = {
             method: 'GET',
@@ -37,7 +37,10 @@ export function useAPI() {
             headers: headings,
             validateStatus: () => true,
         };
-
+        // Set responseType to blob for download endpoints
+        if (endpoint.includes('download')) {
+            axiosConfig.responseType = 'blob';
+        }
         if (config.method === 'POST') {
             axiosConfig.data = config.data;
         }

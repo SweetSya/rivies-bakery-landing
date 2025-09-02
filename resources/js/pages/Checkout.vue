@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ButtonMain from '@/components/buttons/ButtonMain.vue';
+import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import { useCart } from '@/composables/useCart';
 import { useCheckout } from '@/composables/useCheckout';
 import { formatRupiah } from '@/composables/useHelperFunctions';
@@ -16,7 +17,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 const { notivueSuccess, notivueError, notivueInfo } = useNotifications();
 const { pay } = useMidtrans();
 
-const { getCart, resetCart, isCartEmpty } = useCart();
+const { getCart, resetCart, isCartEmpty, validateCart } = useCart();
 const { getCheckout, isCheckoutEmpty, resetCheckout } = useCheckout();
 
 const selectAddress = ref(<string>'');
@@ -30,6 +31,7 @@ defineOptions({
 // Use computed to make it reactive
 const checkout = computed(() => getCheckout());
 const cart = computed(() => getCart());
+const pageLoad = ref(true);
 const snapPaymentLoading = ref(false);
 const afterPaymentCompleteAnimation = ref(false);
 // Create payment
@@ -71,7 +73,12 @@ const afterPaymentComplete = () => {
     resetCheckout();
     afterPaymentCompleteAnimation.value = true;
 };
-onMounted(() => {
+onMounted(async () => {
+    const valid = await validateCart();
+    if (!valid) {
+        router.visit('/cart');
+        return;
+    }
     //Check params
     const params = new URLSearchParams(window.location.search);
     if (params.has('payment-completed')) {
@@ -84,6 +91,7 @@ onMounted(() => {
             }
         }
     }
+    pageLoad.value = false;
 });
 onUnmounted(() => {
     resetCheckout();
@@ -138,7 +146,10 @@ onUnmounted(() => {
         <template #pageDescription>Made with love and high quality ingredients</template>
         <!-- Content -->
         <template #content>
-            <section class="py-8 antialiased md:py-16">
+            <div class="flex h-96 w-full items-center justify-center" v-if="pageLoad">
+                <LoadingSpinner message="Memuat.." extend-class="!h-40 !w-40" />
+            </div>
+            <section v-if="!pageLoad" class="py-8 antialiased md:py-16">
                 <div class="mb-10 flex flex-col items-center justify-center" v-show="afterPaymentCompleteAnimation">
                     <h2 class="text-xl font-semibold text-primary-500 md:text-4xl">Pembayaran Berhasil</h2>
                     <p class="text-center text-base-500">Pihak kami akan mengkonfirmasi pesananmu melalui nomor yang ada</p>

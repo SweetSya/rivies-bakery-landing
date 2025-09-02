@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
@@ -23,13 +24,9 @@ Route::group([
     Route::get('/products', [ProductController::class, 'view'])->name('products');
     Route::get('/products/fetch', [ProductController::class, 'fetch']);
     Route::get('/products/detail', [ProductController::class, 'single'])->name('product.detail');
-    Route::get('/cart', function () {
-        return Inertia::render('Cart');
-
-        // Cart and Checkout
-    })->name('cart');
-    Route::post('/cart/fetch-prices', [CartController::class, 'fetch_prices'])->name('cart.fetch.prices');
-    Route::get('/checkout', [CartController::class, 'view'])->name('checkout');
+    Route::get('/cart',  [CartController::class, 'view'])->name('cart');
+    Route::post('/cart/validate', [CartController::class, 'validate_cart'])->name('cart.validate');
+    Route::post('/cart/download-draft',  [CartController::class, 'download_draft_cart'])->name('cart.download-draft');
     // Other
     Route::get('/about', function () {
         return Inertia::render('About');
@@ -55,12 +52,13 @@ Route::group([
     Route::group(['middleware' => 'checkAuth:' . env('API_APP', 'bakery-store')], function () {
 
         Route::get('/logout', [AuthenticationController::class, 'logout'])->name('logout');
-
+        // Checkout
+        Route::get('/checkout', [CheckoutController::class, 'view'])->name('checkout');
         // Account Settings Group
         Route::group([
             'prefix' => 'account-settings',
         ], function () {
-
+            Route::get('/checkout', [CheckoutController::class, 'view'])->name('checkout');
             // Account Settings
             Route::get('/', function () {
                 return Inertia::render('AccountSettings/AccountSettingsInformation');

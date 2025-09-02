@@ -31,7 +31,7 @@ type ProductPrice = { id: string; tag: string; price: number; discount?: number 
 const page = usePage();
 const baseProduct = page.props.product as CartItem;
 const prices = ref<ProductPrice[]>(page.props.prices as ProductPrice[]);
-
+console.log(page.props.product);
 // 🔹 State
 const product = ref<CartItem>({ ...baseProduct });
 const previewImages = ref<PreviewImage[]>([]);
@@ -57,6 +57,7 @@ const selectPrice = (price: ProductPrice | null) => {
     product.value = {
         ...baseProduct,
         id: price.id,
+        product_id: baseProduct.product_id,
         name: `${baseProduct.name} - ${price.tag}`,
         price: Number(price.price) || 0,
         discount: Number(price.discount) || 0,
