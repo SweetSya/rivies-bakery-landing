@@ -6,6 +6,7 @@ import { darkTheme, lightTheme, Notification, Notivue } from 'notivue';
 import SimpleParallax from 'simple-parallax-js/vanilla';
 import { onMounted, ref, watch } from 'vue';
 
+import ConfirmationModal from '@/components/modal/ConfirmationModal.vue';
 import { useAppearance } from '@/composables/useAppearance';
 import { useCart } from '@/composables/useCart';
 import { useNotifications } from '@/composables/useNotifications';
@@ -299,4 +300,5 @@ onMounted(() => {
     <Notivue v-slot="item">
         <Notification :item="item" :theme="appearance === 'dark' ? darkTheme : lightTheme"> </Notification>
     </Notivue>
+    <ConfirmationModal />
 </template>

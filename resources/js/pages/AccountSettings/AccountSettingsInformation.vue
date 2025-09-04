@@ -1,18 +1,36 @@
 <script setup lang="ts">
 import { useAPI } from '@/composables/useAPI';
+import { useConfirmation } from '@/composables/useConfirmation';
 import AccountSettings from '@/layouts/AccountSettingsLayout.vue';
-import { usePage } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Swiper } from 'swiper';
 import { Navigation, Pagination } from 'swiper/modules';
+
 // Register Library
 Swiper.use([Navigation, Pagination]);
 gsap.registerPlugin(ScrollTrigger);
 
 const page = usePage();
-
 const { getStorage } = useAPI();
+
+// Usage functions
+const { showConfirmation } = useConfirmation();
+
+const editName = () => {
+    console.log('Edit Name clicked');
+    showConfirmation({
+        title: 'Edit Nama',
+        content: 'Apakah Anda yakin ingin mengubah nama?',
+        onConfirm: () => {
+            router.visit('/account-settings/edit', {
+                data: { field: 'name' },
+            });
+        },
+    });
+};
+
 defineOptions({
     components: {
         AccountSettings,
@@ -51,7 +69,7 @@ defineOptions({
                                 <td class="px-2 py-3 font-bold">Nama</td>
                                 <td class="px-2">:</td>
                                 <td class="px-2">{{ page.props.auth.user.name }}</td>
-                                <td class="cursor-pointer px-2 text-primary-600 underline">Edit</td>
+                                <td @click="editName" class="cursor-pointer px-2 text-primary-600 underline">Edit</td>
                             </tr>
                             <tr class="border-b">
                                 <td class="px-2 py-3 font-bold">Email</td>

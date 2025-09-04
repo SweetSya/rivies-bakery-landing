@@ -8,6 +8,7 @@ import { Swiper } from 'swiper';
 import { Navigation, Pagination } from 'swiper/modules';
 import { nextTick, onMounted } from 'vue';
 
+
 // Register Library
 Swiper.use([Navigation, Pagination]);
 gsap.registerPlugin(ScrollTrigger);
