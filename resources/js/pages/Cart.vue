@@ -151,18 +151,6 @@ onMounted(async () => {
                     <div class="mt-6 sm:mt-8 lg:flex lg:items-start lg:gap-6 xl:gap-8">
                         <!-- Cart Items -->
                         <div class="mx-auto w-full flex-none lg:max-w-2xl xl:max-w-4xl">
-                            <div class="mb-7 flex items-center justify-end gap-2" v-if="!isCartEmpty()">
-                                <ButtonMain
-                                    id="download-draft-cart"
-                                    type="button"
-                                    :outline="true"
-                                    :isLoading="downloadLoading"
-                                    @click="downloadDraftCart"
-                                    :disabled="downloadLoading"
-                                >
-                                    Unduh draft belanja <ReceiptText class="h-4 w-4" />
-                                </ButtonMain>
-                            </div>
                             <div v-if="!isCartEmpty()" class="space-y-6">
                                 <ProductCart v-for="item in cart.items" :key="item.id" :item="item" />
                             </div>
@@ -188,7 +176,19 @@ onMounted(async () => {
                                 <LockKeyhole class="h-10 w-10 !text-primary-600" />
                                 <Link href="/login" class="text-sm underline">Harap login terlebih dahulu disini</Link>
                             </div>
-
+                            <div class="mb-7 flex items-center justify-end md:w-full gap-2" v-if="!isCartEmpty()">
+                                <ButtonMain
+                                    id="download-draft-cart"
+                                    type="button"
+                                    :outline="true"
+                                    :isLoading="downloadLoading"
+                                    @click="downloadDraftCart"
+                                    :disabled="downloadLoading"
+                                    extend-class="w-fit lg:!w-full"
+                                >
+                                    Unduh draft belanja <ReceiptText class="h-4 w-4" />
+                                </ButtonMain>
+                            </div>
                             <div
                                 class="pointer-events-none opacity-70 blur-[1px]"
                                 :class="{ '!pointer-events-auto !opacity-100 !blur-[0]': page.props.isAuthed }"

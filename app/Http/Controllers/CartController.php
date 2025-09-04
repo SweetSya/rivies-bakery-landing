@@ -7,15 +7,22 @@ use App\useCart;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class CartController extends Controller
+class CartController extends RiviesAPIController
 {
-    use useAPIConfig;
 
+    public function __construct()
+    {
+        parent::__construct();
+    }
     public function view()
     {
         return Inertia::render('Cart');
     }
-
+    public function testAuth(Request $request)
+    {
+        $response = $this->apiGet("test-auth", aborting: false);
+        return response()->json($response->json());
+    }
     public function validate_cart(Request $request)
     {
         $cart = $request->all();

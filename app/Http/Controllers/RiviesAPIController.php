@@ -1,20 +1,25 @@
 <?php
 
-namespace App;
+namespace App\Http\Controllers;
 
-use GuzzleHttp\Client;
+use App\useCheckJWT;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-trait useAPIConfig
+class RiviesAPIController extends Controller
 {
+    use useCheckJWT;
+
+    public $authenticated = null;
     protected $config;
 
     public function __construct()
     {
+        $this->authenticated = $this->ensureAuthenticated();
         $this->config = $this->getAPIConfig();
     }
-
+    // Get API configuration from environment variables
     public function getAPIConfig()
     {
         return [
@@ -23,14 +28,30 @@ trait useAPIConfig
             'header' => env('API_HEADER_PREFIX'),
         ];
     }
+    // Get the API headers including auth token if available
     public function getAPIHeader()
     {
-        return [
+        $headers = [
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
             $this->config['header'] => 'Bearer ' . $this->config['key'],
         ];
+        if ($this->authenticated && $this->authenticated['auth']['token']) {
+            $headers['Authorization'] = 'Bearer ' . $this->authenticated['auth']['token'];
+        }
+        return $headers;
     }
+
+    // Check for JWT in cookies and set auth state
+    protected function ensureAuthenticated()
+    {
+        $shared = $this->checkJWTCookies();
+        if (!$shared || !$shared['isAuthed']) {
+            return null;
+        }
+        return  $shared; // Authenticated
+    }
+    // Make a GET request to the API
     public function apiGet($endpoint, $params = [], $headers = [], $aborting = true)
     {
         $client = Http::withHeaders(array_merge($this->getAPIHeader(), $headers));
@@ -39,7 +60,7 @@ trait useAPIConfig
             $error = [
                 'status' => $response->status(),
                 'message' => $response->json()['message'] ?? 'Error occurred',
-                
+
             ];
             $error_code = time() . '-' . rand(1000, 9999);
             Log::error('API GET Error [' . $error_code . ']: ' . json_encode($error));
@@ -50,6 +71,7 @@ trait useAPIConfig
         }
         return $response;
     }
+    // Make a POST request to the API
     public function apiPost($endpoint, $params = [], $headers = [], $aborting = true)
     {
         $client = Http::withHeaders(array_merge($this->getAPIHeader(), $headers));
@@ -58,7 +80,7 @@ trait useAPIConfig
             $error = [
                 'status' => $response->status(),
                 'message' => $response->json()['message'] ?? 'Error occurred',
-                
+
             ];
             $error_code = time() . '-' . rand(1000, 9999);
             Log::error('API POST Error [' . $error_code . ']: ' . json_encode($error));

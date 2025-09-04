@@ -5,11 +5,13 @@ const page = usePage();
 
 export function useAPI() {
     const getStorage = (url: string) => {
-        return `http://127.0.0.1:8000/storage/${url}`;
+        const storageUrl =
+            import.meta.env.VITE_APP_ENV === 'production' ? import.meta.env.VITE_API_STORAGE_PRODUCTION : import.meta.env.VITE_API_STORAGE;
+        return `${storageUrl}${url}`;
     };
     const checkAuthentication = () => {
-        if (page.props.isAuth) {
-            return page.props.jwt_token;
+        if (page.props.isAuthed) {
+        return page.props.auth.token;
         }
         return null;
     };
@@ -28,8 +30,9 @@ export function useAPI() {
         const headings = { ...config.headers };
         const AuthToken = checkAuthentication();
         if (AuthToken) {
-            headings['Authorization'] = `Bearer ${AuthToken}`;
+            headings['Authorization-User'] = `Bearer ${AuthToken}`;
         }
+        console.log(headings);
         // Use 'data' for GET, 'data' for others
         const axiosConfig: any = {
             method: config.method,

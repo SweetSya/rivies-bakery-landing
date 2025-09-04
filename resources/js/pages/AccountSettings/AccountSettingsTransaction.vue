@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import BaseModal from '@/components/modal/BaseModal.vue';
-import PaymentModal from '@/components/modal/PaymentModal.vue';
 import { useMidtrans } from '@/composables/useMidtrans';
 import { useNotifications } from '@/composables/useNotifications';
 import AccountSettings from '@/layouts/AccountSettingsLayout.vue';
@@ -104,10 +103,10 @@ const createSnapPayment = async () => {
                 </div>
             </div>
             <BaseModal :id="'detail-modal'" :title="'Detail Transaksi'" :isCloseable="true" :isLoading="false" ref="detailModal">
-                <template #modalIcon>
+                <template #icon>
                     <ReceiptText class="h-5 w-5" />
                 </template>
-                <template #modalContent>
+                <template #content>
                     <div class="flex flex-col gap-3 text-xs md:text-base">
                         <table class="table-col-one-nowrap w-full">
                             <tbody class="">

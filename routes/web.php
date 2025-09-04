@@ -14,9 +14,10 @@ use Inertia\Inertia;
 Route::group([
     'middleware' => 'checkAuth:default'
 ], function () {
+    Route::get('/test-auth', [CartController::class, 'testAuth']);
     // Account Settings
     Route::get('/payment-midtrans', [PaymentController::class, 'createPayment']);
-
+    
     // Home
     Route::get('/', [HomeController::class, 'view'])->name('home');
 

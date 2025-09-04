@@ -272,7 +272,7 @@
     /* Tom Select */
     .ts-control,
     .ts-wrapper.single.input-active .ts-control {
-        @apply !h-[42px] !rounded-lg !border-foreground/10 !bg-foreground/10 !p-2.5 !text-sm !text-foreground;
+        @apply !min-h-[42px] !rounded-lg !border-foreground/10 !bg-foreground/10 !p-2.5 !text-sm !text-foreground;
     }
     .dark .ts-control,
     .dark .ts-wrapper.single.input-active .ts-control {
@@ -296,7 +296,7 @@
         @apply !bg-primary-600/50 !text-foreground;
     }
     .base-input {
-        @apply !border !border-base-500/40 !bg-foreground/5 !p-2.5 !text-sm !text-foreground/80;
+        @apply !border !border-base-500/20 !bg-transparent !p-2.5 !text-sm !text-foreground/80;
     }
     /* Remove number input spinners/arrows */
     input[type='number']::-webkit-outer-spin-button,

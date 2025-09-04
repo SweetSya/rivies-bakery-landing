@@ -2,18 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\useAPIConfig;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
-class AuthenticationController extends Controller
+class AuthenticationController extends RiviesAPIController
 {
-    use useAPIConfig;
     public function view(Request $request)
     {
         if ($request->cookie('session_token')) {

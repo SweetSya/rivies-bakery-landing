@@ -91,7 +91,7 @@ onMounted(() => {
                 <ArrowDown class="animate__animated animate__fadeInDown animate__infinite animate__slow mx-auto h-10 w-10" />
             </div>
             <section class="mx-auto max-w-screen-xl px-4 py-8 sm:py-16 lg:px-6">
-                <div class="mx-auto grid max-w-screen-lg grid-cols-2 gap-4 pb-8 xs:grid-cols-3 sm:pb-16 md:grid-cols-4 lg:grid-cols-6">
+                <div class="mx-auto grid max-w-screen-lg grid-cols-2 gap-4 pb-8 xs:grid-cols-3 sm:pb-16 md:grid-cols-6">
                     <Link
                         v-for="value in serverData.categories"
                         :key="value.id"

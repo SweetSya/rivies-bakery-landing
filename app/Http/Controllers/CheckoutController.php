@@ -7,9 +7,8 @@ use App\useCheckJWT;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class CheckoutController extends Controller
+class CheckoutController extends RiviesAPIController
 {
-    use useAPIConfig, useCheckJWT;
     public function view()
     {
         return Inertia::render('Checkout');

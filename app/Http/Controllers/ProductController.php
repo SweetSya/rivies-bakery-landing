@@ -6,9 +6,8 @@ use App\useAPIConfig;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class ProductController extends Controller
+class ProductController extends RiviesAPIController
 {
-    use useAPIConfig;
     public function view()
     {
         $response = $this->apiGet('products');

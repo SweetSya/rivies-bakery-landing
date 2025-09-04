@@ -6,9 +6,8 @@ use App\useAPIConfig;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class HomeController extends Controller
+class HomeController extends RiviesAPIController
 {
-    use useAPIConfig;
     public function view()
     {
         $data = [];

@@ -77,10 +77,10 @@ defineOptions({
                 </div>
             </div>
             <BaseModal :id="'edit-modal'" :title="'Edit Alamat'" :isCloseable="true" :isLoading="false" ref="editModal">
-                <template #modalIcon>
+                <template #icon>
                     <Pencil class="h-5 w-5" />
                 </template>
-                <template #modalContent>
+                <template #content>
                     <form class="grid grid-cols-1 gap-4 overflow-hidden sm:grid-cols-2">
                         <div class="col-span-2">
                             <label for="label" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Label </label>
@@ -140,10 +140,10 @@ defineOptions({
                 </template>
             </BaseModal>
             <BaseModal :id="'add-modal'" :title="'Tambah Alamat'" :isCloseable="true" :isLoading="false" ref="addModal">
-                <template #modalIcon>
+                <template #icon>
                     <Plus class="h-5 w-5" />
                 </template>
-                <template #modalContent>
+                <template #content>
                     <form class="grid grid-cols-1 gap-4 overflow-hidden sm:grid-cols-2">
                         <div class="col-span-2">
                             <label for="label" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Label </label>

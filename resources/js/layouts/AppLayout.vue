@@ -17,12 +17,10 @@ const { updateAppearance, appearance } = useAppearance();
 const { getCartTotalItem, initializeCart } = useCart();
 const { notivueInfo, notivueError, notivueSuccess } = useNotifications();
 const page = usePage();
-
 // ------------------------------
 // State
 // ------------------------------
 const parallaxElement = ref<Element | null>(null);
-
 // ------------------------------
 // Cart Initialization
 // ------------------------------
@@ -82,7 +80,6 @@ onMounted(() => {
             overflow: true,
         });
     }
-
     // Init Flowbite
     initFlowbite();
 
@@ -292,9 +289,9 @@ onMounted(() => {
             </div>
         </div>
     </main>
-    <footer class="border-t border-base-500/50 p-4 mb-16 md:mb-0 md:p-8 lg:p-10">
+    <footer class="mb-16 border-t border-base-500/50 p-4 md:mb-0 md:p-8 lg:p-10">
         <div class="mx-auto max-w-screen-xl text-center">
-            <span class="text-xs md:text-sm text-gray-500 sm:text-center dark:text-gray-400"
+            <span class="text-xs text-gray-500 sm:text-center md:text-sm dark:text-gray-400"
                 >© 2025 <a href="#" class="hover:underline">Rivies Bakery</a>. All Rights Reserved.</span
             >
         </div>

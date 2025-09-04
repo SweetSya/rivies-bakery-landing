@@ -2,14 +2,15 @@
 import ButtonMain from '@/components/buttons/ButtonMain.vue';
 import ProductCard from '@/components/cards/ProductCard.vue';
 import ProductCardSkeleton from '@/components/cards/ProductCardSkeleton.vue';
-import BaseModal from '@/components/modal/BaseModal.vue';
+import BaseDrawer from '@/components/drawer/BaseDrawer.vue';
 import { useAPI } from '@/composables/useAPI';
 import { useCart } from '@/composables/useCart';
+import { isMobileDevice } from '@/composables/useHelperFunctions';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowDown, ArrowLeft, ArrowRight, Filter, Minus, Search, X } from 'lucide-vue-next';
+import { ArrowDown, ArrowLeft, ArrowRight, Filter, Search, X } from 'lucide-vue-next';
 import { Swiper } from 'swiper';
 import { Navigation, Pagination } from 'swiper/modules';
 import TomSelect from 'tom-select';
@@ -91,7 +92,7 @@ const autoFetchLimit = AUTO_FETCH_LIMIT;
 const sentinel = ref<HTMLElement | null>(null);
 const observer = ref<IntersectionObserver | null>(null);
 const tomSelectRef = ref<TomSelectRef>({});
-const modalFilter = ref<typeof BaseModal>();
+const drawerFilter = ref<typeof BaseDrawer>();
 // --- Filter State ---
 const appliedFilter = ref<AppliedFilter>({
     categoriesLength: 0,
@@ -378,7 +379,7 @@ onMounted(() => {
         <template #pageDescription>Made with love and high quality ingredients</template>
         <!-- Content -->
         <template #content>
-            <section class="mx-auto max-w-screen-xl px-4 py-8 sm:py-16 lg:px-6">
+            <section class="mx-auto max-w-screen-xl py-8 sm:py-16 lg:px-6">
                 <div class="swiper swiper-banner h-80 w-full rounded-lg shadow-xl shadow-foreground/10">
                     <!-- Carousel wrapper -->
                     <div class="swiper-wrapper">
@@ -401,10 +402,10 @@ onMounted(() => {
                     <span class="swiper-button-prev">
                         <ArrowLeft class="h-6 w-6 text-white" />
                     </span>
-                    <div class="swiper-pagination !text-base-50"></div>
+                    <div class="swiper-pagination !text-base-50 !w-14"></div>
                 </div>
             </section>
-            <section class="mx-auto max-w-screen-xl px-4 py-8 sm:py-16 lg:px-6">
+            <section class="mx-auto max-w-screen-xl py-8 sm:py-16 lg:px-6">
                 <!-- Heading & Filters -->
 
                 <form @submit.prevent="setFilters()" class="mb-4 text-foreground">
@@ -443,7 +444,7 @@ onMounted(() => {
                     </div>
                     <div class="mb-auto flex items-center space-x-4">
                         <button
-                            @click="modalFilter?.open()"
+                            @click="drawerFilter?.open()"
                             class="inline-flex cursor-pointer items-center rounded-lg border border-border bg-background px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
                         >
                             Filter <Filter class="ms-2 h-4 w-4" />
@@ -489,13 +490,12 @@ onMounted(() => {
                     </ButtonMain>
                 </div>
             </section>
-            <!-- Main modal -->
-            <BaseModal :id="'filter-produk'" :title="'Filter Produk'" :is-closeable="true" ref="modalFilter">
-                <template #modalIcon>
+            <BaseDrawer :id="'filter-produk'" :title="'Filter Produk'" ref="drawerFilter" :position="isMobileDevice() ? 'bottom' : 'right'">
+                <template #icon>
                     <Filter class="h-5 w-5" />
                 </template>
-                <template #modalContent>
-                    <form @submit.prevent="(setFilters(), modalFilter?.close())">
+                <template #content>
+                    <form @submit.prevent="(setFilters(), drawerFilter?.close())">
                         <div class="space-y-4">
                             <div class="mb-6 grid gap-6 md:grid-cols-2">
                                 <div class="col-span-2">
@@ -503,7 +503,7 @@ onMounted(() => {
                                     <select id="select-category" placeholder="Cari kategori.."></select>
                                 </div>
                             </div>
-                            <div class="mb-6 grid gap-6 md:grid-cols-2">
+                            <div class="mb-2 grid gap-6 md:grid-cols-2">
                                 <div class="col-span-2">
                                     <label for="price" class="mb-2 block text-sm font-medium text-foreground md:text-lg dark:text-white"
                                         >Harga (Rupiah)</label
@@ -511,7 +511,7 @@ onMounted(() => {
                                     <div class="flex flex-wrap items-center gap-5 md:flex-nowrap">
                                         <div class="flex grow">
                                             <span
-                                                class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/20 bg-primary-600 px-2 text-sm text-background md:text-base"
+                                                class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/10 bg-primary-500 px-2 text-sm text-background md:text-base"
                                             >
                                                 Min.
                                             </span>
@@ -522,10 +522,9 @@ onMounted(() => {
                                                 class="base-input block w-full min-w-0 flex-1 rounded-none rounded-e-lg"
                                             />
                                         </div>
-                                        <div><Minus class="h-4 w-4" /></div>
                                         <div class="flex grow">
                                             <span
-                                                class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/20 bg-primary-600 px-2 text-sm text-background md:text-base"
+                                                class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/10 bg-primary-500 px-2 text-sm text-background md:text-base"
                                             >
                                                 Max.
                                             </span>
@@ -541,17 +540,10 @@ onMounted(() => {
                             </div>
                         </div>
                         <!-- Modal footer -->
-                        <div class="flex items-center justify-end space-x-2 rounded-b py-4 md:py-5">
-                            <button
-                                type="submit"
-                                class="w-full cursor-pointer rounded-lg border border-primary-500 bg-primary-500 px-5 py-2 text-center text-xs font-medium text-background hover:bg-primary-700 focus:z-10 focus:ring-4 focus:ring-primary-200 focus:outline-none md:text-base dark:border-primary-600 dark:bg-primary-600"
-                            >
-                                Terapkan
-                            </button>
-                        </div>
+                        <ButtonMain type="submit" :extend-class="'mt-6 w-full'"> Terapkan Filter </ButtonMain>
                     </form>
                 </template>
-            </BaseModal>
+            </BaseDrawer>
         </template>
     </AppLayout>
 </template>
