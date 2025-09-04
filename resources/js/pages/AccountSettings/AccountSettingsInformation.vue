@@ -18,13 +18,6 @@ defineOptions({
         AccountSettings,
     },
 });
-const { fetchAPI } = useAPI();
-const testLogin = () => {
-    console.log(page.props.auth.user);
-    fetchAPI('/test-auth').then((response) => {
-        console.log(response);
-    });
-};
 </script>
 
 <template>
@@ -43,7 +36,7 @@ const testLogin = () => {
                                 <td class="px-2 pt-3 pb-6" colspan="3">
                                     <img
                                         class="mx-auto aspect-square max-h-32 rounded object-cover"
-                                        :src="getStorage(page.props.auth.user.profile_picture)"
+                                        :src="getStorage(page.props.auth.user.profile_picture ?? '../assets/placeholder/image.png')"
                                         alt=""
                                     />
                                 </td>
@@ -53,7 +46,6 @@ const testLogin = () => {
                 </div>
                 <div>
                     <table class="h-full w-full">
-                        <button @click="testLogin">Test Login</button>
                         <tbody>
                             <tr class="border-b">
                                 <td class="px-2 py-3 font-bold">Nama</td>

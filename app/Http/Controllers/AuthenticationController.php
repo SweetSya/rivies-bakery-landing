@@ -86,4 +86,31 @@ class AuthenticationController extends RiviesAPIController
             )
             ->cookie('session_token', '', -1, '/', null, true, true);
     }
+
+    public function register_view(Request $request)
+    {
+        return Inertia::render('Register');
+    }
+    public function register(Request $request)
+    {
+        // Validate input
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255',
+            'password' => 'required|string|min:6|same:confirm_password',
+            'confirm_password' => 'required|string|min:6|same:password',
+            'phone_number' => 'required|string|max:20',
+        ]);
+
+        $data = $request->all();
+        unset($data['confirm_password']);
+
+        $response = $this->apiPost('register', $data, aborting: false);
+        if ($response->ok()) {
+            return response()->json(['message' => 'Register success']);
+        } else {
+            $data = $response->json();
+            return response($data, $response->status());
+        }
+    }
 }

@@ -17,7 +17,7 @@ Route::group([
     Route::get('/test-auth', [CartController::class, 'testAuth']);
     // Account Settings
     Route::get('/payment-midtrans', [PaymentController::class, 'createPayment']);
-    
+
     // Home
     Route::get('/', [HomeController::class, 'view'])->name('home');
 
@@ -46,9 +46,8 @@ Route::group([
     Route::get('/login', [AuthenticationController::class, 'view'])->name('login');
     Route::post('/login', [AuthenticationController::class, 'login'])->name('login.post');
     // Register
-    Route::get('/register', function () {
-        return Inertia::render('Register');
-    })->name('register');
+    Route::get('/register', [AuthenticationController::class, 'register_view'])->name('register');
+    Route::post('/register', [AuthenticationController::class, 'register'])->name('register.post');
     // Protected
     Route::group(['middleware' => 'checkAuth:' . env('API_APP', 'bakery-store')], function () {
 

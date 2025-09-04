@@ -11,7 +11,7 @@ export function useAPI() {
     };
     const checkAuthentication = () => {
         if (page.props.isAuthed) {
-        return page.props.auth.token;
+            return page.props.auth.token;
         }
         return null;
     };
@@ -32,7 +32,6 @@ export function useAPI() {
         if (AuthToken) {
             headings['Authorization-User'] = `Bearer ${AuthToken}`;
         }
-        console.log(headings);
         // Use 'data' for GET, 'data' for others
         const axiosConfig: any = {
             method: config.method,
