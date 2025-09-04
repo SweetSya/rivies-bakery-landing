@@ -2,10 +2,12 @@
 import ButtonMain from '@/components/buttons/ButtonMain.vue';
 import ProductCard from '@/components/cards/ProductCard.vue';
 import ProductCardSkeleton from '@/components/cards/ProductCardSkeleton.vue';
-import BaseModal from '@/components/modal/BaseModal.vue';
+import BaseDrawer from '@/components/drawer/BaseDrawer.vue';
+import { useAPI } from '@/composables/useAPI';
 import { useCart } from '@/composables/useCart';
+import { isMobileDevice } from '@/composables/useHelperFunctions';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowDown, ArrowLeft, ArrowRight, Filter, Search, X } from 'lucide-vue-next';
@@ -21,27 +23,35 @@ gsap.registerPlugin(ScrollTrigger);
 defineOptions({
     components: { AppLayout },
 });
+const { fetchAPI } = useAPI();
 
 // --- Types ---
 interface PageProps {
     loading: boolean;
+    paginate: number;
+    page: number;
+    message: string;
+    pageEnd: boolean;
 }
 
 interface Product {
     id: string;
     name: string;
     price: number;
-    image: string;
+    thumbnail: string;
     slug: string;
     discount: number;
+    images?: Array<string>;
     status: {
         label: string;
         isReady: boolean;
     };
     category: {
         name: string;
-        id?: string;
-    };
+        id: string;
+        slug: string;
+        image?: string;
+    }[];
 }
 
 interface TomSelectRef {
@@ -49,7 +59,9 @@ interface TomSelectRef {
 }
 interface Category {
     id: string;
-    title: string;
+    name: string;
+    slug: string;
+    image: string;
 }
 
 interface AppliedFilter {
@@ -61,24 +73,26 @@ interface AppliedFilter {
 }
 // --- Imports ---
 const { addToCart } = useCart();
+const page = usePage();
 
 // --- Constants ---
 const AUTO_FETCH_LIMIT = 2;
-const MOCK_CATEGORIES = [
-    { id: 'category_1', title: 'Pastry', url: 'http://en.wikipedia.org/wiki/Spectrometers' },
-    { id: 'category_2', title: 'Pastry 2', url: 'http://en.wikipedia.org/wiki/Star_chart' },
-];
+const CATEGORIES = ref<Category[]>([]);
 // --- State ---
 const products = ref<Product[]>([]);
 const pageProps = ref<PageProps>({
     loading: true,
+    paginate: 10,
+    page: 0,
+    message: '',
+    pageEnd: false,
 });
 const fetchCount = ref(2);
 const autoFetchLimit = AUTO_FETCH_LIMIT;
 const sentinel = ref<HTMLElement | null>(null);
 const observer = ref<IntersectionObserver | null>(null);
 const tomSelectRef = ref<TomSelectRef>({});
-const modalFilter = ref<typeof BaseModal>();
+const drawerFilter = ref<typeof BaseDrawer>();
 // --- Filter State ---
 const appliedFilter = ref<AppliedFilter>({
     categoriesLength: 0,
@@ -98,82 +112,6 @@ const isFiltersApplied = computed(() => {
     );
 });
 
-// --- Mock Data ---
-const mockProducts = [
-    {
-        id: 'product-1',
-        name: 'Product 1',
-        price: 10000,
-        image: '/storage/images/logo.png',
-        slug: 'product-1',
-        discount: 15,
-        status: { label: 'Preorder (3 Hari)', isReady: false },
-        category: { name: 'Pastry' },
-    },
-    {
-        id: 'product-2',
-        name: 'Product 2',
-        price: 20000,
-        image: '/storage/images/logo.png',
-        slug: 'product-2',
-        discount: 10,
-        status: { label: 'Preorder (3 Hari)', isReady: false },
-        category: { id: 'category_1', name: 'Pastry' },
-    },
-    {
-        id: 'product-3',
-        name: 'Product 3',
-        price: 30000,
-        image: '/storage/images/logo.png',
-        slug: 'product-3',
-        discount: 0,
-        status: { label: 'Preorder (3 Hari)', isReady: false },
-        category: { id: 'category_2', name: 'Pastry 2' },
-    },
-];
-
-const mockNewProducts = [
-    {
-        id: 'product-4',
-        name: 'Product 4',
-        price: 40000,
-        image: '/storage/images/logo.png',
-        slug: 'product-4',
-        discount: 5,
-        status: { label: 'Preorder (3 Hari)', isReady: false },
-        category: { name: 'Pastry' },
-    },
-    {
-        id: 'product-5',
-        name: 'Product 5',
-        price: 50000,
-        image: '/storage/images/logo.png',
-        slug: 'product-5',
-        discount: 20,
-        status: { label: 'Preorder (3 Hari)', isReady: false },
-        category: { name: 'Pastry' },
-    },
-    {
-        id: 'product-6',
-        name: 'Product 6',
-        price: 60000,
-        image: '/storage/images/logo.png',
-        slug: 'product-6',
-        discount: 25,
-        status: { label: 'Order Sekarang', isReady: true },
-        category: { name: 'Pastry' },
-    },
-    {
-        id: 'product-7',
-        name: 'Product 7',
-        price: 70000,
-        image: '/storage/images/logo.png',
-        slug: 'product-7',
-        discount: 30,
-        status: { label: 'Order Sekarang', isReady: true },
-        category: { name: 'Pastry' },
-    },
-];
 // --- Initialization ---
 const initializeSwiper = () => {
     new Swiper('.swiper-banner', {
@@ -192,9 +130,9 @@ const initializeTomSelect = () => {
     tomSelectRef.value.category = new TomSelect('#select-category', {
         maxItems: null,
         valueField: 'id',
-        labelField: 'title',
-        searchField: ['title'],
-        options: MOCK_CATEGORIES,
+        labelField: 'name',
+        searchField: ['name'],
+        options: CATEGORIES.value,
         plugins: {
             remove_button: {
                 title: 'Remove this item',
@@ -203,6 +141,11 @@ const initializeTomSelect = () => {
         persist: false,
         create: false,
     });
+    if (appliedFilter.value.categoriesLength > 0) {
+        setTimeout(() => {
+            tomSelectRef.value.category?.setValue(appliedFilter.value.categories.map((cat) => cat.id) || []);
+        }, 200);
+    }
 };
 
 const initializeIntersectionObserver = () => {
@@ -218,12 +161,30 @@ const initializeIntersectionObserver = () => {
 };
 
 const loadInitialData = () => {
-    setTimeout(() => {
-        products.value = mockProducts;
-        pageProps.value.loading = false;
-    }, 1000);
+    CATEGORIES.value = page.props.categories as Category[];
+    syncFilterFromSessionStorage();
+    initializeFiltersViaParams();
+    initializeSwiper();
+    initializeTomSelect();
+    fetchProducts();
 };
-
+const initializeFiltersViaParams = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('categories')) {
+        const categories = urlParams.get('categories')?.split(',') || [];
+        appliedFilter.value.categories = CATEGORIES.value.filter((cat) => categories.includes(cat.slug));
+        appliedFilter.value.categoriesLength = appliedFilter.value.categories.length;
+    }
+    if (urlParams.has('price_min')) {
+        appliedFilter.value.priceMin = Number(urlParams.get('price_min'));
+    }
+    if (urlParams.has('price_max')) {
+        appliedFilter.value.priceMax = Number(urlParams.get('price_max'));
+    }
+    if (urlParams.has('search')) {
+        appliedFilter.value.searchTerm = urlParams.get('search') || '';
+    }
+};
 // --- Business Logic ---
 const autoFetch = () => {
     if (!pageProps.value.loading && fetchCount.value < autoFetchLimit) {
@@ -238,24 +199,54 @@ const fetchManually = () => {
         fetchCount.value = 0;
     }
 };
-
-const fetchProducts = () => {
+const handleUnsuccesfulFetch = (message: string) => {
+    pageProps.value.loading = false;
+    // Handle error case
+    fetchCount.value = 2;
+    pageProps.value.pageEnd = true;
+    pageProps.value.message = message;
+};
+const fetchProducts = async () => {
     pageProps.value.loading = true;
-    setTimeout(() => {
-        products.value.push(...mockNewProducts);
-        pageProps.value.loading = false;
+    pageProps.value.page += 1;
+    // Check filters
+    const filterParams = [];
+    if (appliedFilter.value.categoriesLength > 0) {
+        filterParams.push('categories=' + appliedFilter.value.categories.map((cat) => cat.slug).join(','));
+    }
+    if (appliedFilter.value.priceMin > 0) {
+        filterParams.push('price_min=' + appliedFilter.value.priceMin);
+    }
+    if (appliedFilter.value.priceMax > 0) {
+        filterParams.push('price_max=' + appliedFilter.value.priceMax);
+    }
+    if (appliedFilter.value.searchTerm !== '') {
+        filterParams.push('search=' + appliedFilter.value.searchTerm);
+    }
+    // Set URL
+    const applyingFilters = filterParams.join('&');
+    const newUrl = `${window.location.pathname}${applyingFilters ? '?' + applyingFilters : ''}`;
+    window.history.replaceState({}, '', newUrl);
+    // Fetch products to API
+    const params = 'page=' + pageProps.value.page + '&paginate=' + pageProps.value.paginate + '&' + applyingFilters;
+    const response = await fetchAPI('products/fetch?' + params);
+    if (!response.data.success) {
+        handleUnsuccesfulFetch(response.data.message || 'Something went wrong, please refresh the page');
+        return;
+    }
+    // console.log(response.data.products);
+    products.value.push(...response.data.products);
 
-        // Check if sentinel is visible and auto-fetch if needed
-        nextTick(() => {
-            if (sentinel.value && observer.value) {
-                observer.value.takeRecords();
-                const rect = sentinel.value.getBoundingClientRect();
-                if (rect.top >= 0 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)) {
-                    autoFetch();
-                }
+    pageProps.value.loading = false;
+    nextTick(() => {
+        if (sentinel.value && observer.value) {
+            observer.value.takeRecords();
+            const rect = sentinel.value.getBoundingClientRect();
+            if (rect.top >= 0 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)) {
+                autoFetch();
             }
-        });
-    }, 1000);
+        }
+    });
 };
 
 const handleBeforeAddProductToCart = (product: Product) => {
@@ -271,7 +262,6 @@ const syncFilterFromSessionStorage = () => {
     const storedFilter = sessionStorage.getItem('appliedFilter');
     if (storedFilter) {
         appliedFilter.value = JSON.parse(storedFilter);
-        tomSelectRef.value.category?.setValue(appliedFilter.value.categories.map((cat) => cat.id) || []);
     }
 };
 
@@ -281,7 +271,16 @@ const syncFilterToSessionStorage = () => {
 
 const setCategories = () => {
     if (Array.isArray(tomSelectRef.value.category?.getValue())) {
-        appliedFilter.value.categories = MOCK_CATEGORIES.filter((cat) => (tomSelectRef.value.category?.getValue() as string[]).includes(cat.id));
+        const selectedIds = tomSelectRef.value.category?.getValue() as string[];
+        // Only keep plain properties
+        appliedFilter.value.categories = CATEGORIES.value
+            .filter((cat) => selectedIds.includes(cat.id))
+            .map((cat) => ({
+                id: cat.id,
+                name: cat.name,
+                slug: cat.slug,
+                image: cat.image,
+            }));
     }
     appliedFilter.value.categoriesLength = appliedFilter.value.categories.length;
 };
@@ -290,12 +289,18 @@ const removeCategory = (categoryId: string) => {
     tomSelectRef.value.category?.setValue(appliedFilter.value.categories.map((cat) => cat.id) || []);
     setFilters();
 };
+const resetPageProps = () => {
+    products.value = [];
+    pageProps.value.page = 0;
+    pageProps.value.pageEnd = false;
+    pageProps.value.message = '';
+    fetchCount.value = AUTO_FETCH_LIMIT;
+};
 const setFilters = () => {
     if (!pageProps.value.loading) {
         setCategories();
-        products.value = [];
+        resetPageProps();
         fetchProducts();
-        fetchCount.value = autoFetchLimit;
         syncFilterToSessionStorage();
     }
 };
@@ -310,9 +315,8 @@ const resetFilters = () => {
             searchTerm: '',
         };
         tomSelectRef.value.category?.clear();
-        products.value = [];
+        resetPageProps();
         fetchProducts();
-        fetchCount.value = autoFetchLimit;
         syncFilterToSessionStorage();
     }
 };
@@ -320,12 +324,9 @@ const resetFilters = () => {
 // --- Mounted Hook ---
 onMounted(() => {
     nextTick(() => {
-        initializeSwiper();
-        initializeTomSelect();
-        syncFilterFromSessionStorage();
+        loadInitialData();
     });
 
-    loadInitialData();
     initializeIntersectionObserver();
 });
 </script>
@@ -378,7 +379,7 @@ onMounted(() => {
         <template #pageDescription>Made with love and high quality ingredients</template>
         <!-- Content -->
         <template #content>
-            <section class="mx-auto max-w-screen-xl px-4 py-8 sm:py-16 lg:px-6">
+            <section class="mx-auto max-w-screen-xl py-8 sm:py-16 lg:px-6">
                 <div class="swiper swiper-banner h-80 w-full rounded-lg shadow-xl shadow-foreground/10">
                     <!-- Carousel wrapper -->
                     <div class="swiper-wrapper">
@@ -401,10 +402,10 @@ onMounted(() => {
                     <span class="swiper-button-prev">
                         <ArrowLeft class="h-6 w-6 text-white" />
                     </span>
-                    <div class="swiper-pagination !text-base-50"></div>
+                    <div class="swiper-pagination !text-base-50 !w-14"></div>
                 </div>
             </section>
-            <section class="mx-auto max-w-screen-xl px-4 py-8 sm:py-16 lg:px-6">
+            <section class="mx-auto max-w-screen-xl py-8 sm:py-16 lg:px-6">
                 <!-- Heading & Filters -->
 
                 <form @submit.prevent="setFilters()" class="mb-4 text-foreground">
@@ -419,7 +420,6 @@ onMounted(() => {
                             v-model="appliedFilter.searchTerm"
                             class="block w-full rounded-lg border bg-base-300/5 px-4 py-3 ps-10"
                             placeholder="Cari sesuatu.."
-                            required
                         />
                         <button
                             class="absolute end-2.5 bottom-2 inline-flex cursor-pointer items-center rounded-lg border border-border bg-background px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
@@ -437,14 +437,14 @@ onMounted(() => {
                                 v-for="category in appliedFilter.categories"
                                 :key="category.id"
                                 id="category-{{ category.id }}"
-                                class="flex items-center gap-2 rounded bg-primary-600 px-3 py-2 text-xs font-light text-foreground md:text-base"
-                                >{{ category.title }} <X class="h-4 w-4 cursor-pointer" @click="removeCategory(category.id)"
+                                class="flex items-center gap-2 rounded bg-primary-600 px-3 py-2 text-xs font-light text-background md:text-base"
+                                >{{ category.name }} <X class="h-4 w-4 cursor-pointer" @click="removeCategory(category.id)"
                             /></span>
                         </div>
                     </div>
                     <div class="mb-auto flex items-center space-x-4">
                         <button
-                            @click="modalFilter?.open()"
+                            @click="drawerFilter?.open()"
                             class="inline-flex cursor-pointer items-center rounded-lg border border-border bg-background px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
                         >
                             Filter <Filter class="ms-2 h-4 w-4" />
@@ -458,14 +458,14 @@ onMounted(() => {
                         </button>
                     </div>
                 </div>
-                <div class="mb-4 grid gap-4 xs:grid-cols-2 md:mb-8 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                <div class="mb-4 grid grid-cols-2 gap-4 md:mb-8 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                     <ProductCard
                         v-for="product in products"
                         :key="product.id"
                         :id="product.id"
                         :name="product.name"
                         :price="product.price"
-                        :image="product.image"
+                        :thumbnail="product.thumbnail"
                         :slug="product.slug"
                         :discount="product.discount"
                         :status="product.status"
@@ -474,39 +474,46 @@ onMounted(() => {
                     />
                     <ProductCardSkeleton :total="5" v-if="pageProps.loading" />
                 </div>
+                <p v-if="pageProps.message != ''" class="mb-6 text-center font-light text-gray-500 md:text-lg dark:text-gray-400">
+                    - {{ pageProps.message }} -
+                </p>
                 <div ref="sentinel"></div>
 
                 <div class="flex w-full justify-center">
-                    <ButtonMain v-if="!pageProps.loading" @click="fetchManually" type="button" :extend-class="'!w-fit'">
+                    <ButtonMain
+                        v-if="!pageProps.loading && fetchCount == 2 && !pageProps.pageEnd"
+                        @click="fetchManually"
+                        type="button"
+                        :extend-class="'!w-fit'"
+                    >
                         Muat lebih banyak <ArrowDown class="h-4 w-4" />
                     </ButtonMain>
                 </div>
             </section>
-            <!-- Main modal -->
-            <BaseModal :id="'filter-produk'" :title="'Filter Produk'" :is-closeable="true" ref="modalFilter">
-                <template #modalIcon>
+            <BaseDrawer :id="'filter-produk'" :title="'Filter Produk'" ref="drawerFilter" :position="isMobileDevice() ? 'bottom' : 'right'">
+                <template #icon>
                     <Filter class="h-5 w-5" />
                 </template>
-                <template #modalContent>
-                    <form @submit.prevent="(setFilters(), modalFilter?.close())">
+                <template #content>
+                    <form @submit.prevent="(setFilters(), drawerFilter?.close())">
                         <div class="space-y-4">
                             <div class="mb-6 grid gap-6 md:grid-cols-2">
                                 <div class="col-span-2">
-                                    <label for="select-category" class="mb-2 block text-sm font-medium text-foreground md:text-lg dark:text-white"
-                                        >Pilih Kategori</label
-                                    >
+                                    <label class="mb-2 block text-sm font-medium text-foreground md:text-lg dark:text-white">Pilih Kategori</label>
                                     <select id="select-category" placeholder="Cari kategori.."></select>
                                 </div>
                             </div>
-                            <div class="mb-6 grid gap-6 md:grid-cols-2">
+                            <div class="mb-2 grid gap-6 md:grid-cols-2">
                                 <div class="col-span-2">
-                                    <label for="price" class="mb-2 block text-sm font-medium text-foreground md:text-lg dark:text-white">Harga</label>
-                                    <div class="flex flex-wrap gap-5 md:flex-nowrap">
+                                    <label for="price" class="mb-2 block text-sm font-medium text-foreground md:text-lg dark:text-white"
+                                        >Harga (Rupiah)</label
+                                    >
+                                    <div class="flex flex-wrap items-center gap-5 md:flex-nowrap">
                                         <div class="flex grow">
                                             <span
-                                                class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/20 bg-primary-500 px-3 text-sm text-foreground md:text-lg"
+                                                class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/10 bg-primary-500 px-2 text-sm text-background md:text-base"
                                             >
-                                                Rp
+                                                Min.
                                             </span>
                                             <input
                                                 type="number"
@@ -517,9 +524,9 @@ onMounted(() => {
                                         </div>
                                         <div class="flex grow">
                                             <span
-                                                class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/20 bg-primary-500 px-3 text-sm text-foreground md:text-lg"
+                                                class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/10 bg-primary-500 px-2 text-sm text-background md:text-base"
                                             >
-                                                Rp
+                                                Max.
                                             </span>
                                             <input
                                                 type="number"
@@ -533,17 +540,10 @@ onMounted(() => {
                             </div>
                         </div>
                         <!-- Modal footer -->
-                        <div class="flex items-center justify-end space-x-2 rounded-b py-4 md:py-5">
-                            <button
-                                type="submit"
-                                class="w-full cursor-pointer rounded-lg border border-primary-500 bg-primary-500 px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-primary-700 focus:z-10 focus:ring-4 focus:ring-primary-200 focus:outline-none md:text-base dark:border-primary-600 dark:bg-primary-600"
-                            >
-                                Terapkan
-                            </button>
-                        </div>
+                        <ButtonMain type="submit" :extend-class="'mt-6 w-full'"> Terapkan Filter </ButtonMain>
                     </form>
                 </template>
-            </BaseModal>
+            </BaseDrawer>
         </template>
     </AppLayout>
 </template>

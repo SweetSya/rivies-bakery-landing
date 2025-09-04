@@ -1,23 +1,29 @@
 import { ref } from 'vue';
+import { useAPI } from './useAPI';
 import { useNotifications } from './useNotifications';
 
-const { notivueSuccess, notivueError, notivueInfo } = useNotifications();
+const { notivueSuccess, notivueInfo, notivueError } = useNotifications();
+const { fetchAPI } = useAPI();
 
 export type CartItem = {
     id: string;
     name: string;
     price: number;
-    image: string;
+    thumbnail: string;
+    description?: string;
     slug: string;
     discount: number;
+    images?: Array<string>;
     status: {
         label: string;
         isReady: boolean;
     };
     category: {
         name: string;
-        id?: string;
-    };
+        id: string;
+        slug: string;
+        image?: string;
+    }[];
     quantity: number;
     notes?: string;
 };
@@ -40,7 +46,7 @@ export type Cart = {
 const cart = ref<Cart>({
     items: [],
     total: 0,
-    tax: 10,
+    tax: 0,
     cupon: {
         code: '',
         type: '',
@@ -65,28 +71,24 @@ export function useCart() {
             },
             grandTotal: 0,
         };
-        cart.value.items.reduce((total, item) => {
-            const itemTotal = item.price * item.quantity;
-            const itemDiscount = itemTotal * (item.discount / 100);
-            temp.total += itemTotal;
-            temp.discount.product += itemDiscount;
-            temp.grandTotal += itemTotal - itemDiscount;
-            return temp.grandTotal;
-        }, 0);
 
+        cart.value.items.forEach((item) => {
+            temp.total += (item.price - item.discount) * item.quantity;
+            temp.discount.product += item.discount * item.quantity;
+        });
         // Check for coupon
         if (cart.value.cupon.code) {
             if (cart.value.cupon.type === 'percentage') {
-                temp.discount.cupon = (temp.grandTotal * cart.value.cupon.discount) / 100;
+                temp.discount.cupon = (temp.total * cart.value.cupon.discount) / 100;
             } else if (cart.value.cupon.type === 'fixed') {
                 temp.discount.cupon = cart.value.cupon.discount;
             }
-            temp.grandTotal -= temp.discount.cupon;
+            temp.total -= temp.discount.cupon;
         }
 
         cart.value.total = temp.total;
         cart.value.discount = temp.discount;
-        cart.value.grandTotal = temp.grandTotal + temp.grandTotal * (cart.value.tax / 100);
+        cart.value.grandTotal = temp.total + (temp.total * cart.value.tax) / 100;
     };
     const addToCart = (item: CartItem) => {
         if (isProductInCart(item.id)) {
@@ -134,7 +136,7 @@ export function useCart() {
     const resetCart = () => {
         cart.value = {
             items: [],
-            tax: 10,
+            tax: 0,
             cupon: {
                 code: '',
                 type: '',
@@ -149,14 +151,21 @@ export function useCart() {
         };
         saveCartToStorage();
     };
-    const saveCartToStorage = () => {
-        calculateCartTotal();
+    const saveCartToStorage = (bypass?: boolean | false) => {
+        if (!bypass) {
+            calculateCartTotal();
+        }
         localStorage.setItem('cart', JSON.stringify(cart.value));
     };
     const initializeCart = () => {
-        const storedCart = localStorage.getItem('cart');
-        if (storedCart) {
-            cart.value = JSON.parse(storedCart);
+        try {
+            const storedCart = localStorage.getItem('cart');
+            if (storedCart) {
+                cart.value = JSON.parse(storedCart);
+            }
+        } catch (error) {
+            localStorage.removeItem('cart');
+            resetCart();
         }
     };
     const getCartTotalItem = () => {
@@ -167,6 +176,35 @@ export function useCart() {
     };
     const isProductInCart = (id: string) => {
         return cart.value.items.some((item) => item.id === id);
+    };
+    const validateCart = async () => {
+        let valid = true;
+        // This function can be used to validate cart items with the database
+        const response = await fetchAPI('/cart/validate', {
+            method: 'POST',
+            data: {
+                cart: cart.value,
+            },
+        });
+        if (!response.data.valid) {
+            valid = false;
+            response.data.errors.forEach((err: any) => {
+                if (err.action === 'delete_cupon') {
+                    response.data.cart.cupon = {
+                        code: '',
+                        type: '',
+                        discount: 0,
+                    };
+                    notivueError(err.message);
+                }
+                if (err.action === 'delete_item') {
+                    notivueError(err.message);
+                }
+            });
+        }
+        cart.value = response.data.cart;
+        saveCartToStorage(true);
+        return valid;
     };
     return {
         isCartEmpty,
@@ -179,5 +217,6 @@ export function useCart() {
         initializeCart,
         applyCupon,
         getCartTotalItem,
+        validateCart,
     };
 }

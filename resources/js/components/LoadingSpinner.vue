@@ -8,6 +8,6 @@ defineProps({
 <template>
     <div :class="extendClass" class="flex flex-col items-center justify-center gap-4">
         <div class="loader"></div>
-        <p class="text-foreground/90">{{ message }}</p>
+        <p class="text-foreground/90 text-center">{{ message }}</p>
     </div>
 </template>

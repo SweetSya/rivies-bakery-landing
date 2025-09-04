@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\useCart;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -41,9 +42,8 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name' => config('app.name'),
             'production' => config('app.env') === 'production',
-            'auth' => [
-                'user' => $request->user(),
-            ],
+            'pathname' => $request->path(),
+            'isAuthed' => false,
             'ziggy' => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),

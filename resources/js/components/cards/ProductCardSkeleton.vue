@@ -14,7 +14,7 @@ const skeletons = computed(() => Array.from({ length: props.total }));
 
 <template>
     <div v-for="(_, id) in skeletons" :key="id" class="mx-auto w-full max-w-[220px] overflow-hidden">
-        <div class="mb-4 flex h-56 items-center justify-center rounded-sm bg-base-300/50 dark:bg-base-700/50">
+        <div class="mb-4 flex h-36 items-center justify-center rounded-sm bg-base-300/50 xs:h-44 md:h-56 dark:bg-base-700/50">
             <svg
                 class="h-10 w-10 text-base-200/50 dark:text-base-600/50"
                 aria-hidden="true"

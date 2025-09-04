@@ -16,6 +16,9 @@
 /* Initialize Tomselect */
 @import 'tom-select/dist/css/tom-select.css';
 
+/* Initialize Photoswipe */
+@import 'photoswipe/style.css';
+
 /* Intialize Swiper */
 @import 'swiper/css/bundle';
 /* Remove Arrow Icon */
@@ -269,7 +272,7 @@
     /* Tom Select */
     .ts-control,
     .ts-wrapper.single.input-active .ts-control {
-        @apply !h-[42px] !rounded-lg !border-foreground/10 !bg-foreground/10 !p-2.5 !text-sm !text-foreground;
+        @apply !min-h-[42px] !rounded-lg !border-foreground/10 !bg-foreground/10 !p-2.5 !text-sm !text-foreground;
     }
     .dark .ts-control,
     .dark .ts-wrapper.single.input-active .ts-control {
@@ -293,7 +296,7 @@
         @apply !bg-primary-600/50 !text-foreground;
     }
     .base-input {
-        @apply !border !border-base-500/40 !bg-foreground/5 !p-2.5 !text-sm !text-foreground/80;
+        @apply !border !border-base-500/20 !bg-transparent !p-2.5 !text-sm !text-foreground/80;
     }
     /* Remove number input spinners/arrows */
     input[type='number']::-webkit-outer-spin-button,
@@ -321,7 +324,15 @@
         width: 50px;
         aspect-ratio: 1;
         border-radius: 50%;
-        border: 8px solid var(--color-foreground);
+        border: 8px solid var(--color-primary-200);
+        border-right-color: var(--color-primary-600);
+        animation: l2 1s infinite linear;
+    }
+    .dark .loader {
+        width: 50px;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        border: 8px solid var(--color-primary-800);
         border-right-color: var(--color-primary-600);
         animation: l2 1s infinite linear;
     }
