@@ -9,8 +9,10 @@ type ConfirmationOptions = {
 
 const isVisible = ref(false);
 const modalOptions = ref<ConfirmationOptions>({
+    title: 'Konfirmasi',
     content: '',
     onConfirm: () => {},
+    onCancel: () => {},
 });
 
 export function useConfirmation() {
@@ -37,11 +39,11 @@ export function useConfirmation() {
     };
 
     return {
+        isVisible,
+        modalOptions,
         showConfirmation,
         hideConfirmation,
         confirm,
         cancel,
-        isVisible,
-        modalOptions,
     };
 }

@@ -16,15 +16,27 @@ const props = defineProps<{
         extendClass: string;
         message: string;
     };
-    titleExtendClass?: string;
+    onClose?: () => void;
+    onOpen?: () => void;
+    className?: string;
+    animateIn?: string;
+    animateOut?: string;
+    titleClass?: string;
 }>();
 
 const modal = ref<ModalInterface | null>(null);
-
+const animate = ref<string>('');
 const open = () => {
+    if (props.onOpen) {
+        props.onOpen();
+    }
     modal.value?.show();
+    animate.value = props.animateIn ?? 'animate__animated animate__zoomIn animate__faster';
 };
 const close = () => {
+    if (props.onClose) {
+        props.onClose();
+    }
     modal.value?.hide();
 };
 onMounted(() => {
@@ -50,12 +62,12 @@ defineExpose({
         tabindex="-1"
         class="fixed top-0 right-0 left-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full overflow-x-hidden overflow-y-auto p-4 md:inset-0"
     >
-        <div class="relative max-h-full w-full max-w-xl">
+        <div class="relative max-h-full w-full max-w-xl" :class="[className, animate]">
             <!-- Modal content -->
             <div class="relative rounded-lg bg-background shadow-md shadow-foreground/10">
                 <!-- Modal header -->
                 <div
-                    :class="titleExtendClass"
+                    :class="['', titleClass]"
                     class="flex items-center justify-between rounded-t border-b border-gray-200 bg-primary-400 p-4 md:p-5 dark:border-gray-600 dark:bg-primary-600"
                 >
                     <h3 class="flex items-center gap-4 text-xl font-medium text-background"><slot name="icon" /> {{ title }}</h3>

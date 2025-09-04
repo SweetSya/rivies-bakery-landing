@@ -30,7 +30,7 @@ const handleClick = (event: MouseEvent) => {
         :disabled="props.disabled"
         @click="handleClick"
         :class="{
-            'flex cursor-pointer items-center justify-center gap-2 rounded px-5 py-2.5 text-sm font-medium text-background hover:opacity-85 focus:ring-4 focus:ring-primary-300 focus:outline-none dark:focus:ring-primary-800': true,
+            'flex cursor-pointer items-center justify-center gap-2 rounded px-5 py-2.5 text-sm font-medium text-background hover:opacity-85': true,
             [props.outline
                 ? 'border border-primary-500 bg-transparent text-primary-500 hover:bg-primary-500 hover:text-background dark:border-primary-400 dark:hover:bg-primary-400'
                 : 'bg-primary-500 dark:bg-primary-400']: true,
