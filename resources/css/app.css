@@ -296,7 +296,7 @@
         @apply !bg-primary-600/50 !text-foreground;
     }
     .base-input {
-        @apply !border !border-base-500/20 !bg-transparent !p-2.5 !text-sm !text-foreground/80;
+        @apply !border dark:!border-base-200/20 !border-base-500/20 !bg-transparent !p-2.5 !text-sm !text-foreground/80;
     }
     /* Remove number input spinners/arrows */
     input[type='number']::-webkit-outer-spin-button,

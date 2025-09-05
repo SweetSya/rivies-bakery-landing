@@ -3,7 +3,7 @@ import ButtonMain from '@/components/buttons/ButtonMain.vue';
 import { useAPI } from '@/composables/useAPI';
 import { formatRupiah } from '@/composables/useHelperFunctions';
 import { Link } from '@inertiajs/vue3';
-import { Clock, ShoppingBag } from 'lucide-vue-next';
+import { Clock, CookingPot, ShoppingBag } from 'lucide-vue-next';
 
 const { getStorage } = useAPI();
 
@@ -41,7 +41,7 @@ defineProps<{
                 </div>
                 <span
                     class="absolute right-2 bottom-2 flex items-center gap-1 rounded-sm border border-border bg-background px-2.5 py-0.5 text-xs font-medium text-nowrap text-foreground"
-                    ><Clock class="h-3 w-3" /> {{ status.label }}</span
+                    ><CookingPot class="h-3 w-3" /> {{ status.label }}</span
                 ></Link
             >
         </div>

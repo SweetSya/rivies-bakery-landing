@@ -11,7 +11,6 @@ const { isVisible, modalOptions, confirm, cancel } = useConfirmation();
 
 // Watch for visibility changes and open/close modal
 watch(isVisible, (newValue) => {
-    console.log('isVisible changed:', newValue);
     if (newValue) {
         confirmationModal.value?.open();
     } else {
@@ -41,6 +40,9 @@ const handleCancel = () => {
         <template #content>
             <div class="text-center">
                 <LottieAnimation :animation-data="AlertAnimation" :loop="true" :auto-play="true" :speed="1" class="h-28" />
+                <h2 class="mb-1 text-center font-extrabold tracking-tight text-foreground text-lg md:text-xl">
+                    {{ modalOptions.title }}
+                </h2>
                 {{ modalOptions.content }}
             </div>
             <div class="mt-4 flex justify-center gap-2">

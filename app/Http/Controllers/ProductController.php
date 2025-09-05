@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\useAPIConfig;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class ProductController extends RiviesAPIController
 {
+    public function __construct()
+    {
+        parent::__construct();
+    }
     public function view()
     {
         $response = $this->apiGet('products');

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountSettingsController;
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
@@ -58,19 +59,19 @@ Route::group([
         Route::group([
             'prefix' => 'account-settings',
         ], function () {
+
             Route::get('/checkout', [CheckoutController::class, 'view'])->name('checkout');
             // Account Settings
-            Route::get('/', function () {
-                return Inertia::render('AccountSettings/AccountSettingsInformation');
-            })->name('account-settings.information');
+            Route::get('/', [AccountSettingsController::class, 'view'])->name('account-settings.information');
+            Route::post('/update-profile', [AccountSettingsController::class, 'update_profile'])->name('account-settings.update-profile');
+
             // Account Settings - Address
-            Route::get('/address', function () {
-                return Inertia::render('AccountSettings/AccountSettingsAddress');
-            })->name('account-settings.address');
+            Route::get('/address', [AccountSettingsController::class, 'address_view'])->name('account-settings.address');
+            Route::post('/address/create', [AccountSettingsController::class, 'create_address'])->name('account-settings.create-address');
+            Route::post('/address/update', [AccountSettingsController::class, 'update_address'])->name('account-settings.update-address');
+            Route::post('/address/delete', [AccountSettingsController::class, 'delete_address'])->name('account-settings.delete-address');
             // Account Settings - Transaction
-            Route::get('/transactions', function () {
-                return Inertia::render('AccountSettings/AccountSettingsTransaction');
-            })->name('account-settings.transaction');
+            Route::get('/transactions', [AccountSettingsController::class, 'transactions_view'])->name('account-settings.transaction');
         });
     });
 });

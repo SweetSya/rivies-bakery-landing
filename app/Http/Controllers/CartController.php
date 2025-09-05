@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\useAPIConfig;
-use App\useCart;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 

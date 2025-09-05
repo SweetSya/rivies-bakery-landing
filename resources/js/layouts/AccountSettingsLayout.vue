@@ -3,24 +3,52 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { History, Lock, Mail, MapPin, Percent, User } from 'lucide-vue-next';
 import { Swiper } from 'swiper';
 import { Navigation, Pagination } from 'swiper/modules';
-import { nextTick, onMounted } from 'vue';
-
+import { nextTick, onMounted, ref } from 'vue';
 
 // Register Library
 Swiper.use([Navigation, Pagination]);
 gsap.registerPlugin(ScrollTrigger);
+
+const links = [
+    { name: 'Informasi Akun', href: '/account-settings', icon: 'User', active: false, nonac: false },
+    { name: 'Daftar Alamat', href: '/account-settings/address', icon: 'map-pin', active: false, nonac: false },
+    { name: 'Transaksi', href: '/account-settings/transactions', icon: 'history', active: false, nonac: false },
+    { name: 'Voucher', href: '#', icon: 'percent', active: false, nonac: true },
+    { name: 'Ubah Password', href: '#', icon: 'lock', active: false, nonac: true },
+    { name: 'Verifikasi Email', href: '#', icon: 'mail', active: false, nonac: true },
+];
+
+const linskRef = ref(links);
+
+const activeLink = (href: string) => {
+    let foundKey = -1; // Initialize with -1 to indicate "not found"
+
+    linskRef.value = linskRef.value.map((link, key) => {
+        const isActive = link.href === href;
+        if (isActive) {
+            foundKey = key; // Store the key when we find the active link
+        }
+        return {
+            ...link,
+            active: isActive,
+        };
+    });
+
+    return foundKey; // Return the key of the active link
+};
 
 defineOptions({
     components: {
         AppLayout,
     },
 });
+
 onMounted(() => {
     nextTick(() => {
-        new Swiper('.swiper-section', {
+        const activeKey = activeLink(window.location.pathname);
+        const swiper = new Swiper('.swiper-section', {
             slidesPerView: 'auto',
             spaceBetween: '15px',
         });
@@ -55,52 +83,17 @@ onMounted(() => {
                 >
                     <div class="swiper swiper-section">
                         <div class="swiper-wrapper">
-                            <div class="swiper-slide !w-fit">
+                            <div v-for="value in linskRef" :key="value.name" class="swiper-slide !w-fit">
                                 <Link
-                                    href="/account-settings"
+                                    :href="value.href"
                                     :preserveScroll="true"
+                                    :class="{
+                                        'pointer-events-none line-through opacity-50': value.nonac,
+                                        'border-b-2 border-background': value.active,
+                                    }"
                                     class="flex flex-nowrap items-center gap-3 rounded bg-primary-800/70 px-4 py-2 text-xs font-semibold text-nowrap text-background backdrop-blur-lg hover:scale-95 hover:opacity-90 md:text-base dark:bg-primary-200/70"
-                                    ><User class="h-5 w-5" /> Informasi Akun</Link
                                 >
-                            </div>
-                            <div class="swiper-slide !w-fit">
-                                <Link
-                                    href="/account-settings/address"
-                                    :preserveScroll="true"
-                                    class="flex flex-nowrap items-center gap-3 rounded bg-primary-800/70 px-4 py-2 text-xs font-semibold text-nowrap text-background backdrop-blur-lg hover:scale-95 hover:opacity-90 md:text-base dark:bg-primary-200/70"
-                                    ><MapPin class="h-5 w-5" /> Daftar Alamat</Link
-                                >
-                            </div>
-                            <div class="swiper-slide !w-fit">
-                                <Link
-                                    href="/account-settings/transactions"
-                                    :preserveScroll="true"
-                                    class="flex flex-nowrap items-center gap-3 rounded bg-primary-800/70 px-4 py-2 text-xs font-semibold text-nowrap text-background backdrop-blur-lg hover:scale-95 hover:opacity-90 md:text-base dark:bg-primary-200/70"
-                                    ><History class="h-5 w-5" /> Transaksi</Link
-                                >
-                            </div>
-                            <div class="swiper-slide !w-fit line-through opacity-50">
-                                <Link
-                                    href="#"
-                                    :preserveScroll="true"
-                                    class="flex flex-nowrap items-center gap-3 rounded bg-primary-800/70 px-4 py-2 text-xs font-semibold text-nowrap text-background backdrop-blur-lg hover:scale-95 hover:opacity-90 md:text-base dark:bg-primary-200/70"
-                                    ><Percent class="h-5 w-5" /> Voucher</Link
-                                >
-                            </div>
-                            <div class="swiper-slide !w-fit line-through opacity-50">
-                                <Link
-                                    href="#"
-                                    :preserveScroll="true"
-                                    class="flex flex-nowrap items-center gap-3 rounded bg-primary-800/70 px-4 py-2 text-xs font-semibold text-nowrap text-background backdrop-blur-lg hover:scale-95 hover:opacity-90 md:text-base dark:bg-primary-200/70"
-                                    ><Lock class="h-5 w-5" /> Ubah Password</Link
-                                >
-                            </div>
-                            <div class="swiper-slide !w-fit line-through opacity-50">
-                                <Link
-                                    href="#"
-                                    :preserveScroll="true"
-                                    class="flex flex-nowrap items-center gap-3 rounded bg-primary-800/70 px-4 py-2 text-xs font-semibold text-nowrap text-background backdrop-blur-lg hover:scale-95 hover:opacity-90 md:text-base dark:bg-primary-200/70"
-                                    ><Mail class="h-5 w-5" /> Verifikasi Email</Link
+                                    {{ value.name }}</Link
                                 >
                             </div>
                         </div>

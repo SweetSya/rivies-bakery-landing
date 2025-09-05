@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\useAPIConfig;
-use App\useCheckJWT;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class CheckoutController extends RiviesAPIController
 {
+    public function __construct()
+    {
+        parent::__construct();
+    }
     public function view()
     {
         return Inertia::render('Checkout');
