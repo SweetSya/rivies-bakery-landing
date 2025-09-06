@@ -182,6 +182,7 @@
     html {
         --font-sans:
             'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+        /* overflow-x: hidden; */
     }
 }
 
@@ -296,7 +297,7 @@
         @apply !bg-primary-600/50 !text-foreground;
     }
     .base-input {
-        @apply !border dark:!border-base-200/20 !border-base-500/20 !bg-transparent !p-2.5 !text-sm !text-foreground/80;
+        @apply !border !border-base-500/20 !bg-transparent !p-2.5 !text-sm !text-foreground/80 dark:!border-base-200/20;
     }
     /* Remove number input spinners/arrows */
     input[type='number']::-webkit-outer-spin-button,
@@ -347,5 +348,22 @@
         white-space: nowrap;
         text-wrap: nowrap;
         width: 1px;
+    }
+    /* Transition */
+    .slide-up-enter-from,
+    .slide-up-leave-to {
+        @apply translate-y-full opacity-0;
+    }
+    .slide-up-enter-active,
+    .slide-up-leave-active {
+        @apply duration-300;
+    }
+    .slide-left-enter-from,
+    .slide-left-leave-to {
+        @apply -translate-x-full opacity-0;
+    }
+    .slide-left-enter-active,
+    .slide-left-leave-active {
+        @apply delay-100 duration-300;
     }
 }

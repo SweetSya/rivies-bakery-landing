@@ -51,6 +51,9 @@ onMounted(() => {
         window.removeEventListener('resize', refreshScrollTrigger);
         window.removeEventListener('orientationchange', refreshScrollTrigger);
     });
+    setTimeout(() => {
+        refreshScrollTrigger();
+    }, 500);
 });
 
 const teamMembers = [
@@ -196,12 +199,12 @@ const timelineCompany = [
                         src="/storage/images/logo.png"
                         alt="dashboard image"
                     />
-                    <ol class="horizontal-scroll relative z-0 flex min-h-[500px] w-[180vw] items-center transition-none">
+                    <ol class="horizontal-scroll relative z-0 flex min-h-[500px] w-[360vw] items-center transition-none md:w-[180vw]">
                         <li
                             v-for="item in timelineCompany"
                             :key="item.id"
                             class="relative mb-6 h-full sm:mb-0"
-                            :class="'w-[' + 180 / timelineCompany.length + 'vw]'"
+                            :class="'w-[' + 360 / timelineCompany.length + 'vw] md:w-[' + 180 / timelineCompany.length + 'vw]'"
                         >
                             <img :src="item.background" class="absolute -z-10 mt-8 h-full w-full object-cover brightness-50" alt="" />
                             <div class="flex items-center">

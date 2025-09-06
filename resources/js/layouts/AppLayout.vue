@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import { initFlowbite } from 'flowbite';
 import { DoorOpen, Menu, Moon, ShoppingBag, ShoppingCart, Sun, User, UserCircle, X } from 'lucide-vue-next';
 import { darkTheme, lightTheme, Notification, Notivue } from 'notivue';
 import SimpleParallax from 'simple-parallax-js/vanilla';
 import { onMounted, ref, watch } from 'vue';
 
+import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import ConfirmationModal from '@/components/modal/ConfirmationModal.vue';
 import { useAppearance } from '@/composables/useAppearance';
 import { useCart } from '@/composables/useCart';
@@ -22,6 +23,7 @@ const page = usePage();
 // State
 // ------------------------------
 const parallaxElement = ref<Element | null>(null);
+const pageTransitioning = ref<boolean>(false);
 // ------------------------------
 // Cart Initialization
 // ------------------------------
@@ -70,7 +72,15 @@ watch(
 // ------------------------------
 // Lifecycle
 // ------------------------------
+
 onMounted(() => {
+    router.on('start', () => {
+        // This runs just after a Link is clicked and navigation starts
+        // For example, show a loading spinner:
+        pageTransitioning.value = true;
+        // Or call any function you want
+        // yourFunction();
+    });
     // Init Parallax
     parallaxElement.value = document.querySelector('.page-background img');
     if (parallaxElement.value) {
@@ -97,6 +107,12 @@ onMounted(() => {
 </script>
 
 <template>
+    <div
+        v-show="pageTransitioning"
+        class="fixed top-0 left-0 z-30 flex h-screen w-screen items-center justify-center bg-base-900/50 backdrop-blur-xs"
+    >
+        <LoadingSpinner :extend-class="'!gap-2 !text-lg !font-bold'" :message="'Rivies Bakery'"> </LoadingSpinner>
+    </div>
     <slot name="pageHead" />
     <nav class="border-gray-200 bg-gradient-to-r from-primary-600 to-primary-400 dark:border-gray-700 dark:bg-gray-800">
         <div class="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between px-4 py-1">
@@ -123,7 +139,7 @@ onMounted(() => {
             </div>
         </div>
     </nav>
-    <nav class="sticky top-0 z-20 mx-auto hidden border-b border-foreground/20 bg-background md:flex">
+    <nav class="!sticky top-0 z-20 mx-auto hidden border-b border-foreground/20 bg-background md:flex">
         <div class="mx-auto w-full max-w-screen-xl px-4">
             <div class="flex items-center justify-between">
                 <ul class="mt-0 flex flex-row text-sm font-medium rtl:space-x-reverse">
@@ -170,7 +186,7 @@ onMounted(() => {
             </div>
         </div>
     </nav>
-    <nav class="sticky top-0 z-10 mx-auto flex justify-end bg-background shadow-md md:hidden">
+    <nav class="!sticky top-0 z-10 mx-auto flex justify-end bg-background shadow-md md:hidden">
         <div class="me-8 rounded-lg py-4 text-center">
             <Menu
                 data-drawer-target="drawer-navigation"
@@ -263,32 +279,38 @@ onMounted(() => {
         </div>
     </div>
 
-    <main class="app overflow-x-hidden">
+    <main class="app overflow-hidden">
         <div class="-mt-3 h-[70vh] max-h-[400px] w-full md:max-h-[600px]">
             <div class="h-full w-full">
                 <div class="relative h-full w-full">
                     <div class="page-background">
                         <slot name="pageBackground" />
                     </div>
-                    <div class="relative mx-auto h-full w-full max-w-screen-xl px-4">
-                        <div class="absolute top-1/2 left-0 max-w-screen-xl -translate-y-1/2 px-4">
-                            <nav class="mb-2 flex" aria-label="Breadcrumb">
-                                <slot name="pageBreadcrumb" />
-                            </nav>
-                            <h1 class="mb-2 text-xl font-extrabold text-nowrap text-base-50 xs:text-3xl md:text-5xl"><slot name="pageTitle" /></h1>
-                            <p class="mb-6 text-base font-normal text-base-50 md:text-lg">
-                                <slot name="pageDescription" />
-                            </p>
+                    <Transition name="slide-left" mode="in-out" appear>
+                        <div class="relative mx-auto h-full w-full max-w-screen-xl px-4">
+                            <div class="absolute top-1/2 left-1/2 max-w-screen-xl -translate-x-1/2 -translate-y-1/2 px-4 md:left-0 md:-translate-x-0">
+                                <nav class="mb-3 flex justify-center md:justify-start" aria-label="Breadcrumb">
+                                    <slot name="pageBreadcrumb" />
+                                </nav>
+                                <h1 class="mb-2 text-center text-xl font-extrabold text-nowrap text-base-50 xs:text-3xl md:text-start md:text-5xl">
+                                    <slot name="pageTitle" />
+                                </h1>
+                                <p class="mb-6 text-center text-base font-normal text-base-50 md:text-start md:text-lg">
+                                    <slot name="pageDescription" />
+                                </p>
+                            </div>
                         </div>
-                    </div>
+                    </Transition>
                 </div>
             </div>
         </div>
-        <div class="relative -mt-20 rounded-t-4xl bg-background p-5">
-            <div class="mx-auto min-h-80 max-w-screen-xl">
-                <slot name="content" />
+        <Transition name="slide-up" mode="in-out" appear>
+            <div class="relative -mt-20 rounded-t-4xl bg-background p-5">
+                <div class="mx-auto min-h-80 max-w-screen-xl">
+                    <slot name="content" />
+                </div>
             </div>
-        </div>
+        </Transition>
     </main>
     <footer class="mb-16 border-t border-base-500/50 p-4 md:mb-0 md:p-8 lg:p-10">
         <div class="mx-auto max-w-screen-xl text-center">
