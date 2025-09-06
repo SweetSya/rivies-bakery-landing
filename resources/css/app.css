@@ -312,15 +312,15 @@
     /* Transition */
     .fade-enter-active,
     .fade-leave-active {
-        opacity: 0;
-        transition: all 0.5s ease;
+        opacity: 1;
+        transition: all 0.2s ease;
     }
 
     .fade-enter-from,
     .fade-leave-to {
-        opacity: 1;
+        opacity: 0;
     }
-    
+
     /* Loader */
     /* HTML: <div class="loader"></div> */
     .loader {
@@ -360,9 +360,17 @@
     .slide-up-leave-active {
         @apply duration-300;
     }
+    .slide-down-enter-from,
+    .slide-down-leave-to {
+        @apply -translate-y-full opacity-0;
+    }
+    .slide-down-enter-active,
+    .slide-down-leave-active {
+        @apply duration-300;
+    }
     .slide-left-enter-from,
     .slide-left-leave-to {
-        @apply -translate-x-full opacity-0;
+        @apply translate-x-full opacity-0;
     }
     .slide-left-enter-active,
     .slide-left-leave-active {

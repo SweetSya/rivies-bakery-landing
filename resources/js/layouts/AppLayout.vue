@@ -11,7 +11,6 @@ import ConfirmationModal from '@/components/modal/ConfirmationModal.vue';
 import { useAppearance } from '@/composables/useAppearance';
 import { useCart } from '@/composables/useCart';
 import { useNotifications } from '@/composables/useNotifications';
-
 // ------------------------------
 // Composables
 // ------------------------------
@@ -120,7 +119,7 @@ onMounted(() => {
 <template>
     <div
         v-show="pageTransitioning && !splashScreen"
-        class="fixed top-0 left-0 z-[999] flex h-screen w-screen flex-col items-center justify-center backdrop-blur-xs"
+        class="fixed top-0 left-0 z-[999] flex h-screen w-screen flex-col items-center justify-center backdrop-blur-[2px]"
     >
         <LoadingSpinner :extend-class="'!gap-2 !my-2 !text-lg !font-bold'"> </LoadingSpinner>
     </div>
@@ -128,7 +127,7 @@ onMounted(() => {
         <div
             v-show="splashScreen"
             :class="{ 'bg-background duration-700': splashScreen }"
-            class="fixed top-0 left-0 z-[999] flex h-screen w-screen flex-col items-center justify-center !opacity-100 backdrop-blur-xs"
+            class="fixed top-0 left-0 z-[999] flex h-screen w-screen flex-col items-center justify-center !opacity-100 backdrop-blur-[2px]"
         >
             <img src="/assets/images/logo.png" class="mb-6 h-16 w-16 rounded-lg shadow-xs shadow-foreground/50 md:h-24 md:w-24" alt="" />
             <p class="text-lg font-bold text-foreground">Rivies Bakery</p>
@@ -160,7 +159,7 @@ onMounted(() => {
             </div>
         </div>
     </nav>
-    <nav class="!sticky top-0 z-20 mx-auto hidden border-b border-foreground/20 bg-background md:flex">
+    <nav class="sticky top-0 z-20 mx-auto hidden border-b border-foreground/20 bg-background md:flex">
         <div class="mx-auto w-full max-w-screen-xl px-4">
             <div class="flex items-center justify-between">
                 <ul class="mt-0 flex flex-row text-sm font-medium rtl:space-x-reverse">
@@ -207,7 +206,7 @@ onMounted(() => {
             </div>
         </div>
     </nav>
-    <nav class="!sticky top-0 z-10 mx-auto flex justify-end bg-background shadow-md md:hidden">
+    <nav class="sticky top-0 z-10 mx-auto flex justify-end bg-background shadow-md md:hidden">
         <div class="me-8 rounded-lg py-4 text-center">
             <Menu
                 data-drawer-target="drawer-navigation"
@@ -307,25 +306,26 @@ onMounted(() => {
                     <div class="page-background">
                         <slot name="pageBackground" />
                     </div>
-                    <Transition name="slide-left" mode="in-out" appear>
-                        <div class="relative mx-auto h-full w-full max-w-screen-xl px-4">
-                            <div class="absolute top-1/2 left-1/2 max-w-screen-xl -translate-x-1/2 -translate-y-1/2 px-4 md:left-0 md:-translate-x-0">
-                                <nav class="mb-3 flex justify-center md:justify-start" aria-label="Breadcrumb">
-                                    <slot name="pageBreadcrumb" />
-                                </nav>
-                                <h1 class="mb-2 text-center text-xl font-extrabold text-nowrap text-base-50 xs:text-3xl md:text-start md:text-5xl">
-                                    <slot name="pageTitle" />
-                                </h1>
-                                <p class="mb-6 text-center text-base font-normal text-base-50 md:text-start md:text-lg">
-                                    <slot name="pageDescription" />
-                                </p>
-                            </div>
+                    <div class="relative mx-auto h-full w-full max-w-screen-xl px-4">
+                        <div class="absolute top-1/2 left-1/2 max-w-screen-xl -translate-x-1/2 -translate-y-1/2 px-4 md:left-0 md:-translate-x-0">
+                            <nav class="mb-3 flex justify-center md:justify-start" aria-label="Breadcrumb">
+                                <slot name="pageBreadcrumb" />
+                            </nav>
+                            <h1 class="mb-2 text-center text-xl font-extrabold text-nowrap text-base-50 xs:text-3xl md:text-start md:text-5xl">
+                                <slot name="pageTitle" />
+                            </h1>
+                            <p class="mb-6 text-center text-base font-normal text-base-50 md:text-start md:text-lg">
+                                <slot name="pageDescription" />
+                            </p>
                         </div>
-                    </Transition>
+                        <div class="absolute bottom-0 left-0 z-20 h-32 w-full">
+                            <slot name="pageSubnav" />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <Transition name="slide-up" mode="in-out" appear>
+        <Transition name="fade" mode="in-out" appear>
             <div class="relative -mt-20 rounded-t-4xl bg-background p-5">
                 <div class="mx-auto min-h-80 max-w-screen-xl">
                     <slot name="content" />
