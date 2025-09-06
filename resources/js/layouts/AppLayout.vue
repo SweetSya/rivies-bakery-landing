@@ -76,8 +76,8 @@ watch(
 
 onMounted(() => {
     if (sessionStorage.getItem('splashScreenShown') === null) {
-        splashScreen.value = true;
         sessionStorage.setItem('splashScreenShown', 'true');
+        splashScreen.value = true;
         setTimeout(() => {
             splashScreen.value = false;
         }, 1500);
@@ -128,7 +128,7 @@ onMounted(() => {
         <div
             v-show="splashScreen"
             :class="{ 'bg-background duration-700': splashScreen }"
-            class="fixed top-0 left-0 z-[999] flex h-screen w-screen flex-col items-center !opacity-100 justify-center backdrop-blur-xs"
+            class="fixed top-0 left-0 z-[999] flex h-screen w-screen flex-col items-center justify-center !opacity-100 backdrop-blur-xs"
         >
             <img src="/assets/images/logo.png" class="mb-6 h-16 w-16 rounded-lg shadow-xs shadow-foreground/50 md:h-24 md:w-24" alt="" />
             <p class="text-lg font-bold text-foreground">Rivies Bakery</p>
