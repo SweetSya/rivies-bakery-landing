@@ -24,6 +24,7 @@ const page = usePage();
 // ------------------------------
 const parallaxElement = ref<Element | null>(null);
 const pageTransitioning = ref<boolean>(false);
+const splashScreen = ref<boolean>(false);
 // ------------------------------
 // Cart Initialization
 // ------------------------------
@@ -74,6 +75,16 @@ watch(
 // ------------------------------
 
 onMounted(() => {
+    if (sessionStorage.getItem('splashScreenShown') === null) {
+        splashScreen.value = true;
+        sessionStorage.setItem('splashScreenShown', 'true');
+        setTimeout(() => {
+            splashScreen.value = false;
+        }, 1500);
+    } else {
+        splashScreen.value = false;
+    }
+
     router.on('start', () => {
         // This runs just after a Link is clicked and navigation starts
         // For example, show a loading spinner:
@@ -108,11 +119,21 @@ onMounted(() => {
 
 <template>
     <div
-        v-show="pageTransitioning"
-        class="fixed top-0 left-0 z-30 flex h-screen w-screen items-center justify-center bg-base-900/50 backdrop-blur-xs"
+        v-show="pageTransitioning && !splashScreen"
+        class="fixed top-0 left-0 z-[999] flex h-screen w-screen flex-col items-center justify-center backdrop-blur-xs"
     >
-        <LoadingSpinner :extend-class="'!gap-2 !text-lg !font-bold'" :message="'Rivies Bakery'"> </LoadingSpinner>
+        <LoadingSpinner :extend-class="'!gap-2 !my-2 !text-lg !font-bold'"> </LoadingSpinner>
     </div>
+    <Transition appear name="fade" mode="out-in">
+        <div
+            v-show="splashScreen"
+            :class="{ 'bg-background duration-700': splashScreen }"
+            class="fixed top-0 left-0 z-[999] flex h-screen w-screen flex-col items-center !opacity-100 justify-center backdrop-blur-xs"
+        >
+            <img src="/assets/images/logo.png" class="mb-6 h-16 w-16 rounded-lg shadow-xs shadow-foreground/50 md:h-24 md:w-24" alt="" />
+            <p class="text-lg font-bold text-foreground">Rivies Bakery</p>
+        </div>
+    </Transition>
     <slot name="pageHead" />
     <nav class="border-gray-200 bg-gradient-to-r from-primary-600 to-primary-400 dark:border-gray-700 dark:bg-gray-800">
         <div class="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between px-4 py-1">

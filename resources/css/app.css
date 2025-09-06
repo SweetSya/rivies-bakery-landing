@@ -312,13 +312,15 @@
     /* Transition */
     .fade-enter-active,
     .fade-leave-active {
-        transition: opacity 0.5s ease;
+        opacity: 0;
+        transition: all 0.5s ease;
     }
 
     .fade-enter-from,
     .fade-leave-to {
-        opacity: 0;
+        opacity: 1;
     }
+    
     /* Loader */
     /* HTML: <div class="loader"></div> */
     .loader {
