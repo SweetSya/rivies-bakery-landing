@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ButtonMain from '@/components/buttons/ButtonMain.vue';
+import InputMain from '@/components/form/InputMain.vue';
 import BaseModal from '@/components/modal/BaseModal.vue';
 import { useAPI } from '@/composables/useAPI';
 import { useConfirmation } from '@/composables/useConfirmation';
@@ -66,6 +67,7 @@ const formAdd = ref<Address>({
 });
 
 const addresses = ref<Address[]>((page.props.addresses as Address[]) || []);
+const formLoading = ref<boolean>(false);
 
 const { showConfirmation } = useConfirmation();
 
@@ -74,6 +76,7 @@ const handleSetMainAddress = (id: string) => {
         title: 'Set Alamat Utama',
         content: 'Apakah kamu yakin ingin menjadikan alamat ini sebagai alamat utama?',
         onConfirm: async () => {
+            formLoading.value = true;
             formEdit.value = { ...addresses.value.find((address) => address.id === id) } as Address;
             formEdit.value.isMain = true;
             const response = await fetchAPI('/account-settings/address/update', {
@@ -92,6 +95,8 @@ const handleSetMainAddress = (id: string) => {
                     notivueError('Terjadi kesalahan saat memperbarui alamat utama');
                 }
             }
+
+            formLoading.value = false;
         },
         onCancel: () => {
             notivueInfo('Batal menjadikan alamat sebagai utama');
@@ -103,6 +108,7 @@ const handleDeleteAddress = (id: string) => {
         title: 'Hapus Alamat',
         content: 'Apakah kamu yakin ingin menghapus alamat ini?',
         onConfirm: async () => {
+            formLoading.value = true;
             const response = await fetchAPI('/account-settings/address/delete', {
                 method: 'POST',
                 data: { id },
@@ -119,6 +125,8 @@ const handleDeleteAddress = (id: string) => {
                     notivueError('Terjadi kesalahan saat memperbarui alamat');
                 }
             }
+
+            formLoading.value = false;
         },
         onCancel: () => {
             notivueInfo('Batal menghapus alamat');
@@ -126,6 +134,7 @@ const handleDeleteAddress = (id: string) => {
     });
 };
 const handleEditAddress = async () => {
+    formLoading.value = true;
     const response = await fetchAPI('/account-settings/address/update', {
         method: 'POST',
         data: { ...formEdit.value },
@@ -144,8 +153,11 @@ const handleEditAddress = async () => {
             notivueError('Terjadi kesalahan saat memperbarui alamat');
         }
     }
+
+    formLoading.value = false;
 };
 const handleAddAddress = async () => {
+    formLoading.value = true;
     const response = await fetchAPI('/account-settings/address/create', {
         method: 'POST',
         data: { ...formAdd.value },
@@ -164,6 +176,8 @@ const handleAddAddress = async () => {
             notivueError('Terjadi kesalahan saat menambahkan alamat');
         }
     }
+
+    formLoading.value = false;
 };
 const refreshData = (data: Address[]) => {
     addresses.value = data;
@@ -238,7 +252,7 @@ defineOptions({
         <!-- Content -->
         <template #settingsContent>
             <div class="mb-8 flex justify-start">
-                <ButtonMain id="add-new-address" type="button" :disabled="false" @click="addModal?.open()">
+                <ButtonMain id="add-new-address" type="button" :disabled="formLoading" @click="addModal?.open()">
                     Tambah Alamat Baru <Plus class="h-4 w-4" />
                 </ButtonMain>
             </div>
@@ -255,7 +269,7 @@ defineOptions({
                                 {{ value.fullAddress }}
                             </p>
                             <div class="mt-1 flex items-center gap-2 text-xs font-normal text-foreground/80 md:text-base">
-                                <User class="h-4 w-4" /> {{ value.recipientName }}
+                                <User class="h-4 w-4" /> {{ value.recipientName }} ({{ value.phoneNumber }})
                             </div>
                             <div
                                 :class="{ 'text-foreground/80': !value.hasPinpoint, 'text-primary-600': value.hasPinpoint }"
@@ -267,25 +281,34 @@ defineOptions({
                             <div class="flex flex-wrap justify-between gap-3">
                                 <button
                                     @click="handleDeleteAddress(value.id)"
+                                    :class="{
+                                        'pointer-events-none opacity-50': formLoading,
+                                    }"
                                     class="flex cursor-pointer items-center justify-center text-sm font-medium text-nowrap text-foreground underline hover:opacity-80"
                                 >
                                     <div class="me-2">|</div>
-                                    <Trash class="me-2 h-4 w-4" /> Hapus
+                                    <Trash class="me-2 h-4 w-4" /> {{ formLoading ? 'Menghapus...' : 'Hapus' }}
                                 </button>
                                 <div class="flex flex-wrap gap-3">
                                     <button
                                         v-if="!value.isMain"
                                         @click="handleSetMainAddress(value.id)"
+                                        :class="{
+                                            'pointer-events-none opacity-50': formLoading,
+                                        }"
                                         class="flex cursor-pointer items-center text-sm font-medium text-nowrap text-foreground underline hover:opacity-80"
                                     >
                                         <div class="me-2">|</div>
-                                        <Pin class="me-2 h-4 w-4" /> Jadikan utama
+                                        <Pin class="me-2 h-4 w-4" /> {{ formLoading ? 'Mengubah...' : 'Jadikan Utama' }}
                                     </button>
                                     <button
                                         @click="
                                             formEdit = { ...value };
                                             editModal?.open();
                                         "
+                                        :class="{
+                                            'pointer-events-none opacity-50': formLoading,
+                                        }"
                                         class="flex cursor-pointer items-center justify-center text-sm font-medium text-nowrap text-foreground underline hover:opacity-80"
                                     >
                                         <div class="me-2">|</div>
@@ -307,7 +330,7 @@ defineOptions({
                 :on-close="handleResetModals"
                 :title="'Edit Alamat'"
                 :isCloseable="true"
-                :isLoading="false"
+                :isLoading="formLoading"
                 ref="editModal"
             >
                 <template #icon>
@@ -316,68 +339,94 @@ defineOptions({
                 <template #content>
                     <form @submit.prevent="handleEditAddress" class="grid grid-cols-1 gap-4 overflow-hidden px-1 sm:grid-cols-2">
                         <div class="col-span-2">
-                            <label for="label" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Label </label>
-                            <input type="text" id="label" v-model="formEdit.label" class="base-input w-full rounded-lg" placeholder="" required />
+                            <InputMain
+                                v-model="formEdit.label"
+                                label="Label"
+                                id="label"
+                                type="text"
+                                helper-text="Contoh: Rumah, Kantor, dll."
+                                class="col-span-2"
+                                placeholder=""
+                                :required="true"
+                            />
                         </div>
                         <div class="col-span-2">
-                            <label for="reciever" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Nama Penerima </label>
-                            <input
-                                type="text"
-                                id="reciever"
+                            <InputMain
                                 v-model="formEdit.recipientName"
-                                class="base-input w-full rounded-lg"
-                                placeholder=""
-                                required
-                            />
-                        </div>
-                        <div class="col-span-2">
-                            <label for="reciever" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> No Telp. Penerima </label>
-                            <input
-                                type="text"
+                                label="Nama Penerima"
                                 id="reciever"
-                                v-model="formEdit.phoneNumber"
-                                class="base-input w-full rounded-lg"
+                                type="text"
+                                helper-text="Nama lengkap penerima pesanan"
+                                class="col-span-2"
                                 placeholder=""
-                                required
+                                :required="true"
                             />
                         </div>
                         <div class="col-span-2">
-                            <label for="address" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Alamat Lengkap </label>
-                            <textarea
-                                name="address"
-                                id="address"
-                                v-model="formEdit.fullAddress"
-                                rows="4"
-                                required
-                                class="base-input w-full rounded-lg"
-                            ></textarea>
+                            <InputMain
+                                v-model="formEdit.phoneNumber"
+                                label="No. Telp Penerima"
+                                id="phone"
+                                type="number"
+                                helper-text="Contoh: 621234567890, 081234567890"
+                                class="col-span-2"
+                                placeholder=""
+                                :prefix="true"
+                                :prefix-class="'bg-primary-600 text-background border-border'"
+                                :required="true"
+                            >
+                                <template #prefix>+62</template>
+                            </InputMain>
                         </div>
                         <div class="col-span-2">
-                            <label for="address" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Pin Lokasi Saat Ini </label>
-                            <div
-                                v-if="!formEdit.hasPinpoint"
-                                @click="handleRequestLocation('edit') ?? { lat: null, lng: null }"
-                                class="flex min-h-24 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded border border-border bg-background px-5 py-2 text-center text-base font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
+                            <InputMain
+                                v-model="formEdit.fullAddress"
+                                label="Alamat Lengkap"
+                                id="address"
+                                type="textarea"
+                                helper-text="Alamat lengkap penerima pesanan"
+                                class="col-span-2"
+                                placeholder=""
+                                :textArea="true"
+                                :required="true"
+                            />
+                        </div>
+                        <div class="col-span-2">
+                            <InputMain
+                                label="Pin Lokasi Saat Ini"
+                                id="address"
+                                type="custom"
+                                helper-text="Opsional, berikan titik lokasi saat ini untuk memudahkan kurir menemukan alamatmu"
+                                class="col-span-2"
+                                placeholder=""
                             >
-                                <MapPinPlus class="h-6 w-6" />
-                                Berikan Lokasi saat ini
-                            </div>
-                            <div
-                                v-if="formEdit.hasPinpoint"
-                                class="flex min-h-24 w-full flex-col items-center justify-center gap-2 rounded border border-border bg-background px-5 py-5 text-center text-base font-medium text-foreground"
-                            >
-                                <MapPinCheck class="h-6 w-6 text-primary-600" />
+                                <template #custom>
+                                    <div
+                                        v-if="!formEdit.hasPinpoint"
+                                        @click="handleRequestLocation('add') ?? { lat: null, lng: null }"
+                                        class="flex min-h-24 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded border border-border bg-background px-5 py-2 text-center text-base font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
+                                    >
+                                        <MapPinPlus class="h-6 w-6" />
+                                        Berikan Lokasi saat ini
+                                    </div>
+                                    <div
+                                        v-if="formEdit.hasPinpoint"
+                                        class="flex min-h-24 w-full flex-col items-center justify-center gap-2 rounded border border-border bg-background px-5 py-5 text-center text-base font-medium text-foreground"
+                                    >
+                                        <MapPinCheck class="h-6 w-6 text-primary-600" />
 
-                                Lokasi telah ditetapkan (Lat: {{ formEdit.pinpointLocation?.lat }}, Lng: {{ formEdit.pinpointLocation?.lng }})
-                                <ButtonMain
-                                    type="button"
-                                    @click="((formEdit.pinpointLocation = { lat: null, lng: null }), (formEdit.hasPinpoint = false))"
-                                    :extend-class="'!w-fit !border-red-400 !text-red-400 hover:!bg-red-400 hover:!text-background !text-xs !px-3 !py-2'"
-                                    :outline="true"
-                                >
-                                    Hapus Pin Lokasi
-                                </ButtonMain>
-                            </div>
+                                        Lokasi telah ditetapkan (Lat: {{ formEdit.pinpointLocation?.lat }}, Lng: {{ formEdit.pinpointLocation?.lng }})
+                                        <ButtonMain
+                                            type="button"
+                                            @click="((formEdit.pinpointLocation = { lat: null, lng: null }), (formEdit.hasPinpoint = false))"
+                                            :extend-class="'!w-fit !border-red-400 !text-red-400 hover:!bg-red-400 hover:!text-background !text-xs !px-3 !py-2'"
+                                            :outline="true"
+                                        >
+                                            Hapus Pin Lokasi
+                                        </ButtonMain>
+                                    </div>
+                                </template>
+                            </InputMain>
                         </div>
                         <div class="col-span-2 flex justify-end gap-2">
                             <ButtonMain type="button" @click="editModal?.close()" :extend-class="'!w-fit !bg-red-400'"> Batal </ButtonMain>
@@ -392,7 +441,7 @@ defineOptions({
                 :on-close="handleResetModals"
                 :title="'Tambah Alamat'"
                 :isCloseable="true"
-                :isLoading="false"
+                :isLoading="formLoading"
                 ref="addModal"
             >
                 <template #icon>
@@ -401,69 +450,94 @@ defineOptions({
                 <template #content>
                     <form @submit.prevent="handleAddAddress" class="grid grid-cols-1 gap-4 overflow-hidden px-1 sm:grid-cols-2">
                         <div class="col-span-2">
-                            <label for="label" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Label </label>
-                            <input type="text" id="label" v-model="formAdd.label" class="base-input w-full rounded-lg" placeholder="" required />
-                        </div>
-                        <div class="col-span-2">
-                            <label for="reciever" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Nama Penerima </label>
-                            <input
+                            <InputMain
+                                v-model="formAdd.label"
+                                label="Label"
+                                id="label"
                                 type="text"
-                                id="reciever"
+                                helper-text="Contoh: Rumah, Kantor, dll."
+                                class="col-span-2"
+                                placeholder=""
+                                :required="true"
+                            />
+                        </div>
+                        <div class="col-span-2">
+                            <InputMain
                                 v-model="formAdd.recipientName"
-                                class="base-input w-full rounded-lg"
+                                label="Nama Penerima"
+                                id="reciever"
+                                type="text"
+                                helper-text="Nama lengkap penerima pesanan"
+                                class="col-span-2"
                                 placeholder=""
-                                required
+                                :required="true"
                             />
                         </div>
-                        <div class="relative col-span-2">
-                            <label for="address" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> No. Telp Penerima </label>
-                            <span class="absolute rounded-s-lg text-base p-2.5 text-foreground">+62</span>
-                            <input
-                                type="number"
-                                id="phone"
+                        <div class="col-span-2">
+                            <InputMain
                                 v-model="formAdd.phoneNumber"
-                                class="base-input w-full rounded-lg !ps-12"
+                                label="No. Telp Penerima"
+                                id="phone"
+                                type="number"
+                                helper-text="Contoh: 621234567890, 081234567890"
+                                class="col-span-2"
                                 placeholder=""
-                                required
+                                :prefix="true"
+                                :prefix-class="'bg-primary-600 text-background border-border'"
+                                :required="true"
+                            >
+                                <template #prefix>+62</template>
+                            </InputMain>
+                        </div>
+                        <div class="col-span-2">
+                            <InputMain
+                                v-model="formAdd.fullAddress"
+                                label="Alamat Lengkap"
+                                id="address"
+                                type="textarea"
+                                helper-text="Alamat lengkap penerima pesanan"
+                                class="col-span-2"
+                                placeholder=""
+                                :textArea="true"
+                                :required="true"
                             />
                         </div>
                         <div class="col-span-2">
-                            <label for="address" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Alamat Lengkap </label>
-                            <textarea
-                                name="address"
+                            <InputMain
+                                label="Pin Lokasi Saat Ini"
                                 id="address"
-                                v-model="formAdd.fullAddress"
-                                rows="4"
-                                required
-                                class="base-input w-full rounded-lg"
-                            ></textarea>
-                        </div>
-                        <div class="col-span-2">
-                            <label for="address" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Pin Lokasi Saat Ini </label>
-                            <div
-                                v-if="!formAdd.hasPinpoint"
-                                @click="handleRequestLocation('add') ?? { lat: null, lng: null }"
-                                class="flex min-h-24 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded border border-border bg-background px-5 py-2 text-center text-base font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
+                                type="custom"
+                                helper-text="Opsional, berikan titik lokasi saat ini untuk memudahkan kurir menemukan alamatmu"
+                                class="col-span-2"
+                                placeholder=""
                             >
-                                <MapPinPlus class="h-6 w-6" />
-                                Berikan Lokasi saat ini
-                            </div>
-                            <div
-                                v-if="formAdd.hasPinpoint"
-                                class="flex min-h-24 w-full flex-col items-center justify-center gap-2 rounded border border-border bg-background px-5 py-5 text-center text-base font-medium text-foreground"
-                            >
-                                <MapPinCheck class="h-6 w-6 text-primary-600" />
+                                <template #custom>
+                                    <div
+                                        v-if="!formAdd.hasPinpoint"
+                                        @click="handleRequestLocation('add') ?? { lat: null, lng: null }"
+                                        class="flex min-h-24 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded border border-border bg-background px-5 py-2 text-center text-base font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
+                                    >
+                                        <MapPinPlus class="h-6 w-6" />
+                                        Berikan Lokasi saat ini
+                                    </div>
+                                    <div
+                                        v-if="formAdd.hasPinpoint"
+                                        class="flex min-h-24 w-full flex-col items-center justify-center gap-2 rounded border border-border bg-background px-5 py-5 text-center text-base font-medium text-foreground"
+                                    >
+                                        <MapPinCheck class="h-6 w-6 text-primary-600" />
 
-                                Lokasi telah ditetapkan (Lat: {{ formAdd.pinpointLocation?.lat }}, Lng: {{ formAdd.pinpointLocation?.lng }})
-                                <ButtonMain
-                                    type="button"
-                                    @click="((formAdd.pinpointLocation = { lat: null, lng: null }), (formAdd.hasPinpoint = false))"
-                                    :extend-class="'!w-fit !border-red-400 !text-red-400 hover:!bg-red-400 hover:!text-background !text-xs !px-3 !py-2'"
-                                    :outline="true"
-                                >
-                                    Hapus Pin Lokasi
-                                </ButtonMain>
-                            </div>
+                                        Lokasi telah ditetapkan (Lat: {{ formAdd.pinpointLocation?.lat }}, Lng: {{ formAdd.pinpointLocation?.lng }})
+                                        <ButtonMain
+                                            type="button"
+                                            @click="((formAdd.pinpointLocation = { lat: null, lng: null }), (formAdd.hasPinpoint = false))"
+                                            :extend-class="'!w-fit !border-red-400 !text-red-400 hover:!bg-red-400 hover:!text-background !text-xs !px-3 !py-2'"
+                                            :outline="true"
+                                        >
+                                            Hapus Pin Lokasi
+                                        </ButtonMain>
+                                    </div>
+                                </template>
+                            </InputMain>
                         </div>
                         <div class="col-span-2 flex justify-end gap-2">
                             <ButtonMain type="button" @click="addModal?.close()" :extend-class="'!w-fit !bg-red-400'"> Batal </ButtonMain>

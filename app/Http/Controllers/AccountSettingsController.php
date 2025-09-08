@@ -111,6 +111,7 @@ class AccountSettingsController extends RiviesAPIController
         $validated = $request->validate([
             'label' => 'required|string|max:100',
             'recipientName' => 'required|string|max:100',
+            'phoneNumber' => 'nullable|numeric',
             'fullAddress' => 'required|string|max:255',
             'isMain' => 'required|boolean',
             'hasPinpoint' => 'required|boolean',
@@ -146,6 +147,7 @@ class AccountSettingsController extends RiviesAPIController
             'id' => 'required',
             'label' => 'required|string|max:100',
             'recipientName' => 'required|string|max:100',
+            'phoneNumber' => 'nullable|numeric',
             'fullAddress' => 'required|string|max:255',
             'isMain' => 'required|boolean',
             'hasPinpoint' => 'boolean',
