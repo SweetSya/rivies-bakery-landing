@@ -21,6 +21,19 @@ const { getCart, resetCart, isCartEmpty, validateCart } = useCart();
 const { getCheckout, isCheckoutEmpty, resetCheckout } = useCheckout();
 
 const selectAddress = ref(<string>'');
+type Address = {
+    id: string;
+    label: string;
+    recipientName: string;
+    phoneNumber: string;
+    fullAddress: string;
+    isMain: boolean;
+    hasPinpoint: boolean;
+    pinpointLocation?: {
+        lat: number | null;
+        lng: number | null;
+    };
+};
 
 defineOptions({
     components: {
@@ -178,10 +191,84 @@ onUnmounted(() => {
                         </div>
                     </div>
                 </div>
-                <div v-show="!isCartEmpty() || !isCheckoutEmpty()" class="mx-auto max-w-screen-xl px-4 2xl:px-0">
+                <div v-show="!isCartEmpty()" class="mx-auto max-w-screen-xl px-4 2xl:px-0">
                     <div class="mt-6 sm:mt-8 lg:flex lg:items-start lg:gap-12 xl:gap-16">
                         <div class="min-w-0 flex-1 space-y-8">
                             <div class="space-y-4">
+                                <h3 class="text-xl font-semibold text-base-900 dark:text-white">Metode Pengambilan</h3>
+
+                                <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                    <label for="delivery-with-pickup" class="cursor-pointer rounded-lg border bg-transparent p-4 ps-4">
+                                        <div class="flex items-start">
+                                            <div class="flex h-5 items-center">
+                                                <input
+                                                    id="delivery-with-pickup"
+                                                    aria-describedby="pay-on-delivery-text"
+                                                    type="radio"
+                                                    name="delivery-method"
+                                                    v-model="checkout.delivery.method"
+                                                    value="PICKUP"
+                                                    class="h-4 w-4 bg-background text-primary-600 focus:ring-2 focus:ring-primary-600"
+                                                />
+                                            </div>
+
+                                            <div class="ms-4 text-sm">
+                                                <div class="leading-none font-medium text-base-900 dark:text-white">Di Toko</div>
+                                                <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-base-500 dark:text-base-400">
+                                                    Tidak ada tambahan
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </label>
+
+                                    <label for="delivery-with-gosend" class="cursor-pointer rounded-lg border bg-transparent p-4 ps-4">
+                                        <div class="flex items-start">
+                                            <div class="flex h-5 items-center">
+                                                <input
+                                                    id="delivery-with-gosend"
+                                                    aria-describedby="pay-on-delivery-text"
+                                                    type="radio"
+                                                    name="delivery-method"
+                                                    v-model="checkout.delivery.method"
+                                                    value="GOSEND"
+                                                    class="h-4 w-4 bg-background text-primary-600 focus:ring-2 focus:ring-primary-600"
+                                                />
+                                            </div>
+
+                                            <div class="ms-4 text-sm">
+                                                <div class="leading-none font-medium text-base-900 dark:text-white">GoSend</div>
+                                                <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-base-500 dark:text-base-400">
+                                                    Biaya menyesuaikan jarak
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </label>
+
+                                    <label for="delivery-with-other" class="cursor-pointer rounded-lg border bg-transparent p-4 ps-4">
+                                        <div class="flex items-start">
+                                            <div class="flex h-5 items-center">
+                                                <input
+                                                    id="delivery-with-other"
+                                                    aria-describedby="pay-on-delivery-text"
+                                                    type="radio"
+                                                    name="delivery-method"
+                                                    v-model="checkout.delivery.method"
+                                                    value="OTHER"
+                                                    class="h-4 w-4 bg-background text-primary-600 focus:ring-2 focus:ring-primary-600"
+                                                />
+                                            </div>
+
+                                            <div class="ms-4 text-sm">
+                                                <div class="leading-none font-medium text-base-900 dark:text-white">Lainnya (JNE,JNT,dll)</div>
+                                                <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-base-500 dark:text-base-400">
+                                                    Biaya menyesuaikan jarak
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div v-show="['OTHER', 'GOSEND'].includes(checkout.delivery.method)" class="space-y-4">
                                 <h2 class="text-xl font-semibold text-base-900 dark:text-white">Detail Pengiriman</h2>
 
                                 <select
@@ -292,80 +379,6 @@ onUnmounted(() => {
                                 </div>
                             </div>
 
-                            <div class="space-y-4">
-                                <h3 class="text-xl font-semibold text-base-900 dark:text-white">Metode Pengambilan</h3>
-
-                                <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-                                    <label for="delivery-with-pickup" class="cursor-pointer rounded-lg border bg-transparent p-4 ps-4">
-                                        <div class="flex items-start">
-                                            <div class="flex h-5 items-center">
-                                                <input
-                                                    id="delivery-with-pickup"
-                                                    aria-describedby="pay-on-delivery-text"
-                                                    type="radio"
-                                                    name="delivery-method"
-                                                    v-model="checkout.delivery.method"
-                                                    value="PICKUP"
-                                                    class="h-4 w-4 bg-background text-primary-600 focus:ring-2 focus:ring-primary-600"
-                                                />
-                                            </div>
-
-                                            <div class="ms-4 text-sm">
-                                                <div class="leading-none font-medium text-base-900 dark:text-white">Di Toko</div>
-                                                <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-base-500 dark:text-base-400">
-                                                    Tidak ada tambahan
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </label>
-
-                                    <label for="delivery-with-gosend" class="cursor-pointer rounded-lg border bg-transparent p-4 ps-4">
-                                        <div class="flex items-start">
-                                            <div class="flex h-5 items-center">
-                                                <input
-                                                    id="delivery-with-gosend"
-                                                    aria-describedby="pay-on-delivery-text"
-                                                    type="radio"
-                                                    name="delivery-method"
-                                                    v-model="checkout.delivery.method"
-                                                    value="GOSEND"
-                                                    class="h-4 w-4 bg-background text-primary-600 focus:ring-2 focus:ring-primary-600"
-                                                />
-                                            </div>
-
-                                            <div class="ms-4 text-sm">
-                                                <div class="leading-none font-medium text-base-900 dark:text-white">GoSend</div>
-                                                <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-base-500 dark:text-base-400">
-                                                    Biaya menyesuaikan jarak
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </label>
-
-                                    <label for="delivery-with-other" class="cursor-pointer rounded-lg border bg-transparent p-4 ps-4">
-                                        <div class="flex items-start">
-                                            <div class="flex h-5 items-center">
-                                                <input
-                                                    id="delivery-with-other"
-                                                    aria-describedby="pay-on-delivery-text"
-                                                    type="radio"
-                                                    name="delivery-method"
-                                                    v-model="checkout.delivery.method"
-                                                    value="OTHER"
-                                                    class="h-4 w-4 bg-background text-primary-600 focus:ring-2 focus:ring-primary-600"
-                                                />
-                                            </div>
-
-                                            <div class="ms-4 text-sm">
-                                                <div class="leading-none font-medium text-base-900 dark:text-white">Lainnya (JNE,JNT,dll)</div>
-                                                <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-base-500 dark:text-base-400">
-                                                    Biaya menyesuaikan jarak
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
                             <div v-show="checkout.delivery.method === 'PICKUP'" class="space-y-3">
                                 <h2 class="text-lg font-semibold text-base-900 dark:text-white">Estimasi Pengambilan</h2>
                                 <p class="mt-1 text-xs font-normal text-base-500 md:text-base dark:text-base-400">

@@ -3,10 +3,24 @@ import { useNotifications } from './useNotifications';
 
 const { notivueSuccess, notivueError, notivueInfo } = useNotifications();
 
+type Address = {
+    id: string;
+    label: string;
+    recipientName: string;
+    phoneNumber: string;
+    fullAddress: string;
+    isMain: boolean;
+    hasPinpoint: boolean;
+    pinpointLocation?: {
+        lat: number | null;
+        lng: number | null;
+    };
+};
+
 export type CheckoutData = {
     fullName: string;
     email: string;
-    address: string | null;
+    address: Address | null;
     payment: {
         method: string;
         status?: 'pending' | 'paid' | 'unpaid';
@@ -20,7 +34,7 @@ export type CheckoutData = {
 const checkout = ref<CheckoutData>({
     fullName: '',
     email: '',
-    address: '',
+    address: null,
     payment: {
         method: '',
     },
@@ -39,7 +53,7 @@ export function useCheckout() {
         checkout.value = {
             fullName: '',
             email: '',
-            address: '',
+            address: null,
             payment: {
                 method: '',
             },
@@ -54,13 +68,15 @@ export function useCheckout() {
         return 'unpaid';
     };
     const isCheckoutEmpty = () => {
-        return (
-            !checkout.value.fullName ||
-            !checkout.value.email ||
-            !checkout.value.address ||
-            !checkout.value.payment.method ||
-            !checkout.value.delivery.method
-        );
+        if (checkout.value.delivery.method === 'PICKUP') {
+            return !checkout.value.payment.method || !checkout.value.delivery.method;
+        }
+        if (checkout.value.delivery.method === 'GOSEND' || checkout.value.delivery.method === 'OTHER') {
+            if (!checkout.value.address || !checkout.value.payment.method) {
+                return true;
+            }
+        }
+        return false;
     };
     return {
         getCheckout,
