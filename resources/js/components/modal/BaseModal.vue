@@ -74,12 +74,16 @@ defineExpose({
                     <X v-if="isCloseable" class="h-5 w-5 cursor-pointer text-background hover:opacity-80" @click="close()" />
                 </div>
                 <!-- Modal body -->
-                <LoadingSpinner
-                    :extendClass="props.loading?.extendClass ?? 'h-40'"
-                    :message="props.loading?.message ?? 'Sedang memproses..'"
-                    v-show="isLoading"
-                />
-                <div v-show="!isLoading" class="p-4 md:p-5">
+
+                <div class="relative p-4 md:p-5">
+                    <LoadingSpinner
+                        :extendClass="
+                            props.loading?.extendClass ??
+                            '!absolute w-full h-full backdrop-blur-[2px] z-50 left-1/2 top-1/2 -translate-1/2 p-3 z-50bg-background/50'
+                        "
+                        :message="props.loading?.message ?? 'Sedang memproses..'"
+                        v-show="isLoading"
+                    />
                     <slot name="content" />
                 </div>
             </div>

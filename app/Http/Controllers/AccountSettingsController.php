@@ -4,25 +4,34 @@ namespace App\Http\Controllers;
 
 use App\ValidatesImageUpload;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 use Inertia\Inertia;
 
 class AccountSettingsController extends RiviesAPIController
 {
+    use ValidatesImageUpload;
 
     public function __construct()
     {
         parent::__construct();
     }
-    use ValidatesImageUpload;
     // Views for Account Settings
     public function view(Request $request)
     {
-        return Inertia::render('AccountSettings/AccountSettingsInformation');
+        $response = $this->apiGet("account-settings/profile", aborting: false);
+        $user = $response->json()['user'] ?? null;
+        return Inertia::render('AccountSettings/AccountSettingsInformation', [
+            'user' => $user
+        ]);
     }
 
     public function address_view(Request $request)
     {
-        return Inertia::render('AccountSettings/AccountSettingsAddress');
+        $response = $this->apiGet("account-settings/address", aborting: false);
+        $addresses = $response->json()['addresses'] ?? [];
+        return Inertia::render('AccountSettings/AccountSettingsAddress', [
+            'addresses' => $addresses
+        ]);
     }
 
     public function transactions_view(Request $request)
@@ -66,19 +75,27 @@ class AccountSettingsController extends RiviesAPIController
 
             // File is valid, keep it in the validated data as UploadedFile
             $validated['new_profile_picture'] = $file;
+        } else {
+            // No file uploaded, ensure it's not in the validated data
+            unset($validated['new_profile_picture']);
         }
-
         // Send to API with file (using multipart/form-data)
         $response = $this->apiPost(
-            "account-settings/update-profile",
+            "account-settings/profile/update",
             $validated,
             aborting: false
         );
-
+        $data = $response->json();
         if ($response->successful()) {
+            $jwt = [
+                'user' => $data['user'] ?? null,
+                'token' => $data['token'] ?? null,
+            ];
+            Cookie::forget('session_token'); // Clear old cookie if any
+            Cookie::queue('session_token', json_encode($jwt), auth()->guard(env('API_APP', 'bakery-store'))->factory()->getTTL(), '/', null, true, true);
             return response()->json([
                 'message' => 'Profil berhasil diperbarui',
-                'data' => $response->json()
+                'user' => $response->json()['user'] ?? null,
             ]);
         }
 
@@ -92,12 +109,11 @@ class AccountSettingsController extends RiviesAPIController
     public function create_address(Request $request)
     {
         $validated = $request->validate([
-            'id' => 'required',
             'label' => 'required|string|max:100',
             'recipientName' => 'required|string|max:100',
             'fullAddress' => 'required|string|max:255',
             'isMain' => 'required|boolean',
-            'hasPinPoint' => 'boolean|default:false',
+            'hasPinpoint' => 'required|boolean',
             'pinpointLocation.lat' => 'nullable|numeric',
             'pinpointLocation.lng' => 'nullable|numeric',
         ], [
@@ -106,23 +122,22 @@ class AccountSettingsController extends RiviesAPIController
             'fullAddress.required' => 'Alamat lengkap diperlukan.',
             'isMain.required' => 'Status utama diperlukan.',
         ]);
-        dd($validated);
-        // $response = $this->apiPost(
-        //     "account-settings/create-address",
-        //     $validated,
-        //     aborting: false
-        // );
-
+        $response = $this->apiPost(
+            "account-settings/address/create",
+            $validated,
+            aborting: false
+        );
+        $data = $response->json();
         if ($response->successful()) {
             return response()->json([
                 'message' => 'Alamat berhasil ditambahkan',
-                'data' => $response->json()
+                'addresses' => $data['addresses'] ?? []
             ]);
         }
 
         return response()->json([
             'error' => 'Gagal menambahkan alamat',
-            'details' => $response->json()
+            'details' => $data
         ], $response->status());
     }
     public function update_address(Request $request)
@@ -133,7 +148,7 @@ class AccountSettingsController extends RiviesAPIController
             'recipientName' => 'required|string|max:100',
             'fullAddress' => 'required|string|max:255',
             'isMain' => 'required|boolean',
-            'hasPinPoint' => 'boolean|default:false',
+            'hasPinpoint' => 'boolean',
             'pinpointLocation.lat' => 'nullable|numeric',
             'pinpointLocation.lng' => 'nullable|numeric',
         ], [
@@ -142,23 +157,23 @@ class AccountSettingsController extends RiviesAPIController
             'fullAddress.required' => 'Alamat lengkap diperlukan.',
             'isMain.required' => 'Status utama diperlukan.',
         ]);
-        dd($validated);
-        // $response = $this->apiPost(
-        //     "account-settings/update-address",
-        //     $validated,
-        //     aborting: false
-        // );
+        $response = $this->apiPost(
+            "account-settings/address/update",
+            $validated,
+            aborting: false
+        );
 
+        $data = $response->json();
         if ($response->successful()) {
             return response()->json([
                 'message' => 'Alamat berhasil diperbarui',
-                'data' => $response->json()
+                'addresses' => $data['addresses'] ?? []
             ]);
         }
 
         return response()->json([
             'error' => 'Gagal memperbarui alamat',
-            'details' => $response->json()
+            'details' => $data
         ], $response->status());
     }
 
@@ -169,23 +184,24 @@ class AccountSettingsController extends RiviesAPIController
         ], [
             'id.required' => 'ID alamat diperlukan.',
         ]);
-        dd($validated);
-        // $response = $this->apiPost(
-        //     "account-settings/delete-address",
-        //     $validated,
-        //     aborting: false
-        // );
 
+        $response = $this->apiPost(
+            "account-settings/address/delete",
+            $validated,
+            aborting: false
+        );
+
+        $data = $response->json();
         if ($response->successful()) {
             return response()->json([
                 'message' => 'Alamat berhasil dihapus',
-                'data' => $response->json()
+                'addresses' => $data['addresses'] ?? []
             ]);
         }
 
         return response()->json([
             'error' => 'Gagal menghapus alamat',
-            'details' => $response->json()
+            'details' => $data
         ], $response->status());
     }
 }

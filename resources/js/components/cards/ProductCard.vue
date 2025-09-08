@@ -30,7 +30,7 @@ defineProps<{
 </script>
 
 <template>
-    <div :key="id" class="group/card mx-auto w-full max-w-[220px] overflow-hidden">
+    <div :key="id" class="group/card mx-auto w-full overflow-hidden">
         <div class="relative h-36 w-full overflow-hidden rounded-md xs:h-44 md:h-56">
             <Link :href="`/products/detail?slug=${slug}`">
                 <img loading="lazy" :src="getStorage(thumbnail)" class="h-full w-full scale-105 object-cover group-hover/card:scale-100" alt="" />

@@ -78,7 +78,7 @@ defineExpose({
     <div :id="id" tabindex="-1" :class="classPosition">
         <div
             :class="classTitle"
-            class="flex items-center justify-between border-b border-gray-200 bg-primary-400 p-4 md:p-5 dark:border-gray-600 dark:bg-primary-600"
+            class="flex items-center justify-between border-b border-gray-200 bg-primary-400 p-3 md:p-4 dark:border-gray-600 dark:bg-primary-600"
         >
             <h3 class="flex items-center gap-4 text-lg font-extrabold text-background"><slot name="icon" /> {{ title }}</h3>
             <X class="h-5 w-5 cursor-pointer text-background hover:opacity-80" @click="close()" />

@@ -176,7 +176,7 @@ onMounted(async () => {
                                 <LockKeyhole class="h-10 w-10 !text-primary-600" />
                                 <Link href="/login" class="text-sm underline">Harap login terlebih dahulu disini</Link>
                             </div>
-                            <div class="mb-7 flex items-center justify-end md:w-full gap-2" v-if="!isCartEmpty()">
+                            <div class="mb-7 flex items-center justify-end md:w-full gap-2 md:px-6" v-if="!isCartEmpty()">
                                 <ButtonMain
                                     id="download-draft-cart"
                                     type="button"
@@ -184,7 +184,7 @@ onMounted(async () => {
                                     :isLoading="downloadLoading"
                                     @click="downloadDraftCart"
                                     :disabled="downloadLoading"
-                                    extend-class="w-fit lg:!w-full"
+                                    extend-class="!w-full"
                                 >
                                     Unduh draft belanja <ReceiptText class="h-4 w-4" />
                                 </ButtonMain>

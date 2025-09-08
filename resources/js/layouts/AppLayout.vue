@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { initFlowbite } from 'flowbite';
-import { DoorOpen, Menu, Moon, ShoppingBag, ShoppingCart, Sun, User, UserCircle, X } from 'lucide-vue-next';
+import { ArrowLeft, ChevronLeft, ChevronLeftCircle, DoorOpen, Home, House, Menu, Moon, ReceiptText, Settings, ShoppingBag, ShoppingCart, Sun, User, X } from 'lucide-vue-next';
 import { darkTheme, lightTheme, Notification, Notivue } from 'notivue';
 import SimpleParallax from 'simple-parallax-js/vanilla';
 import { onMounted, ref, watch } from 'vue';
@@ -57,7 +57,9 @@ const isActiveLink = (url: string) => {
     }
     return pathname === url;
 };
-
+const navigateBack = () => {
+    window.history.back();
+};
 // ------------------------------
 // Watchers
 // ------------------------------
@@ -118,14 +120,14 @@ onMounted(() => {
 
 <template>
     <div
-        v-show="pageTransitioning && !splashScreen"
+        v-if="pageTransitioning && !splashScreen"
         class="fixed top-0 left-0 z-[999] flex h-screen w-screen flex-col items-center justify-center backdrop-blur-[2px]"
     >
         <LoadingSpinner :extend-class="'!gap-2 !my-2 !text-lg !font-bold'"> </LoadingSpinner>
     </div>
-    <Transition appear name="fade" mode="out-in">
+    <Transition appear name="fade-out" mode="out-in">
         <div
-            v-show="splashScreen"
+            v-if="splashScreen"
             :class="{ 'bg-background duration-700': splashScreen }"
             class="fixed top-0 left-0 z-[999] flex h-screen w-screen flex-col items-center justify-center !opacity-100 backdrop-blur-[2px]"
         >
@@ -159,10 +161,10 @@ onMounted(() => {
             </div>
         </div>
     </nav>
-    <nav class="sticky top-0 z-20 mx-auto hidden border-b border-foreground/20 bg-background md:flex">
+    <nav class="sticky top-0 z-20 mx-auto flex border-b border-foreground/20 bg-background">
         <div class="mx-auto w-full max-w-screen-xl px-4">
-            <div class="flex items-center justify-between">
-                <ul class="mt-0 flex flex-row text-sm font-medium rtl:space-x-reverse">
+            <div class="flex items-center justify-between py-2 md:py-0">
+                <ul class="mt-0 hidden flex-row text-sm font-medium md:flex rtl:space-x-reverse">
                     <li
                         v-for="(value, index) in links"
                         :key="index"
@@ -172,6 +174,9 @@ onMounted(() => {
                         <Link :href="value.url" class="px-4 py-4 text-foreground">{{ value.title }}</Link>
                     </li>
                 </ul>
+                <div class="flex md:hidden gap-2">
+                    <ChevronLeft @click="navigateBack" class="h-6 w-6 cursor-pointer text-foreground/80 hover:text-primary-600" />
+                </div>
                 <div class="flex gap-2">
                     <Link
                         href="/cart"
@@ -187,80 +192,98 @@ onMounted(() => {
                     >
                         Login <DoorOpen class="ms-2 h-4 w-4" />
                     </Link>
-                    <Link
+                    <button
                         v-if="page.props.isAuthed"
-                        href="/logout"
-                        class="inline-flex items-center rounded-lg border border-border bg-background px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
+                        data-dropdown-toggle="dropdown-user"
+                        class="inline-flex cursor-pointer items-center rounded-lg border border-border bg-background px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
                     >
-                        Logout <DoorOpen class="ms-2 h-4 w-4" />
-                    </Link>
-                    <Link
-                        v-if="page.props.isAuthed"
-                        href="/account-settings"
-                        class="inline-flex items-center rounded-lg border border-border bg-background px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
-                    >
-                        <p class="max-w-24 overflow-hidden text-nowrap text-ellipsis whitespace-nowrap">{{ page.props.auth.user.name }}</p>
+                        <p class="max-w-24 overflow-hidden text-nowrap text-ellipsis whitespace-nowrap">
+                            {{ page.props.auth.user.name }}
+                        </p>
                         <User class="ms-2 h-4 w-4" />
-                    </Link>
+                    </button>
+                    <div
+                        id="dropdown-user"
+                        class="z-10 hidden w-44 divide-y divide-gray-100 rounded-lg border border-border bg-background shadow-sm shadow-foreground/10 transition-none"
+                    >
+                        <ul class="py-2 text-sm text-foreground" aria-labelledby="dropdownDefaultButton">
+                            <li>
+                                <Link
+                                    href="/account-settings"
+                                    class="flex items-center gap-3 px-4 py-2 hover:bg-base-200 dark:hover:bg-base-600 dark:hover:text-white"
+                                    ><Settings class="h-4 w-4" /> Pengaturan
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/account-settings/address"
+                                    class="flex items-center gap-3 px-4 py-2 hover:bg-base-200 dark:hover:bg-base-600 dark:hover:text-white"
+                                    ><House class="h-4 w-4" /> Alamat
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/account-settings/transactions"
+                                    class="flex items-center gap-3 px-4 py-2 hover:bg-base-200 dark:hover:bg-base-600 dark:hover:text-white"
+                                    ><ReceiptText class="h-4 w-4" /> Transaksi
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/logout"
+                                    class="flex items-center gap-3 border-t px-4 py-2 hover:bg-base-200 dark:hover:bg-base-600 dark:hover:text-white"
+                                    ><DoorOpen class="h-4 w-4" /> Sign Out
+                                </Link>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </nav>
-    <nav class="sticky top-0 z-10 mx-auto flex justify-end bg-background shadow-md md:hidden">
-        <div class="me-8 rounded-lg py-4 text-center">
-            <Menu
-                data-drawer-target="drawer-navigation"
-                data-drawer-toggle="drawer-navigation"
-                data-drawer-placement="right"
-                aria-controls="drawer-navigation"
-                class="h-8 w-8 cursor-pointer text-muted-foreground hover:text-foreground"
-            />
-        </div>
-    </nav>
-    <!-- Bottom Navigation for Phone -->
-
-    <div class="fixed bottom-0 left-0 z-20 block h-16 w-full rounded-t-xl border-t border-foreground/20 bg-background/80 backdrop-blur-lg md:hidden">
+    <div
+        class="fixed bottom-0 left-0 z-20 block h-16 w-full rounded-t-xl border-t border-foreground/20 bg-background/80 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg md:hidden"
+    >
         <div class="mx-auto grid h-full max-w-lg grid-cols-3 font-medium">
             <Link
-                href="/cart"
+                href="/"
                 type="button"
-                class="group inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800"
+                :class="{ '!bg-foreground/20': isActiveLink('/') }"
+                class="group inline-flex flex-col items-center justify-center px-5 hover:bg-foreground/20"
             >
-                <div class="relative">
-                    <ShoppingBag class="mb-2 h-5 w-5 text-base-500 group-hover:text-primary-600" />
-                    <div class="absolute -top-1 -right-2 text-xs font-light text-primary-700">{{ getCartTotalItem() }}</div>
-                </div>
-                <span class="text-sm text-base-500 group-hover:text-primary-600 dark:text-gray-400 dark:group-hover:text-primary-500">Keranjang</span>
+                <Home :class="{ '!text-primary-600': isActiveLink('/') }" class="mb-2 h-5 w-5 text-base-500 group-hover:text-primary-600" />
+                <span
+                    :class="{ '!text-primary-600': isActiveLink('/') }"
+                    class="text-sm text-base-500 group-hover:text-primary-600 dark:text-gray-400 dark:group-hover:text-primary-500"
+                    >Home</span
+                >
             </Link>
             <Link
                 href="/products"
                 type="button"
-                class="group inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800"
+                :class="{ '!bg-foreground/20': isActiveLink('/products') }"
+                class="group inline-flex flex-col items-center justify-center px-5 hover:bg-foreground/20"
             >
-                <ShoppingCart class="mb-2 h-5 w-5 text-base-500 group-hover:text-primary-600" />
-                <span class="text-sm text-base-500 group-hover:text-primary-600 dark:text-gray-400 dark:group-hover:text-primary-500">Produk</span>
-            </Link>
-            <Link
-                v-if="page.props.isAuthed"
-                href="/account-settings"
-                type="button"
-                class="group inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800"
-            >
-                <img class="mb-2 h-5 w-5 rounded-full border border-foreground/20" src="/storage/images/logo.png" alt="" />
+                <ShoppingCart
+                    :class="{ '!text-primary-600': isActiveLink('/products') }"
+                    class="mb-2 h-5 w-5 text-base-500 group-hover:text-primary-600"
+                />
                 <span
-                    class="w-16 overflow-hidden text-sm text-nowrap text-ellipsis whitespace-nowrap text-base-500 group-hover:text-primary-600 xs:w-24 dark:text-gray-400 dark:group-hover:text-primary-500"
-                    >{{ page.props.auth.user.name }}</span
+                    :class="{ '!text-primary-600': isActiveLink('/products') }"
+                    class="text-sm text-base-500 group-hover:text-primary-600 dark:text-gray-400 dark:group-hover:text-primary-500"
+                    >Produk</span
                 >
             </Link>
-            <Link
-                v-if="!page.props.isAuthed"
-                href="login"
-                type="button"
-                class="group inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800"
+            <div
+                data-drawer-target="drawer-navigation"
+                data-drawer-toggle="drawer-navigation"
+                data-drawer-placement="right"
+                aria-controls="drawer-navigation"
+                class="group inline-flex cursor-pointer flex-col items-center justify-center px-5 hover:bg-foreground/20"
             >
-                <UserCircle class="mb-2 h-5 w-5 text-base-500 group-hover:text-primary-600" />
-                <span class="text-sm text-base-500 group-hover:text-primary-600 dark:text-gray-400 dark:group-hover:text-primary-500">Login</span>
-            </Link>
+                <Menu class="mb-2 h-5 w-5 text-base-500 group-hover:text-primary-600" />
+                <span class="text-sm text-base-500 group-hover:text-primary-600 dark:text-gray-400 dark:group-hover:text-primary-500">Menu</span>
+            </div>
         </div>
     </div>
 
@@ -298,41 +321,41 @@ onMounted(() => {
             </ul>
         </div>
     </div>
-
-    <main class="app overflow-hidden">
-        <div class="-mt-3 h-[70vh] max-h-[400px] w-full md:max-h-[600px]">
-            <div class="h-full w-full">
-                <div class="relative h-full w-full">
-                    <div class="page-background">
-                        <slot name="pageBackground" />
-                    </div>
-                    <div class="relative mx-auto h-full w-full max-w-screen-xl px-4">
-                        <div class="absolute top-1/2 left-1/2 max-w-screen-xl -translate-x-1/2 -translate-y-1/2 px-4 md:left-0 md:-translate-x-0">
-                            <nav class="mb-3 flex justify-center md:justify-start" aria-label="Breadcrumb">
-                                <slot name="pageBreadcrumb" />
-                            </nav>
-                            <h1 class="mb-2 text-center text-xl font-extrabold text-nowrap text-base-50 xs:text-3xl md:text-start md:text-5xl">
-                                <slot name="pageTitle" />
-                            </h1>
-                            <p class="mb-6 text-center text-base font-normal text-base-50 md:text-start md:text-lg">
-                                <slot name="pageDescription" />
-                            </p>
+    <Transition name="fade-in" mode="in-out" appear>
+        <main class="app overflow-hidden">
+            <div class="-mt-3 h-[70vh] max-h-[400px] w-full md:max-h-[600px]">
+                <div class="h-full w-full">
+                    <div class="relative h-full w-full">
+                        <div class="page-background">
+                            <slot name="pageBackground" />
                         </div>
-                        <div class="absolute bottom-0 left-0 z-20 h-32 w-full">
-                            <slot name="pageSubnav" />
+                        <div class="relative mx-auto h-full w-full max-w-screen-xl px-4">
+                            <div class="absolute top-1/2 left-1/2 w-full max-w-screen-xl -translate-1/2 px-4 pb-16 md:left-0 md:-translate-x-0">
+                                <nav class="mb-3 flex justify-center md:justify-start" aria-label="Breadcrumb">
+                                    <slot name="pageBreadcrumb" />
+                                </nav>
+                                <h1 class="mb-2 text-center text-xl font-extrabold text-base-50 xs:text-3xl sm:leading-10 md:text-start md:text-5xl">
+                                    <slot name="pageTitle" />
+                                </h1>
+                                <p class="mb-6 text-center text-base font-normal text-base-50 md:text-start md:text-lg">
+                                    <slot name="pageDescription" />
+                                </p>
+                            </div>
+                            <div class="absolute bottom-0 left-0 z-10 h-32 w-full">
+                                <slot name="pageSubnav" />
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <Transition name="fade" mode="in-out" appear>
+
             <div class="relative -mt-20 rounded-t-4xl bg-background p-5">
                 <div class="mx-auto min-h-80 max-w-screen-xl">
                     <slot name="content" />
                 </div>
             </div>
-        </Transition>
-    </main>
+        </main>
+    </Transition>
     <footer class="mb-16 border-t border-base-500/50 p-4 md:mb-0 md:p-8 lg:p-10">
         <div class="mx-auto max-w-screen-xl text-center">
             <span class="text-xs text-gray-500 sm:text-center md:text-sm dark:text-gray-400"

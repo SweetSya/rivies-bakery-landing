@@ -273,11 +273,16 @@
     /* Tom Select */
     .ts-control,
     .ts-wrapper.single.input-active .ts-control {
-        @apply !min-h-[42px] !rounded-lg !border-foreground/10 !bg-foreground/10 !p-2.5 !text-sm !text-foreground;
+        @apply !min-h-[42px] !rounded-lg !border-foreground/10 !bg-foreground/10 !p-2.5 !text-base !text-foreground;
     }
     .dark .ts-control,
     .dark .ts-wrapper.single.input-active .ts-control {
         @apply !border-foreground/20 !text-foreground;
+    }
+    .ts-dropdown,
+    .ts-control,
+    .ts-control input {
+        @apply !text-base leading-none !text-foreground/80 md:scale-100;
     }
     .ts-wrapper.multi .ts-control > div {
         @apply !rounded-lg !border-1 !border-border/10 !bg-foreground/10 !text-foreground;
@@ -297,7 +302,7 @@
         @apply !bg-primary-600/50 !text-foreground;
     }
     .base-input {
-        @apply !border !border-base-500/20 !bg-transparent !p-2.5 !text-sm !text-foreground/80 dark:!border-base-200/20;
+        @apply !border !border-base-500/20 !bg-transparent p-2.5 !text-base !text-foreground/80 dark:!border-base-200/20;
     }
     /* Remove number input spinners/arrows */
     input[type='number']::-webkit-outer-spin-button,
@@ -310,15 +315,25 @@
         -moz-appearance: textfield;
     }
     /* Transition */
-    .fade-enter-active,
-    .fade-leave-active {
+    .fade-in-enter-active,
+    .fade-in-leave-active {
         opacity: 1;
         transition: all 0.2s ease;
     }
 
-    .fade-enter-from,
-    .fade-leave-to {
+    .fade-in-enter-from,
+    .fade-in-leave-to {
         opacity: 0;
+    }
+    .fade-out-enter-active,
+    .fade-out-leave-active {
+        opacity: 0;
+        transition: all 0.2s ease;
+    }
+
+    .fade-out-enter-from,
+    .fade-out-leave-to {
+        opacity: 1;
     }
 
     /* Loader */

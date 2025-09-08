@@ -4,6 +4,7 @@ import BaseModal from '@/components/modal/BaseModal.vue';
 import { useAPI } from '@/composables/useAPI';
 import { useNotifications } from '@/composables/useNotifications';
 import AccountSettings from '@/layouts/AccountSettingsLayout.vue';
+import { User } from '@/types';
 import { usePage } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -19,16 +20,17 @@ gsap.registerPlugin(ScrollTrigger);
 const page = usePage();
 const { getStorage, fetchAPI } = useAPI();
 const { notivueError, notivueSuccess, notivueInfo } = useNotifications();
-
+const user = ref<User>(page.props.user as User);
 const editField = ref({
     title: '',
     section: '',
 });
+const formLoading = ref(false);
 const formField = ref({
-    name: page.props.auth.user.name,
-    email: page.props.auth.user.email,
-    phone_number: page.props.auth.user.phone_number,
-    profile_picture: page.props.auth.user.profile_picture,
+    name: user.value.name,
+    email: user.value.email,
+    phone_number: user.value.phone_number,
+    profile_picture: user.value.profile_picture,
     new_profile_picture: null as File | null,
 });
 const editModal = ref<typeof BaseModal | null>(null);
@@ -101,13 +103,14 @@ const validateImageHeader = (file: File): Promise<boolean> => {
 };
 const resetForm = () => {
     editField.value = { title: '', section: '' };
-    formField.value.name = page.props.auth.user.name;
-    formField.value.email = page.props.auth.user.email;
-    formField.value.phone_number = page.props.auth.user.phone_number;
-    formField.value.profile_picture = page.props.auth.user.profile_picture;
+    formField.value.name = user.value.name;
+    formField.value.email = user.value.email;
+    formField.value.phone_number = user.value.phone_number;
+    formField.value.profile_picture = user.value.profile_picture;
     formField.value.new_profile_picture = null;
 };
 const handleSubmit = async () => {
+    formLoading.value = true;
     // Create FormData for file upload
     const formData = new FormData();
 
@@ -127,12 +130,15 @@ const handleSubmit = async () => {
     });
 
     if (response.status === 200) {
+        console.log(response.data.user);
+        user.value.name = response.data.user.name;
+        user.value.email = response.data.user.email;
+        user.value.phone_number = response.data.user.phone_number;
+        user.value.profile_picture = response.data.user.profile_picture;
         // Success - close modal and reset form
+        notivueSuccess('Profil berhasil diperbarui.');
         editModal.value?.close();
         resetForm();
-
-        // Optionally reload the page or update the user data
-        window.location.reload(); // or use Inertia to refresh
     } else {
         // Handle validation errors
         if (response.data && response.data.errors) {
@@ -142,6 +148,8 @@ const handleSubmit = async () => {
             notivueError('Terjadi kesalahan saat memperbarui profil.');
         }
     }
+
+    formLoading.value = false;
 };
 const createObjectUrl = (file: File | null) => {
     if (file) {
@@ -173,7 +181,7 @@ defineOptions({
                                 <td class="px-2 pt-3 pb-6" colspan="3">
                                     <img
                                         class="mx-auto aspect-square max-h-32 rounded object-cover"
-                                        :src="getStorage(page.props.auth.user.profile_picture ?? '../assets/placeholder/image.png')"
+                                        :src="getStorage(user.profile_picture ?? '../assets/placeholder/image.png')"
                                         alt=""
                                     />
                                     <p
@@ -193,19 +201,19 @@ defineOptions({
                             <tr class="border-b">
                                 <td class="px-2 py-3 font-bold">Nama</td>
                                 <td class="px-2">:</td>
-                                <td class="px-2">{{ page.props.auth.user.name }}</td>
+                                <td class="px-2">{{ user.name }}</td>
                                 <td @click="openEditModal('Ubah Nama', 'name')" class="cursor-pointer px-2 text-primary-600 underline">Edit</td>
                             </tr>
                             <tr class="border-b">
                                 <td class="px-2 py-3 font-bold">Email</td>
                                 <td class="px-2">:</td>
-                                <td class="px-2">{{ page.props.auth.user.email }}</td>
+                                <td class="px-2">{{ user.email }}</td>
                                 <td @click="openEditModal('Ubah Email', 'email')" class="cursor-pointer px-2 text-primary-600 underline">Edit</td>
                             </tr>
                             <tr class="border-b">
                                 <td class="px-2 py-3 font-bold">No Telepon</td>
                                 <td class="px-2">:</td>
-                                <td class="px-2">{{ page.props.auth.user.phone_number }}</td>
+                                <td class="px-2">{{ user.phone_number }}</td>
                                 <td @click="openEditModal('Ubah No Telepon', 'phone_number')" class="cursor-pointer px-2 text-primary-600 underline">
                                     Edit
                                 </td>
@@ -220,7 +228,7 @@ defineOptions({
                 :static="'static'"
                 :on-close="resetForm"
                 :isCloseable="true"
-                :isLoading="false"
+                :isLoading="formLoading"
                 ref="editModal"
             >
                 <template #icon>

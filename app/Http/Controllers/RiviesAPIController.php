@@ -30,16 +30,21 @@ class RiviesAPIController extends Controller
         ];
     }
     // Get the API headers including auth token if available
-    public function getAPIHeader()
+    public function getAPIHeader($isMultipart = false)
     {
         $headers = [
-            'Content-Type' => 'application/json',
             'Accept' => 'application/json',
             $this->config['header'] => 'Bearer ' . $this->config['key'],
         ];
+
+        if (!$isMultipart) {
+            $headers['Content-Type'] = 'application/json';
+        }
+
         if ($this->authenticated && $this->authenticated['auth']['token']) {
             $headers['Authorization'] = 'Bearer ' . $this->authenticated['auth']['token'];
         }
+
         return $headers;
     }
 
@@ -74,29 +79,34 @@ class RiviesAPIController extends Controller
     }
     public function apiPost($endpoint, $params = [], $headers = [], $aborting = true)
     {
-        // Check if there are any file uploads in the params
         $hasFiles = false;
+
         foreach ($params as $value) {
             if ($value instanceof UploadedFile) {
                 $hasFiles = true;
+                Log::info('Detected file upload in API POST request to ' . $endpoint);
                 break;
             }
         }
 
-        // Use appropriate headers based on whether files are present
-        $client = Http::withHeaders(array_merge($this->getAPIHeader(!$hasFiles), $headers));
+        // Pass flag to header builder
+        $client = Http::withHeaders(array_merge($this->getAPIHeader($hasFiles), $headers));
 
-        // If there are files, handle them separately
         if ($hasFiles) {
             foreach ($params as $key => $value) {
                 if ($value instanceof UploadedFile) {
-                    $client = $client->attach($key, fopen($value->getPathname(), 'r'), $value->getClientOriginalName());
-                    unset($params[$key]); // Remove file from regular data
+                    $client = $client->attach(
+                        $key,
+                        file_get_contents($value->getRealPath()),
+                        $value->getClientOriginalName()
+                    );
+                    unset($params[$key]);
                 }
             }
+            $response = $client->post($this->config['url'] . $endpoint, $params);
+        } else {
+            $response = $client->post($this->config['url'] . $endpoint, $params);
         }
-
-        $response = $client->post($this->config['url'] . $endpoint, $params);
 
         if (!$response->ok()) {
             $error = [
@@ -109,6 +119,7 @@ class RiviesAPIController extends Controller
                 abort(500, $error_code);
             }
         }
+
         return $response;
     }
 }

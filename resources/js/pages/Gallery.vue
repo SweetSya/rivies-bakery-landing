@@ -53,7 +53,7 @@ defineOptions({
             </ol>
         </template>
         <!-- Title -->
-        <template #pageTitle>Galeri <span class="rounded bg-primary-600 px-3 py-1 font-semibold">Rivies Bakery</span></template>
+        <template #pageTitle>Galeri <span class="rounded bg-primary-600 px-3 py-1 font-semibold text-nowrap">Rivies Bakery</span></template>
         <!-- Description -->
         <template #pageDescription>Made with love and high quality ingredients</template>
         <!-- Content -->

@@ -374,7 +374,7 @@ onMounted(() => {
             </ol>
         </template>
         <!-- Title -->
-        <template #pageTitle>Produk di <span class="rounded bg-primary-600 px-3 py-1 font-semibold">Rivies Bakery</span></template>
+        <template #pageTitle>Produk di <span class="rounded bg-primary-600 px-3 py-1 font-semibold text-nowrap">Rivies Bakery</span></template>
         <!-- Description -->
         <template #pageDescription>Made with love and high quality ingredients</template>
         <!-- Content -->
@@ -402,7 +402,7 @@ onMounted(() => {
                     <span class="swiper-button-prev">
                         <ArrowLeft class="h-6 w-6 text-white" />
                     </span>
-                    <div class="swiper-pagination !text-base-50 !w-14"></div>
+                    <div class="swiper-pagination !w-14 !text-base-50"></div>
                 </div>
             </section>
             <section class="mx-auto max-w-screen-xl py-8 sm:py-16 lg:px-6">
@@ -458,7 +458,7 @@ onMounted(() => {
                         </button>
                     </div>
                 </div>
-                <div class="mb-4 grid grid-cols-2 gap-4 md:mb-8 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                <div class="mb-4 grid grid-cols-2 gap-4 md:mb-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                     <ProductCard
                         v-for="product in products"
                         :key="product.id"
@@ -511,7 +511,7 @@ onMounted(() => {
                                     <div class="flex flex-wrap items-center gap-5 md:flex-nowrap">
                                         <div class="flex grow">
                                             <span
-                                                class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/10 bg-primary-500 px-2 text-sm text-background md:text-base"
+                                                class="rounded-e-0 -me-1 inline-flex scale-90 items-center rounded-s-md border border-e-0 border-primary-500 bg-primary-500 px-2 text-sm text-background md:-me-0 md:scale-100 md:text-base"
                                             >
                                                 Min.
                                             </span>
@@ -519,12 +519,12 @@ onMounted(() => {
                                                 type="number"
                                                 v-model="appliedFilter.priceMin"
                                                 id="minimum-price"
-                                                class="base-input block w-full min-w-0 flex-1 rounded-none rounded-e-lg"
+                                                class="base-input block w-full rounded-none rounded-e-lg"
                                             />
                                         </div>
                                         <div class="flex grow">
                                             <span
-                                                class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-foreground/10 bg-primary-500 px-2 text-sm text-background md:text-base"
+                                                class="rounded-e-0 -me-1 inline-flex scale-90 items-center rounded-s-md border border-e-0 border-primary-500 bg-primary-500 px-2 text-sm text-background md:-me-0 md:scale-100 md:text-base"
                                             >
                                                 Max.
                                             </span>
@@ -532,7 +532,7 @@ onMounted(() => {
                                                 type="number"
                                                 v-model="appliedFilter.priceMax"
                                                 id="maximum-price"
-                                                class="base-input block w-full min-w-0 flex-1 rounded-none rounded-e-lg"
+                                                class="base-input block w-full rounded-none rounded-e-lg"
                                             />
                                         </div>
                                     </div>

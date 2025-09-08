@@ -60,7 +60,7 @@ defineOptions({
             </ol>
         </template>
         <!-- Title -->
-        <template #pageTitle>Kontak <span class="rounded bg-primary-600 px-3 py-1 font-semibold">Rivies Bakery</span></template>
+        <template #pageTitle>Kontak <span class="rounded bg-primary-600 px-3 py-1 font-semibold text-nowrap">Rivies Bakery</span></template>
         <!-- Description -->
         <template #pageDescription>Made with love and high quality ingredients</template>
         <!-- Content -->
@@ -70,35 +70,18 @@ defineOptions({
                 <p class="mb-8 text-center font-light text-gray-500 sm:text-xl lg:mb-16 dark:text-gray-400">
                     Kami senang mendengar kabar dari Anda! Baik itu pertanyaan, masukan, atau sekadar menyapa, tim kami siap merespons dengan ramah.
                 </p>
-                <form action="#" class="space-y-8">
+                <form action="#" class="space-y-5">
                     <div>
                         <label for="email" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Email </label>
-                        <input
-                            type="text"
-                            id="email"
-                            class="block w-full rounded-lg border border-gray-300 bg-transparent p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
-                            placeholder="example@gmail.com"
-                            required
-                        />
+                        <input type="text" id="email" class="base-input w-full rounded-lg" placeholder="example@gmail.com" required />
                     </div>
                     <div>
                         <label for="subject" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Subyek</label>
-                        <input
-                            type="text"
-                            id="subject"
-                            class="block w-full rounded-lg border border-gray-300 bg-transparent p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
-                            placeholder="Ingin bertanya.."
-                            required
-                        />
+                        <input type="text" id="subject" class="base-input w-full rounded-lg" placeholder="Ingin bertanya.." required />
                     </div>
                     <div class="sm:col-span-2">
                         <label for="message" class="mb-2 block text-sm font-medium text-gray-900 dark:text-gray-400">Pesan Anda</label>
-                        <textarea
-                            id="message"
-                            rows="6"
-                            class="block w-full rounded-lg border border-gray-300 bg-transparent p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
-                            placeholder="Tinggalkan pesan..."
-                        ></textarea>
+                        <textarea id="message" rows="6" class="base-input w-full rounded-lg" placeholder="Tinggalkan pesan..."></textarea>
                     </div>
                     <button
                         type="submit"

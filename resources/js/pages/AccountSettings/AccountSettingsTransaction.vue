@@ -6,7 +6,7 @@ import AccountSettings from '@/layouts/AccountSettingsLayout.vue';
 import axios from 'axios';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ReceiptText } from 'lucide-vue-next';
+import { CreditCard, ReceiptText, X } from 'lucide-vue-next';
 import { Swiper } from 'swiper';
 import { Navigation, Pagination } from 'swiper/modules';
 import { ref } from 'vue';
@@ -71,7 +71,7 @@ const createSnapPayment = async () => {
                                 class="flex flex-wrap items-center justify-between border-b pb-2 text-base leading-none font-bold text-foreground md:text-lg"
                             >
                                 <p>RVB201220250001</p>
-                                <div class="rounded border border-primary-700 bg-primary-500/80 p-1 text-xs">Status</div>
+                                <div class="rounded border-primary-700 bg-primary-500/80 p-1 text-xs">Status</div>
                             </div>
                             <p class="mt-1 text-xs font-normal text-foreground/80 md:text-base">5 Jenis Barang</p>
                             <p class="mt-1 text-base font-bold text-foreground/80 md:text-lg">Rp 250.000</p>
@@ -81,20 +81,23 @@ const createSnapPayment = async () => {
                                     @click="detailModal?.open()"
                                     class="flex cursor-pointer items-center justify-center text-sm font-medium text-nowrap text-foreground underline hover:opacity-80 md:text-base"
                                 >
+                                    <div class="me-2">|</div>
                                     <ReceiptText class="me-2 h-4 w-4" /> Detail Transaksi
                                 </button>
                                 <div class="flex flex-wrap gap-2">
                                     <button
-                                        class="flex cursor-pointer items-center justify-center text-sm font-medium text-nowrap text-red-600 underline hover:opacity-80 md:text-base dark:text-red-500"
+                                        class="flex cursor-pointer items-center justify-center text-sm font-medium text-nowrap underline hover:opacity-80 md:text-base"
                                     >
-                                        Batalkan
+                                        <div class="me-2">|</div>
+                                        <X class="me-2 h-4 w-4" /> Batalkan
                                     </button>
-                                    <div>|</div>
+
                                     <button
                                         @click="createSnapPayment()"
-                                        class="flex cursor-pointer items-center justify-center text-sm font-medium text-nowrap text-green-600 underline hover:opacity-80 md:text-base"
+                                        class="flex cursor-pointer items-center justify-center text-sm font-medium text-nowrap underline hover:opacity-80 md:text-base"
                                     >
-                                        Bayar
+                                        <div class="me-2">|</div>
+                                        <CreditCard class="me-2 h-4 w-4" /> Bayar
                                     </button>
                                 </div>
                             </div>
