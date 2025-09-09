@@ -64,10 +64,17 @@ const downloadDraftCart = async () => {
 // ✅ Coupon Handling
 const hasCupon = computed(() => cart.value.cupon.code !== '');
 
-const applyCuponCode = () => {
+const applyCuponCode = async () => {
     const code = cuponRef.value.trim();
     if (!code) return;
-
+    const response = await fetchAPI('cart/apply-coupon', {
+        method: 'POST',
+        data: {
+            code: code,
+            cart: cart.value,
+        },
+    });
+    console.log(response);
     if (code === 'DISCOUNT10') {
         applyCupon({ code, discount: 10, type: 'percentage' });
     } else {
@@ -176,7 +183,7 @@ onMounted(async () => {
                                 <LockKeyhole class="h-10 w-10 !text-primary-600" />
                                 <Link href="/login" class="text-sm underline">Harap login terlebih dahulu disini</Link>
                             </div>
-                            <div class="mb-7 flex items-center justify-end md:w-full gap-2 md:px-6" v-if="!isCartEmpty()">
+                            <div class="mb-7 flex items-center justify-end gap-2 md:w-full md:px-6" v-if="!isCartEmpty()">
                                 <ButtonMain
                                     id="download-draft-cart"
                                     type="button"

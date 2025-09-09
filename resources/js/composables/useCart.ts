@@ -25,7 +25,7 @@ export type CartItem = {
         image?: string;
     }[];
     quantity: number;
-    notes?: string;
+    note?: string;
 };
 type Cupon = {
     code: string;
@@ -112,6 +112,13 @@ export function useCart() {
             saveCartToStorage();
         }
     };
+    const setNoteCartItem = (id: string, note: string) => {
+        const item = cart.value.items.find((i) => i.id === id);
+        if (item) {
+            item.note = note;
+            saveCartToStorage();
+        }
+    };
     const removeFromCart = (item: CartItem) => {
         cart.value.items = cart.value.items.filter((i) => i.id !== item.id);
         saveCartToStorage();
@@ -164,6 +171,7 @@ export function useCart() {
                 cart.value = JSON.parse(storedCart);
             }
         } catch (error) {
+            console.error('Gagal memuat data keranjang dari localStorage:', error);
             localStorage.removeItem('cart');
             resetCart();
         }
@@ -218,5 +226,6 @@ export function useCart() {
         applyCupon,
         getCartTotalItem,
         validateCart,
+        setNoteCartItem,
     };
 }

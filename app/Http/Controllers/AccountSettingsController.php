@@ -39,6 +39,11 @@ class AccountSettingsController extends RiviesAPIController
         return Inertia::render('AccountSettings/AccountSettingsTransaction');
     }
 
+    public function vouchers_view(Request $request)
+    {
+        return Inertia::render('AccountSettings/AccountSettingsVouchers');
+    }
+
     // API Endpoints for update user information
     public function update_profile(Request $request)
     {

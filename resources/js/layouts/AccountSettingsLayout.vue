@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Swiper } from 'swiper';
@@ -10,13 +10,12 @@ import { nextTick, onMounted, ref } from 'vue';
 // Register Library
 Swiper.use([Navigation, Pagination]);
 gsap.registerPlugin(ScrollTrigger);
-const page = usePage();
 
 const links = [
     { name: 'Informasi Akun', href: '/account-settings', icon: 'User', active: false, nonac: false },
     { name: 'Daftar Alamat', href: '/account-settings/address', icon: 'map-pin', active: false, nonac: false },
     { name: 'Transaksi', href: '/account-settings/transactions', icon: 'history', active: false, nonac: false },
-    { name: 'Voucher', href: '#', icon: 'percent', active: false, nonac: true },
+    { name: 'Voucher', href: '/account-settings/vouchers', icon: 'percent', active: false, nonac: false },
     { name: 'Ubah Password', href: '#', icon: 'lock', active: false, nonac: true },
     { name: 'Verifikasi Email', href: '#', icon: 'mail', active: false, nonac: true },
 ];

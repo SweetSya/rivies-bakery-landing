@@ -89,6 +89,7 @@ class ProductController extends RiviesAPIController
                 'tag' => $price['tag'],
                 'price' => $price['price'],
                 'discount' => $discount,
+                'description' => $price['description'] ?? '',
             ];
         }
         return $prices;

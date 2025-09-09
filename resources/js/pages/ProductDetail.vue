@@ -25,16 +25,16 @@ const { getStorage } = useAPI();
 
 // 🔹 Types
 type PreviewImage = { url: string; width: number; height: number };
-type ProductPrice = { id: string; tag: string; price: number; discount?: number };
+type ProductPrice = { id: string; tag: string; description: [string, string][]; price: number; discount?: number };
 
 // 🔹 Props from server
 const page = usePage();
 const baseProduct = page.props.product as CartItem;
 const prices = ref<ProductPrice[]>(page.props.prices as ProductPrice[]);
-console.log(page.props.product);
 // 🔹 State
 const product = ref<CartItem>({ ...baseProduct });
 const previewImages = ref<PreviewImage[]>([]);
+const descriptionPrices = ref<[string, string][]>([]);
 
 // 🔹 Helpers
 const backgroundImage = computed(() => product.value.images?.[0] ?? '');
@@ -63,6 +63,7 @@ const selectPrice = (price: ProductPrice | null) => {
         discount: Number(price.discount) || 0,
         quantity: 1,
     };
+    descriptionPrices.value = price.description || [];
 };
 
 // 🔹 Lifecycle
@@ -131,7 +132,7 @@ onMounted(async () => {
                             >
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4" />
                             </svg>
-                            <span class="ms-1 text-sm font-medium text-base-100/70 md:ms-2 text-nowrap">Detail Produk</span>
+                            <span class="ms-1 text-sm font-medium text-nowrap text-base-100/70 md:ms-2">Detail Produk</span>
                         </div>
                     </li>
                 </ol>
@@ -197,7 +198,7 @@ onMounted(async () => {
                     </p>
 
                     <p class="mb-6 font-light text-gray-500 md:text-lg dark:text-gray-400">
-                        {{ product.description || 'Deskripsi produk tidak tersedia' }}
+                        {{ product.description }}
                     </p>
 
                     <!-- Variant buttons -->
@@ -213,7 +214,13 @@ onMounted(async () => {
                             {{ value.tag }}
                         </ButtonMain>
                     </div>
-
+                    <!-- Description -->
+                    <div class="mb-4">
+                        <div v-for="(value, key) in descriptionPrices" :key="key">
+                            <p class="text-sm font-bold md:text-base">{{ key }} :</p>
+                            <p class="text-sm text-gray-500 md:text-base dark:text-gray-400">{{ value }}</p>
+                        </div>
+                    </div>
                     <!-- Action buttons -->
                     <div class="flex w-full gap-2">
                         <ButtonMain
@@ -223,7 +230,7 @@ onMounted(async () => {
                             @click="addToCart({ ...product, quantity: 1 })"
                         >
                             <ShoppingBag class="h-5 w-5" />
-                            Tambah ke Keranjang
+                            Tambah
                         </ButtonMain>
                         <ButtonMain type="button" :outline="true" :extend-class="'!rounded-r-lg'">
                             <Bookmark class="h-5 w-5" />

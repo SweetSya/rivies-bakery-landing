@@ -346,7 +346,6 @@ defineOptions({
                                 id="label"
                                 type="text"
                                 helper-text="Contoh: Rumah, Kantor, dll."
-                                class="col-span-2"
                                 placeholder=""
                                 :required="true"
                             />
@@ -358,7 +357,6 @@ defineOptions({
                                 id="reciever"
                                 type="text"
                                 helper-text="Nama lengkap penerima pesanan"
-                                class="col-span-2"
                                 placeholder=""
                                 :required="true"
                             />
@@ -370,7 +368,6 @@ defineOptions({
                                 id="phone"
                                 type="number"
                                 helper-text="Contoh: 621234567890, 081234567890"
-                                class="col-span-2"
                                 placeholder=""
                                 :prefix="true"
                                 :prefix-class="'bg-primary-600 text-background border-border'"
@@ -386,9 +383,7 @@ defineOptions({
                                 id="address"
                                 type="textarea"
                                 helper-text="Alamat lengkap penerima pesanan"
-                                class="col-span-2"
                                 placeholder=""
-                                :textArea="true"
                                 :required="true"
                             />
                         </div>
@@ -398,7 +393,6 @@ defineOptions({
                                 id="address"
                                 type="custom"
                                 helper-text="Opsional, berikan titik lokasi saat ini untuk memudahkan kurir menemukan alamatmu"
-                                class="col-span-2"
                                 placeholder=""
                             >
                                 <template #custom>
@@ -457,7 +451,6 @@ defineOptions({
                                 id="label"
                                 type="text"
                                 helper-text="Contoh: Rumah, Kantor, dll."
-                                class="col-span-2"
                                 placeholder=""
                                 :required="true"
                             />
@@ -469,7 +462,6 @@ defineOptions({
                                 id="reciever"
                                 type="text"
                                 helper-text="Nama lengkap penerima pesanan"
-                                class="col-span-2"
                                 placeholder=""
                                 :required="true"
                             />
@@ -481,7 +473,6 @@ defineOptions({
                                 id="phone"
                                 type="number"
                                 helper-text="Contoh: 621234567890, 081234567890"
-                                class="col-span-2"
                                 placeholder=""
                                 :prefix="true"
                                 :prefix-class="'bg-primary-600 text-background border-border'"
@@ -497,9 +488,7 @@ defineOptions({
                                 id="address"
                                 type="textarea"
                                 helper-text="Alamat lengkap penerima pesanan"
-                                class="col-span-2"
                                 placeholder=""
-                                :textArea="true"
                                 :required="true"
                             />
                         </div>
@@ -509,7 +498,6 @@ defineOptions({
                                 id="address"
                                 type="custom"
                                 helper-text="Opsional, berikan titik lokasi saat ini untuk memudahkan kurir menemukan alamatmu"
-                                class="col-span-2"
                                 placeholder=""
                             >
                                 <template #custom>
