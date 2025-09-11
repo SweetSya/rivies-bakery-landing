@@ -13,6 +13,7 @@ class CheckoutController extends RiviesAPIController
     }
     public function view()
     {
+
         return Inertia::render('Checkout');
     }
 

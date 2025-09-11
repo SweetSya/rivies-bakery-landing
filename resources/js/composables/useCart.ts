@@ -28,6 +28,7 @@ export type CartItem = {
     note?: string;
 };
 type Cupon = {
+    id: string;
     code: string;
     type: string | 'percentage' | 'fixed';
     discount: number;
@@ -48,6 +49,7 @@ const cart = ref<Cart>({
     total: 0,
     tax: 0,
     cupon: {
+        id: '',
         code: '',
         type: '',
         discount: 0,
@@ -126,6 +128,7 @@ export function useCart() {
     };
     const applyCupon = (cupon: Cupon) => {
         cart.value.cupon = {
+            id: cupon.id,
             code: cupon.code,
             type: cupon.type,
             discount: cupon.discount,
@@ -145,6 +148,7 @@ export function useCart() {
             items: [],
             tax: 0,
             cupon: {
+                id: '',
                 code: '',
                 type: '',
                 discount: 0,

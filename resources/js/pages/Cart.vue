@@ -9,7 +9,8 @@ import { useNotifications } from '@/composables/useNotifications';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { ArrowRight, LockKeyhole, ReceiptText, X } from 'lucide-vue-next';
-import { computed, onMounted, ref } from 'vue';
+import TomSelect from 'tom-select';
+import { computed, nextTick, onMounted, ref } from 'vue';
 
 defineOptions({ components: { AppLayout } });
 
@@ -21,7 +22,9 @@ const page = usePage();
 const cart = computed(() => getCart());
 const cuponRef = ref<string>('');
 const pageLoad = ref(true);
+const partialLoading = ref(false);
 const downloadLoading = ref(false);
+const cuponTomSelect = ref<TomSelect | null>(null);
 
 // ✅ Download Draft
 const downloadDraftCart = async () => {
@@ -65,28 +68,39 @@ const downloadDraftCart = async () => {
 const hasCupon = computed(() => cart.value.cupon.code !== '');
 
 const applyCuponCode = async () => {
-    const code = cuponRef.value.trim();
+    partialLoading.value = true;
+    const code = cuponTomSelect.value?.getValue() as string;
     if (!code) return;
-    const response = await fetchAPI('cart/apply-coupon', {
+    const response = await fetchAPI('cart/apply-voucher', {
         method: 'POST',
         data: {
-            code: code,
             cart: cart.value,
+            code: code,
         },
     });
-    console.log(response);
-    if (code === 'DISCOUNT10') {
-        applyCupon({ code, discount: 10, type: 'percentage' });
+    if (response.status === 200 && response.data.valid) {
+        console.log(response.data.cart.cupon);
+        applyCupon(response.data.cart.cupon);
     } else {
         notivueError('Kode kupon tidak valid.');
         clearCupon();
     }
+    partialLoading.value = false;
 };
 
 const clearCupon = () => {
-    cuponRef.value = '';
-    applyCupon({ code: '', discount: 0, type: '' });
-    notivueSuccess('Kode diskon berhasil dibersihkan.');
+    cuponTomSelect.value?.clear();
+    applyCupon({ id: '', code: '', discount: 0, type: '' });
+};
+const initializeTomSelectCupon = () => {
+    cuponTomSelect.value = new TomSelect('#select-cupon', {
+        valueField: 'id',
+        labelField: 'title',
+        searchField: ['title'],
+        options: (page.props.vouchers as Array<{ id: string; title: string; code: string }> | []) || [],
+        persist: false,
+        create: false,
+    });
 };
 
 // ✅ Totals
@@ -96,11 +110,12 @@ const totalAfterDiscounts = computed(() => cart.value.total - productDiscount.va
 const taxAmount = computed(() => (cart.value.tax / 100) * cart.value.total);
 
 onMounted(async () => {
-    cuponRef.value = '';
-    applyCupon({ code: '', discount: 0, type: '' });
-
+    applyCupon({ id: '', code: '', discount: 0, type: '' });
     await validateCart();
     pageLoad.value = false;
+    nextTick(() => {
+        initializeTomSelectCupon();
+    });
 });
 </script>
 
@@ -204,15 +219,21 @@ onMounted(async () => {
                                 <div class="space-y-4 rounded-lg p-4 sm:p-6">
                                     <form @submit.prevent="applyCuponCode" class="space-y-4">
                                         <label for="voucher" class="mb-2 block text-sm font-medium">Memiliki kode voucher atau kupon?</label>
-                                        <input
+                                        <!-- <input
                                             v-model="cuponRef"
                                             id="voucher"
                                             type="text"
                                             :disabled="hasCupon"
                                             class="block w-full rounded-lg border p-2.5 text-sm"
-                                        />
+                                        /> -->
+                                        <select id="select-cupon" placeholder="Cari Kupon.."></select>
                                         <div class="flex gap-2">
-                                            <ButtonMain type="submit" :disabled="hasCupon" extend-class="!w-full !text-xs !py-2">
+                                            <ButtonMain
+                                                type="submit"
+                                                :disabled="hasCupon"
+                                                :is-loading="partialLoading"
+                                                extend-class="!w-full !text-xs !py-2"
+                                            >
                                                 Terapkan Kode
                                             </ButtonMain>
                                             <ButtonMain v-if="hasCupon" type="button" @click="clearCupon" extend-class="!w-fit !text-xs !py-2">

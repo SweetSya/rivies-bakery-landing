@@ -41,7 +41,11 @@ class AccountSettingsController extends RiviesAPIController
 
     public function vouchers_view(Request $request)
     {
-        return Inertia::render('AccountSettings/AccountSettingsVouchers');
+        $response = $this->apiGet("vouchers/user-vouchers", aborting: false);
+        $vouchers = $response->json()['vouchers'] ?? [];
+        return Inertia::render('AccountSettings/AccountSettingsVouchers', [
+            'vouchers' => $vouchers
+        ]);
     }
 
     // API Endpoints for update user information

@@ -8,7 +8,7 @@ import { useMidtrans } from '@/composables/useMidtrans';
 import { useNotifications } from '@/composables/useNotifications';
 import AppLayout from '@/layouts/AppLayout.vue';
 import PaymentSuccessAnimation from '@/lotties/payment-success.json';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import { LottieAnimation } from 'lottie-web-vue';
 import { ArrowRight } from 'lucide-vue-next';
@@ -18,9 +18,9 @@ const { notivueSuccess, notivueError, notivueInfo } = useNotifications();
 const { pay } = useMidtrans();
 
 const { getCart, resetCart, isCartEmpty, validateCart } = useCart();
-const { getCheckout, isCheckoutEmpty, resetCheckout } = useCheckout();
+const { getCheckout, isCheckoutEmpty, resetCheckout, setAddress } = useCheckout();
 
-const selectAddress = ref(<string>'');
+const page = usePage();
 type Address = {
     id: string;
     label: string;
@@ -47,6 +47,21 @@ const cart = computed(() => getCart());
 const pageLoad = ref(true);
 const snapPaymentLoading = ref(false);
 const afterPaymentCompleteAnimation = ref(false);
+const addressList = ref<Address[]>([]);
+
+const findAddressById = (id: string) => {
+    return addressList.value.find((addr) => addr.id === id) || null;
+};
+const handleAddressChange = (event: Event) => {
+    const target = event.target as HTMLSelectElement;
+    const selectedId = target.value;
+    const address = findAddressById(selectedId);
+    if (address) {
+        setAddress(address);
+    } else {
+        setAddress(null);
+    }
+};
 // Create payment
 const createSnapPayment = async () => {
     // check payment method
@@ -92,6 +107,7 @@ onMounted(async () => {
         router.visit('/cart');
         return;
     }
+    addressList.value = page.props.auth.user.addresses || [];
     //Check params
     const params = new URLSearchParams(window.location.search);
     if (params.has('payment-completed')) {
@@ -195,6 +211,57 @@ onUnmounted(() => {
                     <div class="mt-6 sm:mt-8 lg:flex lg:items-start lg:gap-12 xl:gap-16">
                         <div class="min-w-0 flex-1 space-y-8">
                             <div class="space-y-4">
+                                <h3 class="text-xl font-semibold text-foreground">Metode Pembayaran</h3>
+
+                                <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                    <label for="pay-with-online" class="cursor-pointer rounded-lg border bg-transparent p-4 ps-4">
+                                        <div class="flex items-start">
+                                            <div class="flex h-5 items-center">
+                                                <input
+                                                    id="pay-with-online"
+                                                    aria-describedby="pay-on-delivery-text"
+                                                    type="radio"
+                                                    name="payment-method"
+                                                    v-model="checkout.payment.method"
+                                                    value="online"
+                                                    class="h-4 w-4 bg-background text-primary-600 focus:ring-2 focus:ring-primary-600"
+                                                />
+                                            </div>
+
+                                            <div class="ms-4 text-sm">
+                                                <div class="leading-none font-medium text-base-900 dark:text-white">Online</div>
+                                                <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-base-500 dark:text-base-400">
+                                                    Pembayaran secara online melalui payment gateway
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </label>
+
+                                    <label for="pay-with-offline" class="cursor-pointer rounded-lg border bg-transparent p-4 ps-4">
+                                        <div class="flex items-start">
+                                            <div class="flex h-5 items-center">
+                                                <input
+                                                    id="pay-with-offline"
+                                                    aria-describedby="pay-on-delivery-text"
+                                                    type="radio"
+                                                    name="payment-method"
+                                                    v-model="checkout.payment.method"
+                                                    value="offline"
+                                                    class="h-4 w-4 bg-background text-primary-600 focus:ring-2 focus:ring-primary-600"
+                                                />
+                                            </div>
+
+                                            <div class="ms-4 text-sm">
+                                                <div class="leading-none font-medium text-base-900 dark:text-white">Offline (Manual)</div>
+                                                <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-base-500 dark:text-base-400">
+                                                    Pembayaran dengan konfirmasi melalui pihak Rivie's Bakery
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
                                 <h3 class="text-xl font-semibold text-base-900 dark:text-white">Metode Pengambilan</h3>
 
                                 <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -273,27 +340,26 @@ onUnmounted(() => {
 
                                 <select
                                     id="countries"
-                                    v-model="selectAddress"
+                                    @change="handleAddressChange($event)"
                                     class="block w-full rounded-lg border border-base-300 bg-background p-2.5 text-sm text-base-900 focus:border-primary-500 focus:ring-primary-500 dark:border-base-600 dark:text-white dark:placeholder:text-base-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
                                 >
                                     <option value="" selected>Pilih alamat..</option>
-                                    <option value="address1">Alamat 1</option>
-                                    <option value="address2">Alamat 2</option>
+                                    <option v-for="value in addressList" :key="value.id" :value="value.id">
+                                        {{ value.label }} - {{ value.recipientName }}
+                                    </option>
                                 </select>
-                                <p
-                                    v-show="![''].includes(selectAddress)"
-                                    class="mt-1 text-xs font-normal text-base-500 md:text-base dark:text-base-400"
-                                >
+                                <p v-show="checkout.address != null" class="mt-1 text-xs font-normal text-base-500 md:text-base dark:text-base-400">
                                     Ditambahkan secara otomatis berdasarkan data yang ada, untuk mengubah alamat harap
-                                    <Link href="/account" class="text-primary-600 underline">klik disini</Link>
+                                    <Link href="/account-settings/address" class="text-primary-600 underline">klik disini</Link>
                                 </p>
-                                <div class="grid gap-4 overflow-hidden md:grid-cols-2" v-show="selectAddress !== ''">
+                                <div class="grid gap-4 overflow-hidden md:grid-cols-2" v-show="checkout.address?.id !== ''">
                                     <div>
-                                        <label for="name" class="mb-2 block text-sm font-medium text-base-900 dark:text-white"> Nama Lengkap </label>
+                                        <label for="name" class="mb-2 block text-sm font-medium text-base-900 dark:text-white"> Nama Penerima </label>
                                         <input
-                                            v-model="checkout.fullName"
+                                            :value="checkout.address?.recipientName"
                                             type="text"
                                             id="name"
+                                            disabled
                                             class="block w-full rounded-lg border border-base-300 bg-transparent p-2.5 text-sm text-base-900 focus:border-primary-500 focus:ring-primary-500 dark:border-base-600 dark:text-white dark:placeholder:text-base-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
                                             placeholder=""
                                             required
@@ -301,11 +367,14 @@ onUnmounted(() => {
                                     </div>
 
                                     <div>
-                                        <label for="name" class="mb-2 block text-sm font-medium text-base-900 dark:text-white"> Email </label>
+                                        <label for="name" class="mb-2 block text-sm font-medium text-base-900 dark:text-white">
+                                            No Telp. Penerima
+                                        </label>
                                         <input
-                                            v-model="checkout.email"
-                                            type="email"
-                                            id="email"
+                                            :value="checkout.address?.phoneNumber"
+                                            type="tel"
+                                            id="phone"
+                                            disabled
                                             class="block w-full rounded-lg border border-base-300 bg-transparent p-2.5 text-sm text-base-900 focus:border-primary-500 focus:ring-primary-500 dark:border-base-600 dark:text-white dark:placeholder:text-base-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
                                             placeholder=""
                                             required
@@ -317,68 +386,16 @@ onUnmounted(() => {
                                             Alamat Lengkap
                                         </label>
                                         <textarea
-                                            v-model="checkout.address"
+                                            :value="checkout.address?.fullAddress"
                                             name="address"
                                             id="address"
                                             rows="4"
+                                            disabled
                                             class="block w-full rounded-lg border border-base-300 bg-transparent p-2.5 text-sm text-base-900 focus:border-primary-500 focus:ring-primary-500 dark:border-base-600 dark:text-white dark:placeholder:text-base-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
                                         ></textarea>
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="space-y-4">
-                                <h3 class="text-xl font-semibold text-foreground">Metode Pembayaran</h3>
-
-                                <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-                                    <label for="pay-with-online" class="cursor-pointer rounded-lg border bg-transparent p-4 ps-4">
-                                        <div class="flex items-start">
-                                            <div class="flex h-5 items-center">
-                                                <input
-                                                    id="pay-with-online"
-                                                    aria-describedby="pay-on-delivery-text"
-                                                    type="radio"
-                                                    name="payment-method"
-                                                    v-model="checkout.payment.method"
-                                                    value="online"
-                                                    class="h-4 w-4 bg-background text-primary-600 focus:ring-2 focus:ring-primary-600"
-                                                />
-                                            </div>
-
-                                            <div class="ms-4 text-sm">
-                                                <div class="leading-none font-medium text-base-900 dark:text-white">Online</div>
-                                                <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-base-500 dark:text-base-400">
-                                                    Pembayaran secara online melalui payment gateway
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </label>
-
-                                    <label for="pay-with-offline" class="cursor-pointer rounded-lg border bg-transparent p-4 ps-4">
-                                        <div class="flex items-start">
-                                            <div class="flex h-5 items-center">
-                                                <input
-                                                    id="pay-with-offline"
-                                                    aria-describedby="pay-on-delivery-text"
-                                                    type="radio"
-                                                    name="payment-method"
-                                                    v-model="checkout.payment.method"
-                                                    value="offline"
-                                                    class="h-4 w-4 bg-background text-primary-600 focus:ring-2 focus:ring-primary-600"
-                                                />
-                                            </div>
-
-                                            <div class="ms-4 text-sm">
-                                                <div class="leading-none font-medium text-base-900 dark:text-white">Offline (Manual)</div>
-                                                <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-base-500 dark:text-base-400">
-                                                    Pembayaran dengan konfirmasi melalui pihak Rivie's Bakery
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
-
                             <div v-show="checkout.delivery.method === 'PICKUP'" class="space-y-3">
                                 <h2 class="text-lg font-semibold text-base-900 dark:text-white">Estimasi Pengambilan</h2>
                                 <p class="mt-1 text-xs font-normal text-base-500 md:text-base dark:text-base-400">

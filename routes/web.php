@@ -28,6 +28,7 @@ Route::group([
     Route::get('/products/detail', [ProductController::class, 'single'])->name('product.detail');
     Route::get('/cart',  [CartController::class, 'view'])->name('cart');
     Route::post('/cart/validate', [CartController::class, 'validate_cart'])->name('cart.validate');
+    Route::post('/cart/apply-voucher', [CartController::class, 'apply_voucher'])->name('cart.apply-voucher');
     Route::post('/cart/download-draft',  [CartController::class, 'download_draft_cart'])->name('cart.download-draft');
     // Other
     Route::get('/about', function () {

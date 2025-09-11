@@ -19,7 +19,7 @@ type Address = {
 
 export type CheckoutData = {
     fullName: string;
-    email: string;
+    phone: string;
     address: Address | null;
     payment: {
         method: string;
@@ -33,7 +33,7 @@ export type CheckoutData = {
 };
 const checkout = ref<CheckoutData>({
     fullName: '',
-    email: '',
+    phone: '',
     address: null,
     payment: {
         method: '',
@@ -49,10 +49,17 @@ export function useCheckout() {
     const setCheckout = (data: CheckoutData) => {
         checkout.value = data;
     };
+    const setAddress = (address: Address | null) => {
+        if (!address) {
+            checkout.value.address = null;
+            return;
+        }
+        checkout.value.address = address;
+    };
     const resetCheckout = () => {
         checkout.value = {
             fullName: '',
-            email: '',
+            phone: '',
             address: null,
             payment: {
                 method: '',
@@ -84,5 +91,6 @@ export function useCheckout() {
         resetCheckout,
         getPaymentStatus,
         isCheckoutEmpty,
+        setAddress,
     };
 }

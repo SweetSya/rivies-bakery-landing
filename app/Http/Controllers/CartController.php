@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class CartController extends RiviesAPIController
@@ -14,7 +15,25 @@ class CartController extends RiviesAPIController
     }
     public function view()
     {
-        return Inertia::render('Cart');
+        if ($this->authenticated) {
+            $response = $this->apiGet("vouchers/user-vouchers", aborting: false);
+            $vouchers = $response->json()['vouchers'] ?? [];
+            if ($vouchers && count($vouchers) > 0) {
+                foreach ($vouchers as &$voucher) {
+                    $voucher_id = $voucher['voucher']['id'] ?? null;
+                    unset($voucher['voucher']['id']);
+                    $voucher = [
+                        ...$voucher,
+                        'voucher_id' => $voucher_id,
+                        ...$voucher['voucher']
+                    ];
+                    unset($voucher['voucher']);
+                }
+            }
+        }
+        return Inertia::render('Cart', [
+            'vouchers' => $vouchers  ?? []
+        ]);
     }
     public function testAuth(Request $request)
     {
@@ -39,6 +58,28 @@ class CartController extends RiviesAPIController
             'cart' => $data['cart'],
         ]);
     }
+    public function apply_voucher(Request $request)
+    {
+        $data = $request->all();
+        $data['cart']['cupon']['id'] = $data['code'] ?? null;
+        unset($data['code']);
+
+        $response = $this->apiPost(
+            "checkout/validate-cart",
+            $data,
+            aborting: false
+        );
+        $data = $response->json();
+        // dd($response->json());
+        // Here you can add your validation logic, e.g., check stock, prices, etc.
+        // For demonstration, we'll just return the received cart items.
+        return response()->json([
+            'valid' => $data['valid'],
+            'errors' => $data['errors'],
+            'cart' => $data['cart'],
+        ]);
+    }
+
     public function download_draft_cart(Request $request)
     {
         $cart = $request->all();
