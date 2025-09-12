@@ -74,6 +74,7 @@ Route::group([
             Route::post('/address/delete', [AccountSettingsController::class, 'delete_address'])->name('account-settings.delete-address');
             // Account Settings - Transaction
             Route::get('/transactions', [AccountSettingsController::class, 'transactions_view'])->name('account-settings.transaction');
+            Route::post('/transactions/detail', [AccountSettingsController::class, 'transactions_detail'])->name('account-settings.transaction.detail');
             // Account Settings - Voucher
             Route::get('/vouchers', [AccountSettingsController::class, 'vouchers_view'])->name('account-settings.vouchers');
         });

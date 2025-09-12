@@ -41,7 +41,7 @@ class CheckoutController extends RiviesAPIController
     {
         $data = $request->all();
         $response = $this->apiPost(
-            "payment/get-or-create",
+            "order/create",
             $data,
             aborting: false
         );

@@ -36,7 +36,11 @@ class AccountSettingsController extends RiviesAPIController
 
     public function transactions_view(Request $request)
     {
-        return Inertia::render('AccountSettings/AccountSettingsTransaction');
+        $response = $this->apiGet("account-settings/transactions", aborting: false);
+        $orders = $response->json()['orders'] ?? [];
+        return Inertia::render('AccountSettings/AccountSettingsTransaction', [
+            'orders' => $orders
+        ]);
     }
 
     public function vouchers_view(Request $request)
@@ -212,6 +216,59 @@ class AccountSettingsController extends RiviesAPIController
 
         return response()->json([
             'error' => 'Gagal menghapus alamat',
+            'details' => $data
+        ], $response->status());
+    }
+
+    public function transactions_detail(Request $request)
+    {
+        $validated = $request->validate([
+            'invoice_number' => 'required',
+        ], [
+            'invoice_number.required' => 'No Invoice pesanan diperlukan.',
+        ]);
+
+        $response = $this->apiPost(
+            "account-settings/transactions/get",
+            $validated,
+            aborting: false
+        );
+
+        $data = $response->json();
+        if ($response->successful()) {
+            return response()->json([
+                'order' => $data['orders'][0] ?? null
+            ]);
+        }
+
+        return response()->json([
+            'error' => 'Gagal mengambil detail pesanan',
+            'details' => $data
+        ], $response->status());
+    }
+    public function transactions_get_payment(Request $request)
+    {
+        $validated = $request->validate([
+            'invoice_number' => 'required',
+        ], [
+            'invoice_number.required' => 'No Invoice pesanan diperlukan.',
+        ]);
+
+        $response = $this->apiPost(
+            "account-settings/transactions/get-payment",
+            $validated,
+            aborting: false
+        );
+
+        $data = $response->json();
+        if ($response->successful()) {
+            return response()->json([
+                'order' => $data['orders'][0] ?? null
+            ]);
+        }
+
+        return response()->json([
+            'error' => 'Gagal mengambil detail pesanan',
             'details' => $data
         ], $response->status());
     }

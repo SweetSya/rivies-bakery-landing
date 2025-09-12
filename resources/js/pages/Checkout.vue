@@ -91,11 +91,12 @@ const createSnapPayment = async () => {
                 onPending: (result: any) => (notivueInfo('Pembayaran sedang diproses.'), console.log(result)),
                 onError: (result: any) => (notivueError('Pembayaran gagal.'), console.log(result)),
             });
-        } catch (error) {
-            console.error('Payment error:', error);
-        } finally {
             resetCart();
             resetCheckout();
+        } catch (error) {
+            console.error('Payment error:', error);
+            notivueError('Gagal melakukan pembayaran, silahkan coba lagi.');
+        } finally {
             snapPaymentLoading.value = false;
         }
     } else {

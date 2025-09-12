@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import BaseModal from '@/components/modal/BaseModal.vue';
+import { useAPI } from '@/composables/useAPI';
+import { formatRupiah } from '@/composables/useHelperFunctions';
 import { useMidtrans } from '@/composables/useMidtrans';
 import { useNotifications } from '@/composables/useNotifications';
 import AccountSettings from '@/layouts/AccountSettingsLayout.vue';
+import { usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -15,17 +18,50 @@ import { ref } from 'vue';
 Swiper.use([Navigation, Pagination]);
 gsap.registerPlugin(ScrollTrigger);
 
+const page = usePage();
+const { fetchAPI } = useAPI();
 const { notivueSuccess, notivueError, notivueInfo } = useNotifications();
 const { pay } = useMidtrans();
+
+console.log(page.props);
 
 defineOptions({
     components: {
         AccountSettings,
     },
 });
+type Order = {
+    id: string;
+    customer_id: string;
+    invoice_number: string;
+    order_details_count: number;
+    status: string;
+    payment?: any;
+    order_details?: any[];
+    total_amount: number;
+};
 
+const orders = ref<Order[]>((page.props.orders as Order[]) || []);
 const detailModal = ref<typeof BaseModal | null>(null);
+const detailModalOrder = ref<Order | null>(null);
+const fetchLoading = ref(false);
 
+const prepareDetailModal = async (order: Order) => {
+    fetchLoading.value = true;
+    detailModal.value?.open();
+    const response = await fetchAPI('/account-settings/transactions/detail', {
+        method: 'POST',
+        data: {
+            invoice_number: order.invoice_number,
+        },
+    });
+    detailModalOrder.value = response.data.order as Order;
+    console.log(detailModalOrder.value);
+    fetchLoading.value = false;
+};
+const closeDetailModal = () => {
+    detailModalOrder.value = null;
+};
 const createSnapPayment = async () => {
     try {
         const response = await axios.get('/payment-midtrans');
@@ -64,21 +100,21 @@ const createSnapPayment = async () => {
                 </select>
             </div>
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div v-for="value of [1, 2, 3]" :key="value" class="rounded-lg border bg-transparent p-4 ps-4">
+                <div v-for="order in orders" :key="order.id" class="rounded-lg border bg-transparent p-4 ps-4">
                     <div class="flex items-start">
                         <div class="w-full space-y-2 text-sm">
                             <div
                                 class="flex flex-wrap items-center justify-between border-b pb-2 text-base leading-none font-bold text-foreground md:text-lg"
                             >
-                                <p>RVB201220250001</p>
-                                <div class="rounded border-primary-700 bg-primary-500/80 p-1 text-xs">Status</div>
+                                <p>{{ order.invoice_number }}</p>
+                                <div class="rounded border-primary-700 bg-primary-500/80 p-1 text-xs">{{ order.status }}</div>
                             </div>
-                            <p class="mt-1 text-xs font-normal text-foreground/80 md:text-base">5 Jenis Barang</p>
-                            <p class="mt-1 text-base font-bold text-foreground/80 md:text-lg">Rp 250.000</p>
+                            <p class="mt-1 text-xs font-normal text-foreground/80 md:text-base">{{ order.order_details_count }} Barang</p>
+                            <p class="mt-1 text-base font-bold text-foreground/80 md:text-lg">{{ formatRupiah(order.total_amount) }}</p>
 
                             <div class="flex flex-wrap justify-between gap-3">
                                 <button
-                                    @click="detailModal?.open()"
+                                    @click="prepareDetailModal(order)"
                                     class="flex cursor-pointer items-center justify-center text-sm font-medium text-nowrap text-foreground underline hover:opacity-80 md:text-base"
                                 >
                                     <div class="me-2">|</div>
@@ -86,6 +122,7 @@ const createSnapPayment = async () => {
                                 </button>
                                 <div class="flex flex-wrap gap-2">
                                     <button
+                                        v-if="['pending'].includes(order.status)"
                                         class="flex cursor-pointer items-center justify-center text-sm font-medium text-nowrap underline hover:opacity-80 md:text-base"
                                     >
                                         <div class="me-2">|</div>
@@ -93,6 +130,7 @@ const createSnapPayment = async () => {
                                     </button>
 
                                     <button
+                                        v-if="['pending'].includes(order.status)"
                                         @click="createSnapPayment()"
                                         class="flex cursor-pointer items-center justify-center text-sm font-medium text-nowrap underline hover:opacity-80 md:text-base"
                                     >
@@ -105,7 +143,14 @@ const createSnapPayment = async () => {
                     </div>
                 </div>
             </div>
-            <BaseModal :id="'detail-modal'" :title="'Detail Transaksi'" :isCloseable="true" :isLoading="false" ref="detailModal">
+            <BaseModal
+                :id="'detail-modal'"
+                :title="'Detail Transaksi'"
+                :onClose="closeDetailModal"
+                :isCloseable="true"
+                :isLoading="fetchLoading"
+                ref="detailModal"
+            >
                 <template #icon>
                     <ReceiptText class="h-5 w-5" />
                 </template>
@@ -114,55 +159,47 @@ const createSnapPayment = async () => {
                         <table class="table-col-one-nowrap w-full">
                             <tbody class="">
                                 <tr class="">
-                                    <td class="px-2 py-1 font-bold">ID</td>
+                                    <td class="px-2 py-1 font-bold">Invoice</td>
                                     <td class="px-2">:</td>
-                                    <td class="px-2">RVB201220250001</td>
+                                    <td class="px-2">{{ detailModalOrder?.invoice_number }}</td>
                                 </tr>
                                 <tr class="">
                                     <td class="px-2 py-1 font-bold">Total</td>
                                     <td class="px-2">:</td>
-                                    <td class="px-2">Rp 250.000</td>
+                                    <td class="px-2">{{ detailModalOrder?.total_amount ? formatRupiah(detailModalOrder?.total_amount) : '' }}</td>
                                 </tr>
                                 <tr class="">
                                     <td class="px-2 py-1 font-bold">Metode</td>
                                     <td class="px-2">:</td>
-                                    <td class="px-2">QRIS</td>
+                                    <td class="px-2">{{ detailModalOrder?.payment?.type }}</td>
                                 </tr>
                                 <tr class="">
                                     <td class="px-2 py-1 font-bold">Status</td>
                                     <td class="px-2">:</td>
-                                    <td class="px-2">Selesai</td>
+                                    <td class="px-2">{{ detailModalOrder?.status }}</td>
                                 </tr>
-                                <tr class="">
+                                <!-- <tr class="">
                                     <td class="px-2 py-1 font-bold">Pembayaran /<br />Selesai</td>
                                     <td class="px-2">:</td>
                                     <td class="px-2">20 Desember 2025, 15:16 /<br />20 Desember 2025, 15:16</td>
-                                </tr>
+                                </tr> -->
                                 <tr class="">
                                     <td class="px-2 pt-3 text-center font-bold" colspan="3">Detail</td>
                                 </tr>
                             </tbody>
                         </table>
                         <ul class="px-2">
-                            <li class="w-full rounded border-y p-2">
-                                <p class="font-semibold text-primary-600 dark:text-primary-400">lorem ipsum dolor sit amet</p>
+                            <li
+                                v-for="item in detailModalOrder?.order_details"
+                                :key="item.id"
+                                class="w-full rounded border-y p-2 text-xs md:text-base"
+                            >
                                 <div class="flex justify-between">
-                                    <span>2 * 50.000</span>
-                                    <span>Rp 100.000</span>
-                                </div>
-                            </li>
-                            <li class="w-full rounded border-y p-2 text-xs md:text-base">
-                                <p class="font-semibold text-primary-600 dark:text-primary-400">lorem ipsum dolor sit amet</p>
-                                <div class="flex justify-between">
-                                    <span>2 * 50.000</span>
-                                    <span>Rp 100.000</span>
-                                </div>
-                            </li>
-                            <li class="w-full rounded border-y p-2 text-xs md:text-base">
-                                <p class="font-semibold text-primary-600 dark:text-primary-400">lorem ipsum dolor sit amet</p>
-                                <div class="flex justify-between">
-                                    <span>2 * 50.000</span>
-                                    <span>Rp 100.000</span>
+                                    <span class="flex items-center gap-2"
+                                        >{{ item.quantity }} *
+                                        <p class="font-semibold text-primary-600 dark:text-primary-400">{{ item.product_price.product.name }}</p>
+                                    </span>
+                                    <span>{{ formatRupiah(parseInt(item.subtotal)) }}</span>
                                 </div>
                             </li>
                         </ul>
