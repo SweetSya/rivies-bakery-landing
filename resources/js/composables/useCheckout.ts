@@ -75,15 +75,13 @@ export function useCheckout() {
         return 'unpaid';
     };
     const isCheckoutEmpty = () => {
-        if (checkout.value.delivery.method === 'PICKUP') {
+        if (checkout.value.delivery.method === 'pickup') {
             return !checkout.value.payment.method || !checkout.value.delivery.method;
         }
-        if (checkout.value.delivery.method === 'GOSEND' || checkout.value.delivery.method === 'OTHER') {
-            if (!checkout.value.address || !checkout.value.payment.method) {
-                return true;
-            }
+        if (checkout.value.delivery.method === 'instant' || checkout.value.delivery.method === 'other') {
+            return !checkout.value.address || !checkout.value.payment.method;
         }
-        return false;
+        return true;
     };
     return {
         getCheckout,

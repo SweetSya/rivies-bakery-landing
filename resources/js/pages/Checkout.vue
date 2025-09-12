@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ButtonMain from '@/components/buttons/ButtonMain.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
+import { useAPI } from '@/composables/useAPI';
 import { useCart } from '@/composables/useCart';
 import { useCheckout } from '@/composables/useCheckout';
 import { formatRupiah } from '@/composables/useHelperFunctions';
@@ -16,6 +17,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 const { notivueSuccess, notivueError, notivueInfo } = useNotifications();
 const { pay } = useMidtrans();
+const { fetchAPI } = useAPI();
 
 const { getCart, resetCart, isCartEmpty, validateCart } = useCart();
 const { getCheckout, isCheckoutEmpty, resetCheckout, setAddress } = useCheckout();
@@ -90,9 +92,43 @@ const createSnapPayment = async () => {
         }
     } else {
         // Handle other payment methods
-        notivueInfo('Silahkan tunjukkan pembayaran di tempat.');
-        resetCart();
-        resetCheckout();
+        snapPaymentLoading.value = true;
+        try {
+            const response = await fetchAPI('cart/download-draft', {
+                method: 'POST',
+                data: cart.value,
+            });
+
+            if (response.status === 200) {
+                // Check if the response is PDF content
+                const contentType = response.headers['content-type'];
+
+                if (contentType && contentType.includes('application/pdf')) {
+                    // Handle PDF blob response
+                    const blob = new Blob([response.data], { type: 'application/pdf' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'Cart ' + new Date().toISOString() + '.pdf';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+
+                    notivueSuccess('Draft berhasil diunduh');
+                }
+            } else {
+                notivueError('Gagal mengunduh draft.');
+            }
+        } catch (error) {
+            console.error('Download error:', error);
+            notivueError('Gagal mengunduh draft.');
+        } finally {
+            snapPaymentLoading.value = false;
+            notivueInfo('Silahkan tunjukkan struk pembayaran di tempat.');
+            resetCart();
+            resetCheckout();
+        }
     }
 };
 const afterPaymentComplete = () => {
@@ -274,7 +310,7 @@ onUnmounted(() => {
                                                     type="radio"
                                                     name="delivery-method"
                                                     v-model="checkout.delivery.method"
-                                                    value="PICKUP"
+                                                    value="pickup"
                                                     class="h-4 w-4 bg-background text-primary-600 focus:ring-2 focus:ring-primary-600"
                                                 />
                                             </div>
@@ -288,22 +324,22 @@ onUnmounted(() => {
                                         </div>
                                     </label>
 
-                                    <label for="delivery-with-gosend" class="cursor-pointer rounded-lg border bg-transparent p-4 ps-4">
+                                    <label for="delivery-with-instant" class="cursor-pointer rounded-lg border bg-transparent p-4 ps-4">
                                         <div class="flex items-start">
                                             <div class="flex h-5 items-center">
                                                 <input
-                                                    id="delivery-with-gosend"
+                                                    id="delivery-with-instant"
                                                     aria-describedby="pay-on-delivery-text"
                                                     type="radio"
                                                     name="delivery-method"
                                                     v-model="checkout.delivery.method"
-                                                    value="GOSEND"
+                                                    value="instant"
                                                     class="h-4 w-4 bg-background text-primary-600 focus:ring-2 focus:ring-primary-600"
                                                 />
                                             </div>
 
                                             <div class="ms-4 text-sm">
-                                                <div class="leading-none font-medium text-base-900 dark:text-white">GoSend</div>
+                                                <div class="leading-none font-medium text-base-900 dark:text-white">Kirim Instan</div>
                                                 <p id="pay-on-delivery-text" class="mt-1 text-xs font-normal text-base-500 dark:text-base-400">
                                                     Biaya menyesuaikan jarak
                                                 </p>
@@ -320,7 +356,7 @@ onUnmounted(() => {
                                                     type="radio"
                                                     name="delivery-method"
                                                     v-model="checkout.delivery.method"
-                                                    value="OTHER"
+                                                    value="other"
                                                     class="h-4 w-4 bg-background text-primary-600 focus:ring-2 focus:ring-primary-600"
                                                 />
                                             </div>
@@ -335,7 +371,7 @@ onUnmounted(() => {
                                     </label>
                                 </div>
                             </div>
-                            <div v-show="['OTHER', 'GOSEND'].includes(checkout.delivery.method)" class="space-y-4">
+                            <div v-show="['other', 'instant'].includes(checkout.delivery.method)" class="space-y-4">
                                 <h2 class="text-xl font-semibold text-base-900 dark:text-white">Detail Pengiriman</h2>
 
                                 <select
@@ -396,7 +432,7 @@ onUnmounted(() => {
                                     </div>
                                 </div>
                             </div>
-                            <div v-show="checkout.delivery.method === 'PICKUP'" class="space-y-3">
+                            <div v-show="checkout.delivery.method === 'pickup'" class="space-y-3">
                                 <h2 class="text-lg font-semibold text-base-900 dark:text-white">Estimasi Pengambilan</h2>
                                 <p class="mt-1 text-xs font-normal text-base-500 md:text-base dark:text-base-400">
                                     Jika tidak terisi, estimasi akan diatur secara otomatis berdasarkan jam buka toko dan dikonfirmasi melalui nomor

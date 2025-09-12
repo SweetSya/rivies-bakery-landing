@@ -70,21 +70,22 @@ const hasCupon = computed(() => cart.value.cupon.code !== '');
 const applyCuponCode = async () => {
     partialLoading.value = true;
     const code = cuponTomSelect.value?.getValue() as string;
-    if (!code) return;
-    const response = await fetchAPI('cart/apply-voucher', {
-        method: 'POST',
-        data: {
-            cart: cart.value,
-            code: code,
-        },
-    });
-    if (response.status === 200 && response.data.valid) {
-        console.log(response.data.cart.cupon);
-        applyCupon(response.data.cart.cupon);
-    } else {
-        notivueError('Kode kupon tidak valid.');
-        clearCupon();
+    if (code) {
+        const response = await fetchAPI('cart/apply-voucher', {
+            method: 'POST',
+            data: {
+                cart: cart.value,
+                code: code,
+            },
+        });
+        if (response.status === 200 && response.data.valid) {
+            applyCupon(response.data.cart.cupon);
+            partialLoading.value = false;
+            return;
+        }
     }
+    notivueError('Kode kupon tidak valid.');
+    clearCupon();
     partialLoading.value = false;
 };
 
