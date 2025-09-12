@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Midtrans\Config as MidtransConfig;
+use Midtrans\Snap as MidtransSnap;
 
 class CheckoutController extends RiviesAPIController
 {
@@ -34,5 +36,23 @@ class CheckoutController extends RiviesAPIController
             'errors' => $data['errors'],
             'cart' => $data['cart'],
         ]);
+    }
+    public function create_payment(Request $request)
+    {
+        $data = $request->all();
+        $response = $this->apiPost(
+            "payment/get-or-create",
+            $data,
+            aborting: false
+        );
+        if ($response->status() !== 200) {
+            return response()->json([
+                'error' => 'Failed to create payment',
+            ], 500);
+        }
+        $data = $response->json();
+        return response()->json(
+            $data
+        );
     }
 }

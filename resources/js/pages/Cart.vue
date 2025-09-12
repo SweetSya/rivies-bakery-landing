@@ -107,7 +107,7 @@ const initializeTomSelectCupon = () => {
 // ✅ Totals
 const productDiscount = computed(() => cart.value.discount.product || 0);
 const cuponDiscount = computed(() => cart.value.discount.cupon || 0);
-const totalAfterDiscounts = computed(() => cart.value.total - productDiscount.value - cuponDiscount.value);
+const totalAfterDiscounts = computed(() => cart.value.total);
 const taxAmount = computed(() => (cart.value.tax / 100) * cart.value.total);
 
 onMounted(async () => {

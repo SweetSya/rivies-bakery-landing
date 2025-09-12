@@ -56,6 +56,7 @@ Route::group([
         Route::get('/logout', [AuthenticationController::class, 'logout'])->name('logout');
         // Checkout
         Route::get('/checkout', [CheckoutController::class, 'view'])->name('checkout');
+        Route::post('/checkout/create-payment', [CheckoutController::class, 'create_payment'])->name('checkout.create-payment');
         // Account Settings Group
         Route::group([
             'prefix' => 'account-settings',

@@ -10,7 +10,6 @@ import { useNotifications } from '@/composables/useNotifications';
 import AppLayout from '@/layouts/AppLayout.vue';
 import PaymentSuccessAnimation from '@/lotties/payment-success.json';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import axios from 'axios';
 import { LottieAnimation } from 'lottie-web-vue';
 import { ArrowRight } from 'lucide-vue-next';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
@@ -71,27 +70,38 @@ const createSnapPayment = async () => {
         // Save to DB and prefetch
         snapPaymentLoading.value = true;
         try {
-            const response = await axios.get('/payment-midtrans');
-            const { snap_token } = response.data;
-            // Save snap token to DB
+            const response = await fetchAPI('checkout/create-payment', {
+                method: 'POST',
+                data: {
+                    cart: cart.value,
+                    checkout: checkout.value,
+                },
+            });
+            const data = response.data;
 
-            await pay(snap_token, {
+            console.log(data);
+
+            await pay(data.snap.token, {
                 onSuccess: (result: any) => (
                     router.push({
-                        url: `?payment-completed=true&order-id=${result.order_id}`,
+                        url: `?payment-completed=false&order-id=${data.invoice}`,
                     }),
                     afterPaymentComplete()
                 ),
                 onPending: (result: any) => (notivueInfo('Pembayaran sedang diproses.'), console.log(result)),
                 onError: (result: any) => (notivueError('Pembayaran gagal.'), console.log(result)),
-                onClose: () => (resetCart(), resetCheckout()),
             });
-            snapPaymentLoading.value = false;
         } catch (error) {
             console.error('Payment error:', error);
+        } finally {
+            resetCart();
+            resetCheckout();
+            snapPaymentLoading.value = false;
         }
     } else {
         // Handle other payment methods
+        resetCart();
+        resetCheckout();
         snapPaymentLoading.value = true;
         try {
             const response = await fetchAPI('cart/download-draft', {
@@ -132,10 +142,10 @@ const createSnapPayment = async () => {
     }
 };
 const afterPaymentComplete = () => {
-    notivueSuccess('Pembayaran berhasil.');
     resetCart();
     resetCheckout();
     afterPaymentCompleteAnimation.value = true;
+    notivueSuccess('Pembayaran berhasil.');
 };
 onMounted(async () => {
     const valid = await validateCart();
@@ -324,7 +334,7 @@ onUnmounted(() => {
                                         </div>
                                     </label>
 
-                                    <label for="delivery-with-instant" class="cursor-pointer rounded-lg border bg-transparent p-4 ps-4">
+                                    <!-- <label for="delivery-with-instant" class="cursor-pointer rounded-lg border bg-transparent p-4 ps-4">
                                         <div class="flex items-start">
                                             <div class="flex h-5 items-center">
                                                 <input
@@ -368,7 +378,7 @@ onUnmounted(() => {
                                                 </p>
                                             </div>
                                         </div>
-                                    </label>
+                                    </label> -->
                                 </div>
                             </div>
                             <div v-show="['other', 'instant'].includes(checkout.delivery.method)" class="space-y-4">
@@ -471,7 +481,7 @@ onUnmounted(() => {
                                     <dl class="flex items-center justify-between gap-4">
                                         <dt class="text-base font-normal text-base-500 dark:text-base-400">Total</dt>
                                         <dd class="text-base font-medium text-base-900 dark:text-white">
-                                            {{ formatRupiah(cart.total - cart.discount.product - cart.discount.cupon) }}
+                                            {{ formatRupiah(cart.total) }}
                                         </dd>
                                     </dl>
                                     <!-- <dl class="flex items-center justify-between gap-4">
@@ -482,7 +492,7 @@ onUnmounted(() => {
                                     <dl class="flex items-center justify-between gap-4">
                                         <dt class="text-base font-normal text-base-500 dark:text-base-400">Pajak</dt>
                                         <dd class="text-base font-medium text-base-900 dark:text-white">
-                                            {{ formatRupiah((cart.tax / 100) * (cart.total - (cart.discount.cupon + cart.discount.product))) }}
+                                            {{ formatRupiah((cart.tax / 100) * cart.total) }}
                                         </dd>
                                     </dl>
                                 </div>
