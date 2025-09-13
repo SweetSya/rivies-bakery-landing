@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import BaseModal from '@/components/modal/BaseModal.vue';
 import { useAPI } from '@/composables/useAPI';
+import { useConfirmation } from '@/composables/useConfirmation';
 import { formatRupiah } from '@/composables/useHelperFunctions';
 import { useMidtrans } from '@/composables/useMidtrans';
 import { useNotifications } from '@/composables/useNotifications';
 import AccountSettings from '@/layouts/AccountSettingsLayout.vue';
 import { usePage } from '@inertiajs/vue3';
-import axios from 'axios';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { CreditCard, ReceiptText, X } from 'lucide-vue-next';
@@ -22,8 +22,7 @@ const page = usePage();
 const { fetchAPI } = useAPI();
 const { notivueSuccess, notivueError, notivueInfo } = useNotifications();
 const { pay } = useMidtrans();
-
-console.log(page.props);
+const { showConfirmation } = useConfirmation();
 
 defineOptions({
     components: {
@@ -46,35 +45,85 @@ const detailModal = ref<typeof BaseModal | null>(null);
 const detailModalOrder = ref<Order | null>(null);
 const fetchLoading = ref(false);
 
-const prepareDetailModal = async (order: Order) => {
+const prepareDetailModal = async (invoice_number: string) => {
     fetchLoading.value = true;
     detailModal.value?.open();
     const response = await fetchAPI('/account-settings/transactions/detail', {
         method: 'POST',
         data: {
-            invoice_number: order.invoice_number,
+            invoice_number: invoice_number,
         },
     });
     detailModalOrder.value = response.data.order as Order;
-    console.log(detailModalOrder.value);
     fetchLoading.value = false;
 };
 const closeDetailModal = () => {
     detailModalOrder.value = null;
 };
-const createSnapPayment = async () => {
-    try {
-        const response = await axios.get('/payment-midtrans');
-        const { snap_token } = response.data;
+const handleDeleteTransaction = (invoice_number: string) => {
+    fetchLoading.value = true;
+    showConfirmation({
+        title: 'Hapus Transaksi',
+        content: 'Apakah kamu yakin ingin membatalkan transaksi ini?',
+        onConfirm: async () => {
+            const response = await fetchAPI('/account-settings/transactions/cancel', {
+                method: 'POST',
+                data: {
+                    invoice_number: invoice_number,
+                },
+            });
+            if (response.status === 200) {
+                notivueSuccess('Berhasil membatalkan transaksi');
 
+                orders.value = orders.value.map((order) => {
+                    if (order.invoice_number === invoice_number) {
+                        return { ...order, status: 'cancelled' };
+                    }
+                    return order;
+                });
+            } else {
+                // Handle validation errors
+                if (response.data && response.data.errors) {
+                    const errors = Object.values(response.data.errors).flat();
+                    notivueError(errors.join(' '));
+                } else {
+                    notivueError('Terjadi kesalahan saat memperbarui transaksi');
+                }
+            }
+
+            fetchLoading.value = false;
+        },
+        onCancel: () => {
+            notivueInfo('Batal membatalkan transaksi');
+        },
+    });
+};
+const findSnapPayment = async (invoice_number: string) => {
+    fetchLoading.value = true;
+    try {
+        const response = await fetchAPI('/account-settings/transactions/detail', {
+            method: 'POST',
+            data: {
+                invoice_number: invoice_number,
+                with_payment: true,
+            },
+        });
+        const snap_token = response.data.order.payment.data.snap_token;
+        if (!snap_token) {
+            notivueError('Gagal mendapatkan token pembayaran, silahkan coba lagi.');
+            return;
+        }
+        // Call Midtrans Snap payment
         await pay(snap_token, {
-            onSuccess: (result: any) => console.log(result),
-            onPending: () => notivueInfo('Pembayaran sedang diproses.'),
-            onError: () => notivueError('Pembayaran gagal.'),
-            onClose: () => console.log('Closed'),
+            onSuccess: (result: any) => notivueSuccess('Pembayaran berhasil.', result),
+            onPending: (result: any) => (notivueInfo('Pembayaran sedang diproses.'), console.log(result)),
+            onError: (result: any) => (notivueError('Pembayaran gagal.'), console.log(result)),
         });
     } catch (error) {
         console.error('Payment error:', error);
+        notivueError('Gagal melakukan pembayaran, silahkan coba lagi.');
+    } finally {
+        fetchLoading.value = false;
     }
 };
 </script>
@@ -107,14 +156,24 @@ const createSnapPayment = async () => {
                                 class="flex flex-wrap items-center justify-between border-b pb-2 text-base leading-none font-bold text-foreground md:text-lg"
                             >
                                 <p>{{ order.invoice_number }}</p>
-                                <div class="rounded border-primary-700 bg-primary-500/80 p-1 text-xs">{{ order.status }}</div>
+                                <div
+                                    :class="{
+                                        'border-primary-500 bg-primary-500/30 text-primary-500': order.status === 'pending',
+                                        'border-sky-500 bg-sky-500/30 text-sky-500': order.status === 'paid',
+                                        'border-green-500 bg-green-500/30 text-green-500': order.status === 'completed',
+                                        'border-gray-500 bg-gray-500/30 text-gray-500': order.status === 'cancelled',
+                                    }"
+                                    class="rounded border p-1 text-xs font-semibold"
+                                >
+                                    {{ order.status }}
+                                </div>
                             </div>
                             <p class="mt-1 text-xs font-normal text-foreground/80 md:text-base">{{ order.order_details_count }} Barang</p>
-                            <p class="mt-1 text-base font-bold text-foreground/80 md:text-lg">{{ formatRupiah(order.total_amount) }}</p>
+                            <p class="mt-1 text-base font-bold text-foreground/80 md:text-lg">{{ formatRupiah(Math.round(order.total_amount)) }}</p>
 
                             <div class="flex flex-wrap justify-between gap-3">
                                 <button
-                                    @click="prepareDetailModal(order)"
+                                    @click="prepareDetailModal(order.invoice_number)"
                                     class="flex cursor-pointer items-center justify-center text-sm font-medium text-nowrap text-foreground underline hover:opacity-80 md:text-base"
                                 >
                                     <div class="me-2">|</div>
@@ -122,6 +181,7 @@ const createSnapPayment = async () => {
                                 </button>
                                 <div class="flex flex-wrap gap-2">
                                     <button
+                                        @click="handleDeleteTransaction(order.invoice_number)"
                                         v-if="['pending'].includes(order.status)"
                                         class="flex cursor-pointer items-center justify-center text-sm font-medium text-nowrap underline hover:opacity-80 md:text-base"
                                     >
@@ -131,7 +191,8 @@ const createSnapPayment = async () => {
 
                                     <button
                                         v-if="['pending'].includes(order.status)"
-                                        @click="createSnapPayment()"
+                                        @click="findSnapPayment(order.invoice_number)"
+                                        :class="{ 'cursor-not-allowed opacity-50': fetchLoading }"
                                         class="flex cursor-pointer items-center justify-center text-sm font-medium text-nowrap underline hover:opacity-80 md:text-base"
                                     >
                                         <div class="me-2">|</div>

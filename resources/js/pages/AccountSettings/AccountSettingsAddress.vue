@@ -21,17 +21,17 @@ const { fetchAPI } = useAPI();
 const page = usePage();
 
 type Address = {
-    id: string;
-    label: string;
-    recipientName: string;
-    phoneNumber: string;
-    fullAddress: string;
-    isMain: boolean;
-    hasPinpoint: boolean;
-    pinpointLocation?: {
-        lat: number | null;
-        lng: number | null;
-    };
+id: string;
+label: string;
+recipientName: string;
+phoneNumber: string;
+fullAddress: string;
+isMain: boolean;
+hasPinpoint: boolean;
+pinpointLocation?: {
+    lat: number | null;
+    lng: number | null;
+};
 };
 
 gsap.registerPlugin(ScrollTrigger);

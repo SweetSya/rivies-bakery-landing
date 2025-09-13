@@ -75,6 +75,7 @@ Route::group([
             // Account Settings - Transaction
             Route::get('/transactions', [AccountSettingsController::class, 'transactions_view'])->name('account-settings.transaction');
             Route::post('/transactions/detail', [AccountSettingsController::class, 'transactions_detail'])->name('account-settings.transaction.detail');
+            Route::post('/transactions/cancel', [AccountSettingsController::class, 'transactions_cancel'])->name('account-settings.transaction.cancel');
             // Account Settings - Voucher
             Route::get('/vouchers', [AccountSettingsController::class, 'vouchers_view'])->name('account-settings.vouchers');
         });

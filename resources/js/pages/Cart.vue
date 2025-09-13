@@ -109,7 +109,7 @@ const productDiscount = computed(() => cart.value.discount.product || 0);
 const cuponDiscount = computed(() => cart.value.discount.cupon || 0);
 const totalAfterDiscounts = computed(() => cart.value.total);
 const taxAmount = computed(() => (cart.value.tax / 100) * cart.value.total);
-
+ 
 onMounted(async () => {
     applyCupon({ id: '', code: '', discount: 0, type: '' });
     await validateCart();

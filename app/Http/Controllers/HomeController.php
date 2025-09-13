@@ -10,7 +10,7 @@ class HomeController extends RiviesAPIController
     public function __construct()
     {
         parent::__construct();
-    }
+}
     public function view()
     {
         $data = [];

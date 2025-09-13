@@ -224,9 +224,11 @@ class AccountSettingsController extends RiviesAPIController
     {
         $validated = $request->validate([
             'invoice_number' => 'required',
+            'with_payment' => 'nullable|boolean',
         ], [
             'invoice_number.required' => 'No Invoice pesanan diperlukan.',
         ]);
+        $validated['with_payment'] = $validated['with_payment'] ?? false;
 
         $response = $this->apiPost(
             "account-settings/transactions/get",
@@ -246,7 +248,8 @@ class AccountSettingsController extends RiviesAPIController
             'details' => $data
         ], $response->status());
     }
-    public function transactions_get_payment(Request $request)
+
+    public function transactions_cancel(Request $request)
     {
         $validated = $request->validate([
             'invoice_number' => 'required',
@@ -255,7 +258,7 @@ class AccountSettingsController extends RiviesAPIController
         ]);
 
         $response = $this->apiPost(
-            "account-settings/transactions/get-payment",
+            "account-settings/transactions/delete",
             $validated,
             aborting: false
         );
@@ -263,12 +266,13 @@ class AccountSettingsController extends RiviesAPIController
         $data = $response->json();
         if ($response->successful()) {
             return response()->json([
-                'order' => $data['orders'][0] ?? null
+                'message' => 'Pesanan berhasil dibatalkan',
+                'order' => $data['order'] ?? null
             ]);
         }
 
         return response()->json([
-            'error' => 'Gagal mengambil detail pesanan',
+            'error' => 'Gagal membatalkan pesanan',
             'details' => $data
         ], $response->status());
     }
