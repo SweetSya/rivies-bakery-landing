@@ -184,7 +184,7 @@ const findSnapPayment = async (invoice_number: string) => {
                                         @click="handleDeleteTransaction(order.invoice_number)"
                                         v-if="['pending'].includes(order.status)"
                                         :class="{ 'cursor-not-allowed opacity-50': fetchLoading }"
-                                        class="flex cursor-pointer items-center justify-center text-sm font-medium text-nowrap underline hover:opacity-80 md:text-base"
+                                        class="flex  cursor-pointer items-center justify-center text-sm font-medium text-nowrap underline hover:opacity-80 md:text-base"
                                     >
                                         <div class="me-2">|</div>
                                         <X class="me-2 h-4 w-4" /> Batalkan
