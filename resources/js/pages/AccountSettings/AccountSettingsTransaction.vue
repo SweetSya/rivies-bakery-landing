@@ -10,6 +10,7 @@ import { usePage } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { CreditCard, ReceiptText, X } from 'lucide-vue-next';
+import moment from 'moment';
 import { Swiper } from 'swiper';
 import { Navigation, Pagination } from 'swiper/modules';
 import { ref } from 'vue';
@@ -38,6 +39,7 @@ type Order = {
     payment?: any;
     order_details?: any[];
     total_amount: number;
+    created_at: number;
 };
 
 const orders = ref<Order[]>((page.props.orders as Order[]) || []);
@@ -168,6 +170,9 @@ const findSnapPayment = async (invoice_number: string) => {
                                     {{ order.status }}
                                 </div>
                             </div>
+                            <p class="mt-1 text-xs font-normal text-foreground/80 md:text-base">
+                                {{ moment(order.created_at).format('DD/MM/YYYY HH:mm:ss') }}
+                            </p>
                             <p class="mt-1 text-xs font-normal text-foreground/80 md:text-base">{{ order.order_details_count }} Barang</p>
                             <p class="mt-1 text-base font-bold text-foreground/80 md:text-lg">{{ formatRupiah(Math.round(order.total_amount)) }}</p>
 
@@ -184,7 +189,7 @@ const findSnapPayment = async (invoice_number: string) => {
                                         @click="handleDeleteTransaction(order.invoice_number)"
                                         v-if="['pending'].includes(order.status)"
                                         :class="{ 'cursor-not-allowed opacity-50': fetchLoading }"
-                                        class="flex  cursor-pointer items-center justify-center text-sm font-medium text-nowrap underline hover:opacity-80 md:text-base"
+                                        class="flex cursor-pointer items-center justify-center text-sm font-medium text-nowrap underline hover:opacity-80 md:text-base"
                                     >
                                         <div class="me-2">|</div>
                                         <X class="me-2 h-4 w-4" /> Batalkan
