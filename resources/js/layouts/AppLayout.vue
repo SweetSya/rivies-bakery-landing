@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { initFlowbite } from 'flowbite';
-import { ArrowLeft, ChevronLeft, ChevronLeftCircle, DoorOpen, Home, House, Menu, Moon, ReceiptText, Settings, ShoppingBag, ShoppingCart, Sun, User, X } from 'lucide-vue-next';
+import { ChevronLeft, DoorOpen, Home, House, Menu, Moon, ReceiptText, Settings, ShoppingBag, ShoppingCart, Sun, User, X } from 'lucide-vue-next';
 import { darkTheme, lightTheme, Notification, Notivue } from 'notivue';
 import SimpleParallax from 'simple-parallax-js/vanilla';
 import { onMounted, ref, watch } from 'vue';
@@ -11,6 +11,7 @@ import ConfirmationModal from '@/components/modal/ConfirmationModal.vue';
 import { useAppearance } from '@/composables/useAppearance';
 import { useCart } from '@/composables/useCart';
 import { useNotifications } from '@/composables/useNotifications';
+
 // ------------------------------
 // Composables
 // ------------------------------
@@ -174,7 +175,7 @@ onMounted(() => {
                         <Link :href="value.url" class="px-4 py-4 text-foreground">{{ value.title }}</Link>
                     </li>
                 </ul>
-                <div class="flex md:hidden gap-2">
+                <div class="flex gap-2 md:hidden">
                     <ChevronLeft @click="navigateBack" class="h-6 w-6 cursor-pointer text-foreground/80 hover:text-primary-600" />
                 </div>
                 <div class="flex gap-2">
@@ -248,8 +249,8 @@ onMounted(() => {
             <Link
                 href="/"
                 type="button"
-                :class="{ '!bg-foreground/20': isActiveLink('/') }"
-                class="group inline-flex flex-col items-center justify-center px-5 hover:bg-foreground/20"
+                :class="{ '!bg-foreground/5': isActiveLink('/') }"
+                class="group inline-flex flex-col items-center justify-center px-5 hover:bg-foreground/5"
             >
                 <Home :class="{ '!text-primary-600': isActiveLink('/') }" class="mb-2 h-5 w-5 text-base-500 group-hover:text-primary-600" />
                 <span
@@ -261,8 +262,8 @@ onMounted(() => {
             <Link
                 href="/products"
                 type="button"
-                :class="{ '!bg-foreground/20': isActiveLink('/products') }"
-                class="group inline-flex flex-col items-center justify-center px-5 hover:bg-foreground/20"
+                :class="{ '!bg-foreground/5': isActiveLink('/products') }"
+                class="group inline-flex flex-col items-center justify-center px-5 hover:bg-foreground/5"
             >
                 <ShoppingCart
                     :class="{ '!text-primary-600': isActiveLink('/products') }"
@@ -279,7 +280,7 @@ onMounted(() => {
                 data-drawer-toggle="drawer-navigation"
                 data-drawer-placement="right"
                 aria-controls="drawer-navigation"
-                class="group inline-flex cursor-pointer flex-col items-center justify-center px-5 hover:bg-foreground/20"
+                class="group inline-flex cursor-pointer flex-col items-center justify-center px-5 hover:bg-foreground/5"
             >
                 <Menu class="mb-2 h-5 w-5 text-base-500 group-hover:text-primary-600" />
                 <span class="text-sm text-base-500 group-hover:text-primary-600 dark:text-gray-400 dark:group-hover:text-primary-500">Menu</span>

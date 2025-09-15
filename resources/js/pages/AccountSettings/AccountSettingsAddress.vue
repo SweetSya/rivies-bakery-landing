@@ -21,17 +21,17 @@ const { fetchAPI } = useAPI();
 const page = usePage();
 
 type Address = {
-id: string;
-label: string;
-recipientName: string;
-phoneNumber: string;
-fullAddress: string;
-isMain: boolean;
-hasPinpoint: boolean;
-pinpointLocation?: {
-    lat: number | null;
-    lng: number | null;
-};
+    id: string;
+    label: string;
+    recipientName: string;
+    phoneNumber: string;
+    fullAddress: string;
+    isMain: boolean;
+    hasPinpoint: boolean;
+    pinpointLocation?: {
+        lat: number | null;
+        lng: number | null;
+    };
 };
 
 gsap.registerPlugin(ScrollTrigger);
@@ -259,25 +259,27 @@ defineOptions({
             </div>
             <div v-if="addresses.length > 0" class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div v-for="value in addresses" :key="value.id" class="rounded-lg border bg-transparent p-4 ps-4">
-                    <div class="flex items-start">
-                        <div class="w-full space-y-2 text-sm">
-                            <div
-                                class="flex justify-between gap-1 border-b pb-2 text-base leading-none font-bold text-foreground xs:flex-row md:items-center md:text-lg"
-                            >
-                                <span>{{ value.label }}</span> <span class="text-primary-600" v-if="value.isMain">[Utama]</span>
-                            </div>
-                            <p class="mt-1 text-xs font-normal text-foreground/80 md:text-base">
-                                {{ value.fullAddress }}
-                            </p>
-                            <div class="mt-1 flex items-center gap-2 text-xs font-normal text-foreground/80 md:text-base">
-                                <User class="h-4 w-4" /> {{ value.recipientName }} ({{ value.phoneNumber }})
-                            </div>
-                            <div
-                                :class="{ 'text-foreground/80': !value.hasPinpoint, 'text-primary-600': value.hasPinpoint }"
-                                class="mt-1 flex items-center gap-2 text-xs font-normal md:text-base"
-                            >
-                                <MapPinCheck v-if="value.hasPinpoint" class="h-4 w-4" /> <MapPinX v-if="!value.hasPinpoint" class="h-4 w-4" />
-                                {{ value.hasPinpoint ? 'Sudah pin lokasi' : 'Tidak ada pin lokasi' }}
+                    <div class="flex h-full items-start">
+                        <div class="w-full h-full flex justify-between flex-col space-y-2 text-sm">
+                            <div class="space-y-1">
+                                <div
+                                    class="flex justify-between gap-1 border-b pb-2 text-base leading-none font-bold text-foreground xs:flex-row md:items-center md:text-lg"
+                                >
+                                    <span>{{ value.label }}</span> <span class="text-primary-600" v-if="value.isMain">[Utama]</span>
+                                </div>
+                                <p class="mt-1 text-xs font-normal text-foreground/80 md:text-base">
+                                    {{ value.fullAddress }}
+                                </p>
+                                <div class="mt-1 flex items-center gap-2 text-xs font-normal text-foreground/80 md:text-base">
+                                    <User class="h-4 w-4" /> {{ value.recipientName }} ({{ value.phoneNumber }})
+                                </div>
+                                <div
+                                    :class="{ 'text-foreground/80': !value.hasPinpoint, 'text-primary-600': value.hasPinpoint }"
+                                    class="mt-1 flex items-center gap-2 text-xs font-normal md:text-base"
+                                >
+                                    <MapPinCheck v-if="value.hasPinpoint" class="h-4 w-4" /> <MapPinX v-if="!value.hasPinpoint" class="h-4 w-4" />
+                                    {{ value.hasPinpoint ? 'Sudah pin lokasi' : 'Tidak ada pin lokasi' }}
+                                </div>
                             </div>
                             <div class="flex flex-wrap justify-between gap-3">
                                 <button

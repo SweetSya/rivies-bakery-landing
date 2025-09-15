@@ -78,18 +78,14 @@ const createSnapPayment = async () => {
                 },
             });
             const data = response.data;
-
-            console.log(data);
-
             await pay(data.snap.token, {
-                onSuccess: (result: any) => (
-                    router.push({
-                        url: `?payment-completed=false&order-id=${data.invoice}`,
-                    }),
-                    afterPaymentComplete()
-                ),
-                onPending: (result: any) => (notivueInfo('Pembayaran sedang diproses.'), console.log(result)),
+                onSuccess: (result: any) => {
+                    notivueSuccess('Pembayaran berhasil.');
+                    router.visit('/payment-status?state=success&order_id=' + data.invoice + '&callback=/account-settings/transactions');
+                },
+                onPending: (result: any) => notivueInfo('Pembayaran terjeda, kunjungi halaman akun untuk informasi lebih lanjut.'),
                 onError: (result: any) => (notivueError('Pembayaran gagal.'), console.log(result)),
+                onClose: () => notivueInfo('Pembayaran terjeda, kunjungi halaman akun untuk informasi lebih lanjut.'),
             });
             resetCart();
             resetCheckout();

@@ -6,6 +6,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PaymentStatusController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -21,11 +22,11 @@ Route::group([
 
     // Home
     Route::get('/', [HomeController::class, 'view'])->name('home');
-
     // Products
     Route::get('/products', [ProductController::class, 'view'])->name('products');
     Route::get('/products/fetch', [ProductController::class, 'fetch']);
     Route::get('/products/detail', [ProductController::class, 'single'])->name('product.detail');
+    // Cart
     Route::get('/cart',  [CartController::class, 'view'])->name('cart');
     Route::post('/cart/validate', [CartController::class, 'validate_cart'])->name('cart.validate');
     Route::post('/cart/apply-voucher', [CartController::class, 'apply_voucher'])->name('cart.apply-voucher');
@@ -43,6 +44,7 @@ Route::group([
     Route::get('/contact', function () {
         return Inertia::render('Contact');
     })->name('contact');
+    Route::get('/payment-status', [PaymentStatusController::class, 'view'])->name('payment');
 
     // Login
     Route::get('/login', [AuthenticationController::class, 'view'])->name('login');
@@ -56,6 +58,7 @@ Route::group([
         Route::get('/logout', [AuthenticationController::class, 'logout'])->name('logout');
         // Checkout
         Route::get('/checkout', [CheckoutController::class, 'view'])->name('checkout');
+
         Route::post('/checkout/create-payment', [CheckoutController::class, 'create_payment'])->name('checkout.create-payment');
         // Account Settings Group
         Route::group([
@@ -74,6 +77,7 @@ Route::group([
             Route::post('/address/delete', [AccountSettingsController::class, 'delete_address'])->name('account-settings.delete-address');
             // Account Settings - Transaction
             Route::get('/transactions', [AccountSettingsController::class, 'transactions_view'])->name('account-settings.transaction');
+            Route::get('/transactions/get', [AccountSettingsController::class, 'transactions_get'])->name('account-settings.transaction');
             Route::post('/transactions/detail', [AccountSettingsController::class, 'transactions_detail'])->name('account-settings.transaction.detail');
             Route::post('/transactions/cancel', [AccountSettingsController::class, 'transactions_cancel'])->name('account-settings.transaction.cancel');
             // Account Settings - Voucher

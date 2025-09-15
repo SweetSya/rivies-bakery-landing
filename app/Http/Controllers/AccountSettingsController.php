@@ -36,11 +36,8 @@ class AccountSettingsController extends RiviesAPIController
 
     public function transactions_view(Request $request)
     {
-        $response = $this->apiGet("account-settings/transactions", aborting: false);
-        $orders = $response->json()['orders'] ?? [];
-        return Inertia::render('AccountSettings/AccountSettingsTransaction', [
-            'orders' => $orders
-        ]);
+
+        return Inertia::render('AccountSettings/AccountSettingsTransaction');
     }
 
     public function vouchers_view(Request $request)
@@ -219,7 +216,31 @@ class AccountSettingsController extends RiviesAPIController
             'details' => $data
         ], $response->status());
     }
+    public function transactions_get(Request $request)
+    {
+        $validated = $request->validate([
+            'status' => 'nullable|string|in:pending,paid,progress,delivering,cancelled,completed',
+        ], [
+            'status.in' => 'Status tidak valid.',
+        ]);
 
+        $response = $this->apiPost(
+            "account-settings/transactions/get",
+            $validated,
+            aborting: false
+        );
+        $data = $response->json();
+        if ($response->successful()) {
+            return response()->json([
+                'orders' => $data['orders'] ?? null
+            ]);
+        }
+
+        return response()->json([
+            'error' => 'Gagal mengambil detail pesanan',
+            'details' => $data
+        ], $response->status());
+    }
     public function transactions_detail(Request $request)
     {
         $validated = $request->validate([

@@ -41,12 +41,10 @@ const handleLogin = async () => {
         data: form.value,
     });
     if (response.status === 200) {
-        notivueSuccess('Login berhasil, mengarahkan dalam beberapa detik!');
-        setTimeout(() => {
-            // Redirect to the desired page
-            router.visit('/products');
-            isLoading.value = false;
-        }, 2000);
+        notivueSuccess('Login berhasil, mengarahkan pengguna!');
+        // Redirect to the desired page
+        router.visit('/products');
+        isLoading.value = false;
     } else {
         // Handle login error
         form.value.password = '';

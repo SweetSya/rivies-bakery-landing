@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import BaseModal from '@/components/modal/BaseModal.vue';
 import { useAPI } from '@/composables/useAPI';
 import { useConfirmation } from '@/composables/useConfirmation';
@@ -6,14 +7,14 @@ import { formatRupiah } from '@/composables/useHelperFunctions';
 import { useMidtrans } from '@/composables/useMidtrans';
 import { useNotifications } from '@/composables/useNotifications';
 import AccountSettings from '@/layouts/AccountSettingsLayout.vue';
-import { usePage } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { CreditCard, ReceiptText, X } from 'lucide-vue-next';
 import moment from 'moment';
 import { Swiper } from 'swiper';
 import { Navigation, Pagination } from 'swiper/modules';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 // Register Library
 Swiper.use([Navigation, Pagination]);
@@ -41,11 +42,12 @@ type Order = {
     total_amount: number;
     created_at: number;
 };
-
-const orders = ref<Order[]>((page.props.orders as Order[]) || []);
+const selectedStatus = ref<string>('');
+const orders = ref<Order[]>([]);
 const detailModal = ref<typeof BaseModal | null>(null);
 const detailModalOrder = ref<Order | null>(null);
 const fetchLoading = ref(false);
+const orderLoading = ref(false);
 
 const prepareDetailModal = async (invoice_number: string) => {
     fetchLoading.value = true;
@@ -117,9 +119,18 @@ const findSnapPayment = async (invoice_number: string) => {
         }
         // Call Midtrans Snap payment
         await pay(snap_token, {
-            onSuccess: (result: any) => notivueSuccess('Pembayaran berhasil.', result),
-            onPending: (result: any) => (notivueInfo('Pembayaran sedang diproses.'), console.log(result)),
-            onError: (result: any) => (notivueError('Pembayaran gagal.'), console.log(result)),
+            onSuccess: (result: any) => {
+                orders.value = orders.value.map((order) => {
+                    if (order.invoice_number === invoice_number) {
+                        return { ...order, status: 'paid' };
+                    }
+                    return order;
+                });
+                notivueSuccess('Pembayaran berhasil.');
+                router.visit('/payment-status?state=success&order_id=' + invoice_number + '&callback=/account-settings/transactions');
+            },
+            onPending: (result: any) => notivueInfo('Jendela pembayaran ditutup sebelum selesai.'),
+            onError: (result: any) => notivueError('Pembayaran gagal.'),
         });
     } catch (error) {
         console.error('Payment error:', error);
@@ -128,6 +139,33 @@ const findSnapPayment = async (invoice_number: string) => {
         fetchLoading.value = false;
     }
 };
+const fetchTransactions = async () => {
+    orderLoading.value = true;
+    let url = '/account-settings/transactions/get';
+    if (selectedStatus.value) {
+        url += `?status=${selectedStatus.value}`;
+    }
+
+    const response = await fetchAPI(url, {
+        method: 'GET',
+    });
+    if (response.status === 200) {
+        console.log(response.data.orders);
+        orders.value = response.data.orders as Order[];
+    } else {
+        // Handle validation errors
+        if (response.data && response.data.errors) {
+            const errors = Object.values(response.data.errors).flat();
+            notivueError(errors.join(' '));
+        } else {
+            notivueError('Terjadi kesalahan saat memuat transaksi');
+        }
+    }
+    orderLoading.value = false;
+};
+onMounted(() => {
+    fetchTransactions();
+});
 </script>
 
 <template>
@@ -140,17 +178,21 @@ const findSnapPayment = async (invoice_number: string) => {
         <template #settingsContent>
             <div class="mb-8 flex justify-start">
                 <select
+                    v-model="selectedStatus"
+                    @change="fetchTransactions"
                     id="status"
                     class="block w-full rounded-lg border border-gray-300 bg-background p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
                 >
                     <option value="" selected>Semua Transaksi</option>
-                    <option value="address1">Selesai</option>
-                    <option value="address2">Proses</option>
-                    <option value="address2">Menunggu Pembayaran</option>
-                    <option value="address2">Batal</option>
+                    <option value="pending">Menunggu Pembayaran</option>
+                    <option value="paid">Dibayar</option>
+                    <option value="progress">Dalam Proses</option>
+                    <option value="delivering">Dalam Pengiriman</option>
+                    <option value="completed">Selesai</option>
+                    <option value="cancelled">Batal</option>
                 </select>
             </div>
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div v-show="!orderLoading && orders.length > 0" class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div v-for="order in orders" :key="order.id" class="rounded-lg border bg-transparent p-4 ps-4">
                     <div class="flex items-start">
                         <div class="w-full space-y-2 text-sm">
@@ -210,6 +252,10 @@ const findSnapPayment = async (invoice_number: string) => {
                     </div>
                 </div>
             </div>
+            <div v-if="!orderLoading && orders.length === 0" class="rounded-lg border bg-transparent p-4 text-center text-sm text-gray-500">
+                Tidak ada transaksi untuk ditampilkan
+            </div>
+            <LoadingSpinner v-if="orderLoading" :extend-class="'mx-auto my-20 h-10 w-10 text-primary-500'" />
             <BaseModal
                 :id="'detail-modal'"
                 :title="'Detail Transaksi'"
