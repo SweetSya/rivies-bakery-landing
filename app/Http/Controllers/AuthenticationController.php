@@ -71,15 +71,13 @@ class AuthenticationController extends RiviesAPIController
             if (!$sessionData || !isset($sessionData['token'])) {
                 return response()->json(['error' => 'Invalid session'], 401);
             }
-
             // Send refresh request to API
-            $response = $this->apiPost('refresh', [], [
-                'Authorization' => 'Bearer ' . $sessionData['token']
+            $response = $this->apiPost('refresh-token', [
+                'token' => $sessionData['token']
             ], aborting: false);
 
             if ($response->successful()) {
                 $data = $response->json();
-
                 if (isset($data['access_token'])) {
                     // Convert expires_at timestamp to minutes for cookie expiration
                     $expiresInMinutes = ($data['expires_at'] - time()) / 60;
@@ -87,11 +85,10 @@ class AuthenticationController extends RiviesAPIController
                     return response()->json([
                         'status' => 'success',
                         'message' => 'Token refreshed successfully',
-                        'user' => $data['user']
                     ])->cookie(
                         'session_token',
                         json_encode([
-                            'user' => $data['user'],
+                            'user' => $sessionData['user'],
                             'token' => $data['access_token'],
                             'expires_at' => $data['expires_at'],
                             'expires_in' => $data['expires_in'],
@@ -139,12 +136,6 @@ class AuthenticationController extends RiviesAPIController
 
                 // Fake user object so $request->user() works
                 $request->setUserResolver(fn() => (object) $userData);
-
-                $shared['isAuthed'] = true;
-                $shared['auth'] = [
-                    'token' => $jwt['token'] ?? null,
-                    'user' => $jwt['user'] ?? null,
-                ];
 
                 return redirect()->route('account-settings.information')->withErrors([
                     'warn' => 'Kamu sudah masuk sebagai ' . ($shared['auth']['user']['name'] ?? 'Pengguna')

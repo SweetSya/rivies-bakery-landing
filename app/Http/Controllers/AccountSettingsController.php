@@ -100,6 +100,7 @@ class AccountSettingsController extends RiviesAPIController
             $jwt = [
                 'user' => $data['user'] ?? null,
                 'token' => $data['token'] ?? null,
+                'expires_at' => $data['expires_at'] ?? null,
             ];
             Cookie::forget('session_token'); // Clear old cookie if any
             Cookie::queue('session_token', json_encode($jwt), auth()->guard(env('API_APP', 'bakery-store'))->factory()->getTTL(), '/', null, true, true);

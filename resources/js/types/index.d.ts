@@ -4,6 +4,8 @@ import type { Config } from 'ziggy-js';
 export interface Auth {
     token: any;
     user: User;
+    expires_at: number | null; // Timestamp
+    expires_in: number | null; // In minute
 }
 
 export interface BreadcrumbItem {

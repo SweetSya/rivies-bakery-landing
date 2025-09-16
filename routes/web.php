@@ -49,6 +49,8 @@ Route::group([
     // Login
     Route::get('/login', [AuthenticationController::class, 'view'])->name('login');
     Route::post('/login', [AuthenticationController::class, 'login'])->name('login.post');
+
+    Route::get('/auth/refresh', [AuthenticationController::class, 'refresh'])->name('auth.refresh');
     // Register
     Route::get('/register', [AuthenticationController::class, 'register_view'])->name('register');
     Route::post('/register', [AuthenticationController::class, 'register'])->name('register.post');

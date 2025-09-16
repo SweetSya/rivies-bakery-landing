@@ -40,11 +40,15 @@ trait useCheckJWT
 
             // Fake user object so $request->user() works
             $request->setUserResolver(fn() => (object) $userData);
-
             $shared['isAuthed'] = true;
+
+            $expiresInMinutes = ($jwt['expires_at'] - time()) / 60;
+
             $shared['auth'] = [
                 'token' => $jwt['token'],
                 'user' => $userData,
+                'expires_in' => $expiresInMinutes,
+                'expires_at' => $jwt['expires_at'],
             ];
         } catch (TokenExpiredException | TokenInvalidException | JWTException $e) {
 

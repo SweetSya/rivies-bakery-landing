@@ -8,6 +8,7 @@ import { onMounted, ref, watch } from 'vue';
 
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import ConfirmationModal from '@/components/modal/ConfirmationModal.vue';
+import { useAPI } from '@/composables/useAPI';
 import { useAppearance } from '@/composables/useAppearance';
 import { useCart } from '@/composables/useCart';
 import { useNotifications } from '@/composables/useNotifications';
@@ -18,6 +19,7 @@ import { useNotifications } from '@/composables/useNotifications';
 const { updateAppearance, appearance } = useAppearance();
 const { getCartTotalItem, initializeCart } = useCart();
 const { notivueInfo, notivueError, notivueSuccess } = useNotifications();
+const { fetchAPI } = useAPI();
 const page = usePage();
 // ------------------------------
 // State
@@ -34,33 +36,32 @@ initializeCart();
 // Token Refresh Setup
 // ------------------------------
 const setupTokenRefresh = () => {
+    let refreshInterval: number = 0;
     const checkAndRefreshToken = async () => {
         try {
-            const response = await fetch('/auth/check-session');
-            const data = await response.json();
-
-            if (!data.valid && page.props.isAuthed) {
+            if (!page.props.isAuthed) {
                 // Session invalid but user should be authenticated, redirect to login
-                window.location.href = '/login';
+                router.visit('/login');
                 return;
             }
-
+            const expiresIn = (page.props.auth.expires_in ?? 0) - refreshInterval;
+            console.log('Token expires in (minutes):', expiresIn);
             // If token expires in less than 5 minutes, refresh it
-            if (data.valid && data.expires_in < 300) {
+            if (expiresIn !== null && expiresIn < 5) {
                 // 5 minutes
-                await fetch('/auth/refresh', { method: 'POST' });
+                await fetch('/auth/refresh', { method: 'GET' });
             }
+            refreshInterval += 5;
         } catch (error) {
             console.error('Token refresh error:', error);
         }
     };
 
-    // Check every 5 minutes
-    setInterval(checkAndRefreshToken, 5 * 60 * 1000);
-
     // Check immediately if user is authenticated
     if (page.props.isAuthed) {
+        // Check every 5 minutes
         checkAndRefreshToken();
+        setInterval(checkAndRefreshToken, 5 * 60 * 1000);
     }
 };
 
