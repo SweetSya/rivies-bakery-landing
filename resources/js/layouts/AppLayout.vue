@@ -31,6 +31,40 @@ const splashScreen = ref<boolean>(false);
 initializeCart();
 
 // ------------------------------
+// Token Refresh Setup
+// ------------------------------
+const setupTokenRefresh = () => {
+    const checkAndRefreshToken = async () => {
+        try {
+            const response = await fetch('/auth/check-session');
+            const data = await response.json();
+
+            if (!data.valid && page.props.isAuthed) {
+                // Session invalid but user should be authenticated, redirect to login
+                window.location.href = '/login';
+                return;
+            }
+
+            // If token expires in less than 5 minutes, refresh it
+            if (data.valid && data.expires_in < 300) {
+                // 5 minutes
+                await fetch('/auth/refresh', { method: 'POST' });
+            }
+        } catch (error) {
+            console.error('Token refresh error:', error);
+        }
+    };
+
+    // Check every 5 minutes
+    setInterval(checkAndRefreshToken, 5 * 60 * 1000);
+
+    // Check immediately if user is authenticated
+    if (page.props.isAuthed) {
+        checkAndRefreshToken();
+    }
+};
+
+// ------------------------------
 // Appearance
 // ------------------------------
 const toggleAppearance = () => {
@@ -88,13 +122,17 @@ onMounted(() => {
     }
 
     router.on('start', () => {
-        // This runs just after a Link is clicked and navigation starts
-        // For example, show a loading spinner:
         pageTransitioning.value = true;
-        // Or call any function you want
-        // yourFunction();
     });
-    // Init Parallax
+
+    router.on('finish', () => {
+        pageTransitioning.value = false;
+    });
+
+    // Setup token refresh for authenticated users
+    setupTokenRefresh();
+
+    // ...existing parallax and flowbite initialization...
     parallaxElement.value = document.querySelector('.page-background img');
     if (parallaxElement.value) {
         new SimpleParallax(parallaxElement.value, {
@@ -104,7 +142,7 @@ onMounted(() => {
             overflow: true,
         });
     }
-    // Init Flowbite
+
     initFlowbite();
 
     // Handle Errors

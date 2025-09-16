@@ -11,7 +11,7 @@ import { initializeTheme } from './composables/useAppearance';
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 // Initiate Notivue
 const notivue = createNotivue({
-    position: 'top-right',
+    position: 'top-center',
     pauseOnHover: true,
     limit: 5,
 });

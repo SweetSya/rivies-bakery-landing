@@ -89,7 +89,7 @@ onMounted(() => {
                     :speed="1"
                     class="h-70"
                 />
-                <ButtonMain :href="callbackUrl ?? '/product'" :outline="true" :extend-class="'!px-6 !py-2 !text-sm'" type="button">
+                <ButtonMain :href="callbackUrl ?? '/products'" :outline="true" :extend-class="'!px-6 !py-2 !text-sm'" type="button">
                     Kembali
                 </ButtonMain>
             </div>
