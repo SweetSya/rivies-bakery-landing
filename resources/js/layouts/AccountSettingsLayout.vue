@@ -77,7 +77,9 @@ onMounted(() => {
         <template #pageDescription>Kamu dapat mengatur akunmu pada Rivie's Bakery disini</template>
         <template #pageSubnav
             ><section class="relative mx-4">
-                <div class="absolute top-2 left-1/2 w-full -translate-x-1/2 rounded-lg bg-gradient-to-br from-primary-600 to-primary-500 p-3">
+                <div
+                    class="absolute top-2 left-1/2 w-full -translate-x-1/2 rounded-lg bg-primary-500 bg-gradient-to-br from-primary-600 to-primary-500 p-3"
+                >
                     <div class="swiper swiper-section">
                         <div class="swiper-wrapper">
                             <div v-for="value in linskRef" :key="value.name" class="swiper-slide !w-fit">

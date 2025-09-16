@@ -26,7 +26,7 @@ class PaymentStatusController extends RiviesAPIController
                 aborting: false
             );
         }
-        
+
         return Inertia::render('PaymentStatus');
     }
 }

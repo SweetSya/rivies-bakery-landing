@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
-import { initFlowbite } from 'flowbite';
+import { Drawer, DrawerInterface, DrawerOptions, initFlowbite } from 'flowbite';
 import { ChevronLeft, DoorOpen, Home, House, Menu, Moon, ReceiptText, Settings, ShoppingBag, ShoppingCart, Sun, User, X } from 'lucide-vue-next';
 import { darkTheme, lightTheme, Notification, Notivue } from 'notivue';
 import SimpleParallax from 'simple-parallax-js/vanilla';
@@ -27,6 +27,7 @@ const page = usePage();
 const parallaxElement = ref<Element | null>(null);
 const pageTransitioning = ref<boolean>(false);
 const splashScreen = ref<boolean>(false);
+const sideDrawer = ref<DrawerInterface | null>(null);
 // ------------------------------
 // Cart Initialization
 // ------------------------------
@@ -112,6 +113,29 @@ watch(
 // ------------------------------
 
 onMounted(() => {
+    const drawerElement = document.getElementById('drawer-navigation');
+
+    if (drawerElement) {
+        const drawerOptions: DrawerOptions = {
+            placement: 'right',
+            backdrop: true,
+            bodyScrolling: false,
+            edge: false,
+            edgeOffset: '',
+            backdropClasses: 'backdrop-blur-[2px] fixed inset-0 z-30',
+            onHide: () => {
+                // console.log('drawer is hidden');
+            },
+            onShow: () => {
+                // console.log('drawer is shown');
+            },
+            onToggle: () => {
+                // console.log('drawer has been toggled');
+            },
+        };
+
+        sideDrawer.value = new Drawer(drawerElement, drawerOptions);
+    }
     if (sessionStorage.getItem('splashScreenShown') === null) {
         sessionStorage.setItem('splashScreenShown', 'true');
         splashScreen.value = true;
@@ -176,7 +200,7 @@ onMounted(() => {
         </div>
     </Transition>
     <slot name="pageHead" />
-    <nav class="border-gray-200 bg-gradient-to-r from-primary-600 to-primary-400 dark:border-gray-700 dark:bg-gray-800">
+    <nav class="border-gray-200 bg-gradient-to-r from-primary-600 to-primary-400 bg-primary-500 dark:border-gray-700 dark:bg-gray-800">
         <div class="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between px-4 py-1">
             <div class="relative mx-5.5 font-bold text-background">Rivies Bakery</div>
             <div class="flex items-center gap-3">
@@ -221,21 +245,21 @@ onMounted(() => {
                     <Link
                         href="/cart"
                         type="button"
-                        class="relative inline-flex cursor-pointer items-center rounded-lg border border-border bg-background p-2 text-center text-xs font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
+                        class="relative inline-flex cursor-pointer items-center rounded-lg border border-border bg-background/20 p-2 text-center text-xs font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
                     >
                         <ShoppingBag class="me-2 h-4 w-4" /><span class="font-bold">{{ getCartTotalItem() }}</span>
                     </Link>
                     <Link
                         v-if="!page.props.isAuthed"
                         href="/login"
-                        class="inline-flex items-center rounded-lg border border-border bg-background px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
+                        class="inline-flex items-center rounded-lg border border-border bg-background/20 px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
                     >
                         Login <DoorOpen class="ms-2 h-4 w-4" />
                     </Link>
                     <button
                         v-if="page.props.isAuthed"
                         data-dropdown-toggle="dropdown-user"
-                        class="inline-flex cursor-pointer items-center rounded-lg border border-border bg-background px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
+                        class="inline-flex cursor-pointer items-center rounded-lg border border-border bg-background/20 px-5 py-2 text-center text-xs font-medium text-foreground hover:bg-muted hover:opacity-80 focus:ring-4 focus:ring-ring/20 focus:outline-none"
                     >
                         <p class="max-w-24 overflow-hidden text-nowrap text-ellipsis whitespace-nowrap">
                             {{ page.props.auth.user.name }}
@@ -281,16 +305,9 @@ onMounted(() => {
             </div>
         </div>
     </nav>
-    <div
-        class="fixed bottom-0 left-0 z-20 block h-16 w-full rounded-t-xl border-t border-foreground/20 bg-background/80 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg md:hidden"
-    >
+    <div class="fixed bottom-0 left-0 z-20 block h-16 w-full rounded-t-xl border-t border-foreground/20 bg-background/70 backdrop-blur-md md:hidden">
         <div class="mx-auto grid h-full max-w-lg grid-cols-3 font-medium">
-            <Link
-                href="/"
-                type="button"
-                :class="{ '!bg-foreground/5': isActiveLink('/') }"
-                class="group inline-flex flex-col items-center justify-center px-5 hover:bg-foreground/5"
-            >
+            <Link href="/" type="button" class="group inline-flex flex-col items-center justify-center px-5 hover:bg-foreground/5">
                 <Home :class="{ '!text-primary-600': isActiveLink('/') }" class="mb-2 h-5 w-5 text-base-500 group-hover:text-primary-600" />
                 <span
                     :class="{ '!text-primary-600': isActiveLink('/') }"
@@ -298,12 +315,7 @@ onMounted(() => {
                     >Home</span
                 >
             </Link>
-            <Link
-                href="/products"
-                type="button"
-                :class="{ '!bg-foreground/5': isActiveLink('/products') }"
-                class="group inline-flex flex-col items-center justify-center px-5 hover:bg-foreground/5"
-            >
+            <Link href="/products" type="button" class="group inline-flex flex-col items-center justify-center px-5 hover:bg-foreground/5">
                 <ShoppingCart
                     :class="{ '!text-primary-600': isActiveLink('/products') }"
                     class="mb-2 h-5 w-5 text-base-500 group-hover:text-primary-600"
@@ -315,10 +327,7 @@ onMounted(() => {
                 >
             </Link>
             <div
-                data-drawer-target="drawer-navigation"
-                data-drawer-toggle="drawer-navigation"
-                data-drawer-placement="right"
-                aria-controls="drawer-navigation"
+                @click="sideDrawer?.toggle()"
                 class="group inline-flex cursor-pointer flex-col items-center justify-center px-5 hover:bg-foreground/5"
             >
                 <Menu class="mb-2 h-5 w-5 text-base-500 group-hover:text-primary-600" />
@@ -330,14 +339,13 @@ onMounted(() => {
     <!-- Navigation drawer components -->
     <div
         id="drawer-navigation"
-        class="fixed top-0 right-0 z-[60] h-screen w-80 translate-x-full overflow-y-auto border-l border-foreground/20 bg-background p-4 backdrop-blur-lg transition-transform duration-300"
+        class="fixed top-0 right-0 z-[60] h-screen w-80 translate-x-full overflow-y-auto border-l border-foreground/20 bg-background/70 p-4 backdrop-blur-md transition-transform duration-300"
         tabindex="-1"
         aria-labelledby="drawer-navigation-label"
     >
         <button
             type="button"
-            data-drawer-hide="drawer-navigation"
-            aria-controls="drawer-navigation"
+            @click="sideDrawer?.hide()"
             class="absolute end-2.5 top-2.5 inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
         >
             <X class="h-5 w-5 font-thin" />
@@ -351,7 +359,7 @@ onMounted(() => {
                         :key="index"
                         :href="value.url"
                         :class="{
-                            '!bg-primary-500/80': isActiveLink(value.url),
+                            '!bg-primary-500': isActiveLink(value.url),
                         }"
                         class="group flex items-center border-b border-foreground/20 p-2 py-3 text-foreground hover:bg-primary-500/80"
                     >
